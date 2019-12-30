@@ -1,0 +1,14 @@
+stages:
+  - build
+
+rust-nightly:
+  stage: build
+  image: rustlang/rust:nightly
+  before_script:
+    - cd ../ && git clone https://github.com/apache/arrow && cd -
+    - cd ../ && git clone https://github.com/andygrove/sqlparser-rs && cd -
+    - cd ../ && git clone https://github.com/ivanceras/pom && cd -
+  script:
+    - cargo build --all
+    - cargo test --all  --all-features
+

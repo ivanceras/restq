@@ -1,0 +1,33 @@
+[package]
+name = "restq"
+version = "0.1.0"
+authors = [ "Jovansonlee Cesar<ivanceras@gmail.com>" ]
+license = "MIT"
+description = "Compacting SQL query into a URL suitable for rest api calls"
+readme = "README.md"
+repository = "https://github.com/ivanceras/restq"
+documentation = "https://docs.rs/restq"
+edition = "2018"
+keywords = ["url", "param", "parser", "rest", "query", "sql"]
+publish = false
+
+[dependencies]
+#pom = "3.0.2"
+pom = { path = "../pom" }
+url = "2.1.0"
+chrono = "0.4.10"
+uuid = "0.8.1"
+webpki = "0.21.0"
+arrow = { path = "../arrow/rust/arrow", optional = true}
+lazy_static = "1.4.0"
+sqlparser = { path = "../sqlparser-rs" }
+thiserror = "1.0.9"
+csv = "1.1.1"
+
+[features]
+with-datafusion = ["arrow"]
+
+[workspace]
+members = [
+    "crates/restq-http",
+]
