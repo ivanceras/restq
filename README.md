@@ -221,3 +221,5 @@ AND created > '2019-11-05T08:45:03.432'
       - [X] FULL JOIN
 
 
+#### Please support this project:
+ [![Become a patron](https://c5.patreon.com/external/logo/become_a_patron_button.png)](https://www.patreon.com/ivanceras)
