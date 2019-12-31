@@ -40,11 +40,11 @@ pub enum DataValue {
     I64(i64),
     Uuid(Uuid),
     UuidRand(Uuid),
+    UuidSlug(String),
     Local(DateTime<Local>),
     Utc(DateTime<Utc>),
     Text(String),
     Ident(String),
-    Slug(String),
     Email(String),
     Domain(DNSName),
     IpAddr(IpAddr),
@@ -74,11 +74,11 @@ impl DataValue {
             DataValue::I64(_) => DataType::I64,
             DataValue::Uuid(_) => DataType::Uuid,
             DataValue::UuidRand(_) => DataType::UuidRand,
+            DataValue::UuidSlug(_) => DataType::UuidSlug,
             DataValue::Local(_) => DataType::Local,
             DataValue::Utc(_) => DataType::Utc,
             DataValue::Text(_) => DataType::Text,
             DataValue::Ident(_) => DataType::Ident,
-            DataValue::Slug(_) => DataType::Slug,
             DataValue::Email(_) => DataType::Email,
             DataValue::Domain(_) => DataType::Domain,
             DataValue::IpAddr(_) => DataType::IpAddr,
@@ -443,7 +443,7 @@ pub fn cast_data_value(value: &Value, required_type: &DataType) -> DataValue {
                             Uuid::parse_str(&v).expect("unable to parse uuid");
                         DataValue::Uuid(uuid)
                     }
-                    DataType::Slug => DataValue::Slug(v.to_string()),
+                    DataType::UuidSlug => DataValue::UuidSlug(v.to_string()),
                     //TODO: validate identifier
                     DataType::Ident => DataValue::Ident(v.to_string()),
                     _ => {

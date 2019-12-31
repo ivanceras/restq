@@ -59,6 +59,8 @@ pub enum DataType {
     Uuid,
     /// Uuid with random as the default
     UuidRand,
+    /// create a new uuid and generate a url friendly base64 using blob_uuid
+    UuidSlug,
     /// local time with now as the default
     Local,
     /// Utc time with now as the default
@@ -68,8 +70,6 @@ pub enum DataType {
     /// A valid identifier string defined by begining of alpha_or_underscore character and
     /// optionally followed by alphnumeric characters
     Ident,
-    /// create a new uuid and generate a url friendly base64 using blob_uuid
-    Slug,
     /// A valid email address
     Email,
     /// A valid domain name
@@ -101,11 +101,11 @@ impl DataType {
             DataType::I64,
             DataType::Uuid,
             DataType::UuidRand,
+            DataType::UuidSlug,
             DataType::Local,
             DataType::Utc,
             DataType::Text,
             DataType::Ident,
-            DataType::Slug,
             DataType::Email,
             DataType::Domain,
             DataType::IpAddr,
@@ -132,11 +132,11 @@ impl DataType {
             "f64" => Ok(DataType::F64),
             "uuid" => Ok(DataType::Uuid),
             "uuid_rand" => Ok(DataType::UuidRand),
+            "uuid_slug" => Ok(DataType::UuidSlug),
             "local" => Ok(DataType::Local),
             "utc" => Ok(DataType::Utc),
             "text" => Ok(DataType::Text),
             "ident" => Ok(DataType::Ident),
-            "slug" => Ok(DataType::Slug),
             "email" => Ok(DataType::Email),
             "domain" => Ok(DataType::Domain),
             "ip_addr" => Ok(DataType::IpAddr),
@@ -166,11 +166,11 @@ impl fmt::Display for DataType {
             DataType::I64 => "i64",
             DataType::Uuid => "uuid",
             DataType::UuidRand => "uuid_rand",
+            DataType::UuidSlug => "uuid_slug",
             DataType::Local => "local",
             DataType::Utc => "utc",
             DataType::Text => "text",
             DataType::Ident => "ident",
-            DataType::Slug => "slug",
             DataType::Email => "email",
             DataType::Domain => "domain",
             DataType::IpAddr => "ip_addr",
@@ -205,11 +205,11 @@ impl Into<sql::DataType> for &DataType {
             DataType::I64 => sql::DataType::BigInt,
             DataType::Uuid => sql::DataType::Uuid,
             DataType::UuidRand => sql::DataType::Uuid,
+            DataType::UuidSlug => sql::DataType::Text,
             DataType::Local => sql::DataType::Timestamp,
             DataType::Utc => sql::DataType::Timestamp,
             DataType::Text => sql::DataType::Text,
             DataType::Ident => sql::DataType::Text,
-            DataType::Slug => sql::DataType::Text,
             DataType::Email => sql::DataType::Text,
             DataType::Domain => sql::DataType::Text,
             DataType::IpAddr => sql::DataType::Text,
@@ -270,11 +270,11 @@ mod tests {
             "f64",
             "uuid",
             "uuid_rand",
+            "uuid_slug",
             "local",
             "utc",
             "text",
             "ident",
-            "slug",
             "email",
             "domain",
             "ip_addr",

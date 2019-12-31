@@ -1,27 +1,87 @@
 # RestQ
 is a compact data format/language suitable for use in a rest api.
 
-
-
-**RestQ Syntax:**
 ```
-create  = table,"{", { column_def }, "}", "\n", csv_data
+/person?age=lt.42&(student=eq.true|gender=eq.'M')&group_by=sum(age),grade,gender&having=min(age)=gt.42&order_by=age.desc,height.asc&page=20&page_size=100
+```
+
+Roughly translate to sql:
+```sql
+SELECT * FROM person
+WHERE age < 42
+    AND (student = true OR gender = 'M')
+    GROUP BY sum(age), grade, gender
+HAVING min(age) > 42
+ORDER BY age DESC, height ASC
+LIMIT 100 OFFSET 1900 ROWS
+```
+
+**RestQ Syntax/Grammar:**
+```
+create  = table, column_def_list, "\n", csv
+
+select = table, [join_table], column_list, "?", [condition]
+
+delete = table, "?", condition
+
+update = table, set_expr_list, "?", [condition]
+
+drop = "-", table
+
+alter = table, { [drop_column | add_column | rename_column ] }
+
+drop_column = "-", column
+
+add_column = "+", column_def
+
+rename_column = column, "=", column
+
+
+column_def_list =  "{", { column_def }, "}"
+        | "(", { column_def }, ")"
+
 column_def = [column_attributes], column, [ "(" foreign ")" ], ":", data_type, [ "(" default_value ")" ]
+
 column_attributes = "*" | "@" | "&"
+
 data_type = "bool" | "s8" | "s16" | "s32" | "s64" | "u8" | "u16", etc
+
 default_value  = value
-value = number | string | bool ,etc
-column = string
+
+value = number | string | bool ,..etc
+
+column = string, ".", string
+        | string
+
 table = string
+
 foreign = table
-insert = table, "{", { column }, "}","\n", csv_data
-select = table, [join_table], "{", { column } "}", "?", [condition]
+
+insert = table, column_list ,"\n", csv
+
+column_list = "{", { column }, "}"
+        | "(", { column }, ")"
+
+
 join_table = table, join_type, table
-join_type = "->" | "<-" | "-><-" | "<-->"
+
+join_type = right_join | left_join | inner_join | full_join
+
+right_join = "->" | "-^"
+
+left_join = "<-"  | "^-"
+
+inner_join = "-><-" | "-^^-"
+
+full_join = "<-->"  | "^--^"
+
 condition = expr
+
 expr =  column | value | binary_operation
+
 binary_operation = expr, operator, expr
-operator = "and" | "or" | "eq" | "gte" | "lte", etc
+
+operator = "and" | "or" | "eq" | "gte" | "lte" ,..etc
 ```
 
 ### Column attributes:
@@ -30,11 +90,11 @@ operator = "and" | "or" | "eq" | "gte" | "lte", etc
 - `&` denotes to add the column to the unique keys
 
 ### Join types:
-  - left join
+  - left join (`<-` or `^-`) , use the caret when used in a url query
 ```
 product<-users
 ```
- - right join
+ - right join (`->` or `-^`)
 ```
 product->users
 ```
@@ -48,23 +108,23 @@ product<-->users
 ```
 
 ## Data types:
-- `s8`                         : u8 that autoincrements
-- `s16`                        : u16 that autoincrements
-- `s32`                        : u32 that autoincrements, serial
-- `s64`                        : u64 that autoincrements, bigserial
-- `f32`                        : float 4 bytes
-- `f64`                        : float 8 bytes
-- `bool`                       : boolean
-- `i8`,`i16`,`i32`,`i64`       : signed integer
-- `u8`,`u16`,`u32`,`u64`       : unsigned intergers
-- `text`                       : utf8 string
-- `uuid`                       : plain uuid, randomly generated when null
-- `uui_rand`                   : randomly generated uuid
-- `slug`                       : create a new uuid and generate a url friend base64 string out of it.
-- `utc`                        : timestamp with time zone in utc,
-- `local`                      : date in local timezone
-- `url`                        : url types
-- `money`                      : money in pg, numeric(10,2)/numeric(19,4) for high precision in pg as alternative, decimal(19,4) in mysql,  string in sqlite, for storing monetary values
+- `bool`                            : boolean
+- `s8`                              : u8 that autoincrements
+- `s16`                             : u16 that autoincrements
+- `s32`                             : u32 that autoincrements, serial
+- `s64`                             : u64 that autoincrements, bigserial
+- `f32`                             : float 4 bytes
+- `f64`                             : float 8 bytes
+- `i8`,`i16`,`i32`,`i64`            : signed integer
+- `u8`,`u16`,`u32`,`u64`            : unsigned intergers
+- `text`                            : utf8 string
+- `uuid`                            : plain uuid, randomly generated when null
+- `uuid_rand`                       : randomly generated uuid
+- `uuid_slug`                       : create a new uuid and generate a url friend base64 string out of it.
+- `utc`                             : timestamp with time zone in utc,
+- `local`                           : date in local timezone
+- `url`                             : url types
+- `money`                           : money in pg, numeric(10,2)/numeric(19,4) for high precision in pg as alternative, decimal(19,4) in mysql,  string in sqlite, for storing monetary values
 
 ## Creating a table and inserting records in one request.
 ```
