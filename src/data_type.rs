@@ -218,50 +218,6 @@ impl Into<sql::DataType> for &DataType {
     }
 }
 
-#[cfg(feature = "with-datafusion")]
-impl Into<arrow::datatypes::DataType> for &DataType {
-    fn into(self) -> arrow::datatypes::DataType {
-        match self {
-            DataType::Bool => arrow::datatypes::DataType::Boolean,
-            DataType::S8 => arrow::datatypes::DataType::UInt8,
-            DataType::S16 => arrow::datatypes::DataType::UInt16,
-            DataType::S32 => arrow::datatypes::DataType::UInt32,
-            DataType::S64 => arrow::datatypes::DataType::UInt64,
-            DataType::F32 => arrow::datatypes::DataType::Float32,
-            DataType::F64 => arrow::datatypes::DataType::Float64,
-            DataType::U8 => arrow::datatypes::DataType::UInt8,
-            DataType::U16 => arrow::datatypes::DataType::UInt16,
-            DataType::U32 => arrow::datatypes::DataType::UInt32,
-            DataType::U64 => arrow::datatypes::DataType::UInt64,
-            DataType::I8 => arrow::datatypes::DataType::Int8,
-            DataType::I16 => arrow::datatypes::DataType::Int16,
-            DataType::I32 => arrow::datatypes::DataType::Int32,
-            DataType::I64 => arrow::datatypes::DataType::Int64,
-            DataType::Uuid => arrow::datatypes::DataType::Utf8,
-            DataType::UuidRand => arrow::datatypes::DataType::Utf8,
-            DataType::Local => {
-                arrow::datatypes::DataType::Timestamp(
-                    arrow::datatypes::TimeUnit::Second,
-                    Some(std::sync::Arc::new("Local".to_string())),
-                )
-            }
-            DataType::Utc => {
-                arrow::datatypes::DataType::Timestamp(
-                    arrow::datatypes::TimeUnit::Second,
-                    Some(std::sync::Arc::new("Utc".to_string())),
-                )
-            }
-            DataType::Text => arrow::datatypes::DataType::Utf8,
-            DataType::Ident => arrow::datatypes::DataType::Utf8,
-            DataType::Slug => arrow::datatypes::DataType::Utf8,
-            DataType::Email => arrow::datatypes::DataType::Utf8,
-            DataType::Domain => arrow::datatypes::DataType::Utf8,
-            DataType::IpAddr => arrow::datatypes::DataType::Utf8,
-            DataType::Url => arrow::datatypes::DataType::Utf8,
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

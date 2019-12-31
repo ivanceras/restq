@@ -18,14 +18,11 @@ url = "2.1.0"
 chrono = "0.4.10"
 uuid = "0.8.1"
 webpki = "0.21.0"
-arrow = { path = "../arrow/rust/arrow", optional = true}
 lazy_static = "1.4.0"
 sqlparser = { path = "../sqlparser-rs" }
 thiserror = "1.0.9"
 csv = "1.1.1"
 
-[features]
-with-datafusion = ["arrow"]
 
 [workspace]
 members = [

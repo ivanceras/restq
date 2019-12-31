@@ -274,33 +274,6 @@ pub fn data_type_def<'a>() -> Parser<'a, char, DataTypeDef> {
         .name("data_type_def")
 }
 
-#[cfg(feature = "with-datafusion")]
-impl Into<arrow::datatypes::Field> for &ColumnDef {
-    fn into(self) -> arrow::datatypes::Field {
-        let field = arrow::datatypes::Field::new(
-            &self.column.name,
-            Into::<arrow::datatypes::DataType>::into(
-                &self.data_type_def.data_type,
-            ),
-            self.data_type_def.is_optional,
-        );
-        field
-    }
-}
-
-#[cfg(feature = "with-datafusion")]
-impl TableDef {
-    pub fn derive_schema(&self) -> std::sync::Arc<arrow::datatypes::Schema> {
-        let fields = self
-            .columns
-            .iter()
-            .map(|column| Into::<arrow::datatypes::Field>::into(column))
-            .collect();
-
-        std::sync::Arc::new(arrow::datatypes::Schema::new(fields))
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
