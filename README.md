@@ -20,15 +20,15 @@ LIMIT 100 OFFSET 1900 ROWS
 ```
 create  = table, column_def_list, "\n", csv
 
-select = table, [join_table], column_list, "?", [condition]
+select = table, [join_table], column_list, [ "?", condition]
 
-delete = table, "?", condition
+delete = table, [ "?", condition ]
 
-update = table, set_expr_list, "?", [condition]
+update = table, set_expr_list, [ "?", condition]
 
 drop = "-", table
 
-alter = table, { [drop_column | add_column | rename_column ] }
+alter = table, { drop_column | add_column | rename_column }
 
 drop_column = "-", column
 
@@ -40,9 +40,15 @@ rename_column = column, "=", column
 column_def_list =  "{", { column_def }, "}"
         | "(", { column_def }, ")"
 
-column_def = [column_attributes], column, [ "(" foreign ")" ], ":", data_type, [ "(" default_value ")" ]
+column_def = [ { column_attributes } ], column, [ "(" foreign ")" ], ":", data_type, [ "(" default_value ")" ]
 
-column_attributes = "*" | "@" | "&"
+column_attributes = primary | index | unique
+
+primary = "*"
+
+index = "@"
+
+unique = "&"
 
 data_type = "bool" | "s8" | "s16" | "s32" | "s64" | "u8" | "u16", etc
 
@@ -84,30 +90,8 @@ binary_operation = expr, operator, expr
 operator = "and" | "or" | "eq" | "gte" | "lte" ,..etc
 ```
 
-### Column attributes:
-- `*` denotes a primary column
-- `@` denotes to add the column to the table index
-- `&` denotes to add the column to the unique keys
 
-### Join types:
-  - left join (`<-` or `^-`) , use the caret when used in a url query
-```
-product<-users
-```
- - right join (`->` or `-^`)
-```
-product->users
-```
- - inner join
-```
-product-><-users
-```
- - full join
-```
-product<-->users
-```
-
-## Data types:
+## Data types
 - `bool`                            : boolean
 - `s8`                              : u8 that autoincrements
 - `s16`                             : u16 that autoincrements
