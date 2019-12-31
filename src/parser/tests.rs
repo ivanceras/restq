@@ -275,7 +275,7 @@ fn test_strict_column_fail() {
 fn test_simple_select_to_sql() {
     let input = to_chars("person{name,age,class}");
     let ret = select().parse(&input).expect("must be parsed");
-    let select = ret.into_select(None).expect("must not fail");
+    let select = ret.into_sql_select(None).expect("must not fail");
     println!("{}", select);
     assert_eq!(select.to_string(), "SELECT name, age, class FROM person");
 }
@@ -284,7 +284,7 @@ fn test_simple_select_to_sql() {
 fn test_complex_query() {
     let input = to_chars("person{name,age,class}?(age=gt.42&student=eq.true)|(gender=eq.'M'&is_active=true)&group_by=sum(age),grade,gender&having=min(age)=gte.42&order_by=age.desc,height.asc&page=2&page_size=10");
     let ret = select().parse(&input).expect("must be parsed");
-    let select = ret.into_query(None).expect("must not fail");
+    let select = ret.into_sql_query(None).expect("must not fail");
     println!("{}", select);
     assert_eq!(
         select.to_string(),
@@ -338,7 +338,9 @@ fn test_complex_query_with_join() {
     table_lookup.add_table(person_table);
     table_lookup.add_table(users_table);
 
-    let select = ret.into_query(Some(&table_lookup)).expect("must not fail");
+    let select = ret
+        .into_sql_query(Some(&table_lookup))
+        .expect("must not fail");
 
     println!("ret: {}", select);
 
@@ -430,7 +432,9 @@ fn test_complex_query_with_multiple_join() {
     table_lookup.add_table(users_table);
     table_lookup.add_table(student_table);
 
-    let select = ret.into_query(Some(&table_lookup)).expect("must not fail");
+    let select = ret
+        .into_sql_query(Some(&table_lookup))
+        .expect("must not fail");
 
     println!("ret: {}", select);
 
@@ -523,7 +527,9 @@ fn test_complex_query_with_multiple_join_full_join() {
     table_lookup.add_table(users_table);
     table_lookup.add_table(student_table);
 
-    let select = ret.into_query(Some(&table_lookup)).expect("must not fail");
+    let select = ret
+        .into_sql_query(Some(&table_lookup))
+        .expect("must not fail");
 
     println!("ret: {}", select);
 

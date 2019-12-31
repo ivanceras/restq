@@ -55,7 +55,7 @@ pub struct Update {
 }
 
 impl Insert {
-    pub fn into_statement(
+    pub fn into_sql_statement(
         &self,
         table_lookup: Option<&TableLookup>,
     ) -> Result<sql::Statement, Error> {
@@ -64,7 +64,7 @@ impl Insert {
             columns: self.columns.iter().map(|c| Into::into(c)).collect(),
             source: Box::new(sql::Query {
                 ctes: vec![],
-                body: self.source.into_setexpr(table_lookup)?,
+                body: self.source.into_sql_setexpr(table_lookup)?,
                 order_by: vec![],
                 limit: None,
                 offset: None,
@@ -104,14 +104,14 @@ impl Into<sql::Statement> for &Update {
 }
 
 impl Source {
-    fn into_setexpr(
+    fn into_sql_setexpr(
         &self,
         table_lookup: Option<&TableLookup>,
     ) -> Result<sql::SetExpr, Error> {
         let ret = match self {
             Source::Select(select) => {
                 sql::SetExpr::Select(Box::new(
-                    select.into_select(table_lookup)?,
+                    select.into_sql_select(table_lookup)?,
                 ))
             }
             Source::Values(rows) => {
@@ -223,7 +223,7 @@ mod tests {
         let ret = insert().parse(&input).expect("must be parsed");
         println!("{:#?}", ret);
         let statement: sql::Statement =
-            ret.into_statement(None).expect("must not fail");
+            ret.into_sql_statement(None).expect("must not fail");
         assert_eq!(statement.to_string(), "INSERT INTO product (product_id, created_by, created, is_active) VALUES ");
         assert_eq!(
             ret,

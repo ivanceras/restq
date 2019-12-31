@@ -120,8 +120,12 @@ impl Statement {
         table_lookup: Option<&TableLookup>,
     ) -> Result<sql::Statement, Error> {
         match self {
-            Statement::Select(select) => select.into_statement(table_lookup),
-            Statement::Insert(insert) => insert.into_statement(table_lookup),
+            Statement::Select(select) => {
+                select.into_sql_statement(table_lookup)
+            }
+            Statement::Insert(insert) => {
+                insert.into_sql_statement(table_lookup)
+            }
             Statement::Update(update) => Ok(Into::into(update)),
             Statement::Delete(delete) => Ok(Into::into(delete)),
             Statement::Create(create) => {
@@ -138,7 +142,7 @@ impl Into<Statement> for Select {
 }
 
 impl Select {
-    pub fn into_select(
+    pub fn into_sql_select(
         &self,
         table_lookup: Option<&TableLookup>,
     ) -> Result<sql::Select, Error> {
@@ -174,14 +178,14 @@ impl Select {
         Ok(select)
     }
 
-    pub fn into_query(
+    pub fn into_sql_query(
         &self,
         table_lookup: Option<&TableLookup>,
     ) -> Result<sql::Query, Error> {
         let query = sql::Query {
             ctes: vec![],
             body: sql::SetExpr::Select(Box::new(
-                self.into_select(table_lookup)?,
+                self.into_sql_select(table_lookup)?,
             )),
             order_by: match &self.order_by {
                 Some(order_by) => {
@@ -206,12 +210,12 @@ impl Select {
         Ok(query)
     }
 
-    pub fn into_statement(
+    pub fn into_sql_statement(
         &self,
         table_lookup: Option<&TableLookup>,
     ) -> Result<sql::Statement, Error> {
         Ok(sql::Statement::Query(Box::new(
-            self.into_query(table_lookup)?,
+            self.into_sql_query(table_lookup)?,
         )))
     }
 }

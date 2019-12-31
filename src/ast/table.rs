@@ -65,7 +65,7 @@ impl Into<sql::ObjectName> for &Table {
 }
 
 impl JoinType {
-    fn into_join_operator(&self, constraint: Expr) -> sql::JoinOperator {
+    fn into_sql_join_operator(&self, constraint: Expr) -> sql::JoinOperator {
         let on_constraint = sql::JoinConstraint::On(Into::into(&constraint));
         match self {
             JoinType::InnerJoin => sql::JoinOperator::Inner(on_constraint),
@@ -216,7 +216,7 @@ impl FromTable {
                         let mut ret = vec![sql::Join {
                             relation: Into::into(&joined_table.from),
                             join_operator: join_type
-                                .into_join_operator(constraint),
+                                .into_sql_join_operator(constraint),
                         }];
 
                         // if there are some more

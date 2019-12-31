@@ -85,7 +85,7 @@ impl TableDef {
 }
 
 impl ColumnDef {
-    fn into_column_options(
+    fn into_sql_column_options(
         &self,
         table_lookup: Option<&TableLookup>,
     ) -> Result<Vec<sql::ColumnOption>, TableError> {
@@ -99,7 +99,7 @@ impl ColumnDef {
             None => vec![],
         };
         att_column_options
-            .extend(self.data_type_def.into_column_options(table_lookup));
+            .extend(self.data_type_def.into_sql_column_options(table_lookup));
 
         if let Some(foreign) = &self.foreign {
             match table_lookup {
@@ -137,12 +137,12 @@ impl ColumnDef {
         Ok(att_column_options)
     }
 
-    fn into_column_options_def(
+    fn into_sql_column_options_def(
         &self,
         table_lookup: Option<&TableLookup>,
     ) -> Result<Vec<sql::ColumnOptionDef>, TableError> {
         Ok(self
-            .into_column_options(table_lookup)?
+            .into_sql_column_options(table_lookup)?
             .into_iter()
             .map(|option| sql::ColumnOptionDef { name: None, option })
             .collect())
@@ -150,7 +150,7 @@ impl ColumnDef {
 }
 
 impl DataTypeDef {
-    fn into_column_options(
+    fn into_sql_column_options(
         &self,
         table_lookup: Option<&TableLookup>,
     ) -> Vec<sql::ColumnOption> {
@@ -179,7 +179,7 @@ impl ColumnDef {
             name: Into::into(&self.column),
             data_type: Into::into(&self.data_type_def.data_type),
             collation: None,
-            options: self.into_column_options_def(table_lookup)?,
+            options: self.into_sql_column_options_def(table_lookup)?,
         })
     }
 }

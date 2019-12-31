@@ -50,11 +50,11 @@ pub fn parse_select(request: &Request<String>) -> Result<Select, Error> {
     parse_select_chars(&input)
 }
 
-fn parse_select_chars(input: &[char]) -> Result<Select, Error> {
-    Ok(req_select().parse(input)?)
+pub fn parse_select_chars(input: &[char]) -> Result<Select, Error> {
+    Ok(url_select().parse(input)?)
 }
 
-fn req_select<'a>() -> Parser<'a, char, Select> {
+fn url_select<'a>() -> Parser<'a, char, Select> {
     sym('/') * select()
 }
 
@@ -64,7 +64,7 @@ pub fn parse_create<T>(request: &Request<T>) -> Result<TableDef, Error> {
     parse_create_chars(&input)
 }
 
-fn parse_req_body(
+fn parse_body_to_csv(
     request: Request<Vec<u8>>,
     column_defs: Vec<ColumnDef>,
 ) -> Result<impl Iterator<Item = Vec<DataValue>>, Error> {
@@ -82,10 +82,10 @@ fn parse_csv_data(
 }
 
 fn parse_create_chars(input: &[char]) -> Result<TableDef, Error> {
-    Ok(req_table_def().parse(input)?)
+    Ok(url_table_def().parse(input)?)
 }
 
-fn req_table_def<'a>() -> Parser<'a, char, TableDef> {
+fn url_table_def<'a>() -> Parser<'a, char, TableDef> {
     sym('/') * table_def()
 }
 
@@ -113,7 +113,7 @@ mod tests {
         let table_def = parse_create(&req).expect("must not fail");
 
         println!("statement: {:#?}", table_def);
-        let mut rows = parse_req_body(req, table_def.columns.clone())
+        let mut rows = parse_body_to_csv(req, table_def.columns.clone())
             .expect("must have rows");
 
         let row1 = rows.next().unwrap();
