@@ -61,6 +61,11 @@ pub struct AlterTable {
     pub alter_operations: Vec<AlterOperation>,
 }
 
+#[derive(Debug, PartialEq, Default, Clone)]
+pub struct DropTable {
+    pub table: Table,
+}
+
 #[derive(Debug, PartialEq, Clone)]
 pub enum AlterOperation {
     DropColumn(Column),
@@ -71,6 +76,22 @@ pub enum AlterOperation {
 impl Into<Statement> for TableDef {
     fn into(self) -> Statement {
         Statement::Create(self)
+    }
+}
+impl Into<Statement> for DropTable {
+    fn into(self) -> Statement {
+        Statement::DropTable(self)
+    }
+}
+
+impl Into<sql::Statement> for &DropTable {
+    fn into(self) -> sql::Statement {
+        sql::Statement::Drop {
+            object_type: sql::ObjectType::Table,
+            if_exists: true,
+            names: vec![Into::into(&self.table)],
+            cascade: true,
+        }
     }
 }
 
@@ -287,8 +308,8 @@ pub fn data_type_def<'a>() -> Parser<'a, char, DataTypeDef> {
         .name("data_type_def")
 }
 
-fn drop_table<'a>() -> Parser<'a, char, Table> {
-    sym('-') * table()
+fn drop_table<'a>() -> Parser<'a, char, DropTable> {
+    sym('-') * table().map(|table| DropTable { table })
 }
 
 fn drop_column<'a>() -> Parser<'a, char, AlterOperation> {
@@ -327,6 +348,26 @@ fn alter_table<'a>() -> Parser<'a, char, AlterTable> {
 mod tests {
     use super::*;
     use crate::to_chars;
+
+    #[test]
+    fn parse_drop_table() {
+        let input = to_chars("-product");
+        let ret = drop_table().parse(&input).expect("must be parsed");
+        println!("{:#?}", ret);
+        assert_eq!(
+            ret,
+            DropTable {
+                table: Table {
+                    name: "product".into()
+                }
+            }
+        );
+        let statement: Statement = Into::into(ret);
+        assert_eq!(
+            statement.into_sql_statement(None).unwrap().to_string(),
+            "DROP TABLE IF EXISTS product CASCADE"
+        );
+    }
 
     #[test]
     fn parse_alter_operation() {

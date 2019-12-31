@@ -1,5 +1,8 @@
 use crate::Error;
-pub use ddl::TableDef;
+pub use ddl::{
+    DropTable,
+    TableDef,
+};
 pub use dml::{
     Delete,
     Insert,
@@ -33,6 +36,7 @@ pub enum Statement {
     Update(Update),
     Delete(Delete),
     Create(TableDef),
+    DropTable(DropTable),
 }
 
 #[derive(Debug, PartialEq, Default, Clone)]
@@ -131,6 +135,7 @@ impl Statement {
             Statement::Create(create) => {
                 Ok(create.into_sql_statement(table_lookup)?)
             }
+            Statement::DropTable(drop_table) => Ok(Into::into(drop_table)),
         }
     }
 }
