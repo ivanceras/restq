@@ -55,6 +55,19 @@ pub struct TableDef {
     pub columns: Vec<ColumnDef>,
 }
 
+#[derive(Debug, PartialEq, Default, Clone)]
+pub struct AlterTable {
+    pub table: Table,
+    pub alter_operations: Vec<AlterOperation>,
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub enum AlterOperation {
+    DropColumn(Column),
+    AddColumn(ColumnDef),
+    AlterColumn(Column, ColumnDef),
+}
+
 impl Into<Statement> for TableDef {
     fn into(self) -> Statement {
         Statement::Create(self)
@@ -274,10 +287,99 @@ pub fn data_type_def<'a>() -> Parser<'a, char, DataTypeDef> {
         .name("data_type_def")
 }
 
+fn drop_table<'a>() -> Parser<'a, char, Table> {
+    sym('-') * table()
+}
+
+fn drop_column<'a>() -> Parser<'a, char, AlterOperation> {
+    (sym('-') * column()).map(AlterOperation::DropColumn)
+}
+
+fn add_column<'a>() -> Parser<'a, char, AlterOperation> {
+    (sym('+') * column_def()).map(AlterOperation::AddColumn)
+}
+
+fn alter_column<'a>() -> Parser<'a, char, AlterOperation> {
+    (column() - sym('=') + column_def()).map(|(column, column_def)| {
+        AlterOperation::AlterColumn(column, column_def)
+    })
+}
+
+fn alter_operation<'a>() -> Parser<'a, char, AlterOperation> {
+    alter_column() | drop_column() | add_column()
+}
+
+fn alter_operations<'a>() -> Parser<'a, char, Vec<AlterOperation>> {
+    sym('(') * list_fail(alter_operation(), sym(',')) - sym(')')
+        | sym('{') * list_fail(alter_operation(), sym(',')) - sym('}')
+}
+
+fn alter_table<'a>() -> Parser<'a, char, AlterTable> {
+    (table() + alter_operations()).map(|(table, alter_operations)| {
+        AlterTable {
+            table,
+            alter_operations,
+        }
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::to_chars;
+
+    #[test]
+    fn parse_alter_operation() {
+        let input = to_chars(
+            "product{id=&*product_id:u32,-description,+discount:f32?(0.0)}",
+        );
+        let ret = alter_table().parse(&input).expect("must be parsed");
+        println!("{:#?}", ret);
+
+        assert_eq!(
+            ret,
+            AlterTable {
+                table: Table {
+                    name: "product".into()
+                },
+                alter_operations: vec![
+                    AlterOperation::AlterColumn(
+                        Column { name: "id".into() },
+                        ColumnDef {
+                            column: Column {
+                                name: "product_id".into()
+                            },
+                            attributes: Some(vec![
+                                ColumnAttribute::Unique,
+                                ColumnAttribute::Primary,
+                            ]),
+                            data_type_def: DataTypeDef {
+                                data_type: DataType::U32,
+                                is_optional: false,
+                                default: None,
+                            },
+                            foreign: None,
+                        },
+                    ),
+                    AlterOperation::DropColumn(Column {
+                        name: "description".into(),
+                    }),
+                    AlterOperation::AddColumn(ColumnDef {
+                        column: Column {
+                            name: "discount".into()
+                        },
+                        attributes: None,
+                        data_type_def: DataTypeDef {
+                            data_type: DataType::F32,
+                            is_optional: true,
+                            default: Some(DataValue::F32(0.0,),),
+                        },
+                        foreign: None,
+                    })
+                ],
+            }
+        );
+    }
 
     #[test]
     fn parse_data_type_def() {
