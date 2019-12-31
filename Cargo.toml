@@ -13,13 +13,15 @@ publish = false
 
 [dependencies]
 #pom = "3.0.2"
-pom = { path = "../pom" }
+#pom = { path = "../pom" }
+pom = { git = "https://github.com/ivanceras/pom" }
 url = "2.1.0"
 chrono = "0.4.10"
 uuid = "0.8.1"
 webpki = "0.21.0"
 lazy_static = "1.4.0"
-sqlparser = { path = "../sqlparser-rs" }
+#sqlparser = { path = "../sqlparser-rs" }
+sqlparser = { git = "https://github.com/ivanceras/sqlparser" }
 thiserror = "1.0.9"
 csv = "1.1.1"
 

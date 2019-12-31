@@ -5,5 +5,4 @@
 - [ ] Publish to crate.io
         ## Blocked by:
         - [ ] sqlparser-rs
-        - [ ] datafusion (optional)
-        - [ ] arrow (optional)
+        - [ ] pom (expose method field in Parser)
