@@ -8,6 +8,7 @@
 -     - [ ] Implement add_column parser
 -     - [ ] Implement rename column parser
 - [ ] Support for money type using Bigdecimal crate
+- [ ] Rename restq => restq-core and restq-http => restq
 - [ ] Publish to crate.io
         ## Blocked by:
         - [ ] sqlparser-rs

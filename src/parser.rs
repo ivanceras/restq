@@ -165,14 +165,12 @@ fn exprs_with_renames<'a>() -> Parser<'a, char, Vec<ExprRename>> {
 }
 
 /// column=>new_column
+///
+/// or
+///
+/// column=^new_column
 fn expr_rename<'a>() -> Parser<'a, char, ExprRename> {
-    (expr() + (tag("=>") * strict_ident()).opt())
-        .map(|(expr, rename)| ExprRename { rename, expr })
-        | expr_rename_url_friendly()
-}
-
-fn expr_rename_url_friendly<'a>() -> Parser<'a, char, ExprRename> {
-    (expr() + (tag("=^") * strict_ident()).opt())
+    (expr() + ((tag("=>") | tag("=^")) * strict_ident()).opt())
         .map(|(expr, rename)| ExprRename { rename, expr })
 }
 
