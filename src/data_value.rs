@@ -217,6 +217,8 @@ impl Into<sql::Value> for &DataValue {
             DataValue::U16(v) => sql::Value::Number(v.to_string()),
             DataValue::U32(v) => sql::Value::Number(v.to_string()),
             DataValue::U64(v) => sql::Value::Number(v.to_string()),
+            DataValue::F32(v) => sql::Value::Number(v.to_string()),
+            DataValue::F64(v) => sql::Value::Number(v.to_string()),
             _ => todo!(),
         }
     }

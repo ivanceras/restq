@@ -39,4 +39,6 @@ pub enum Error {
     TableError(#[from] TableError),
     #[error("GenericError: {0}")]
     GenericError(String),
+    #[error("More than 1 statement is generated")]
+    MoreThanOneStatement,
 }

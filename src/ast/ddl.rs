@@ -66,6 +66,11 @@ pub struct DropTable {
     pub table: Table,
 }
 
+// Note: Only one alter operation is allowed
+// on an alter table query.
+// So, if there are multiple alter opration
+// that needs to be executed, there will be multiple
+// alter table query that needs to be generated and executed
 #[derive(Debug, PartialEq, Clone)]
 pub enum AlterOperation {
     DropColumn(Column),
@@ -115,6 +120,49 @@ impl TableDef {
             file_format: None,
             location: None,
         })
+    }
+}
+
+impl AlterTable {
+    pub fn into_sql_statements(
+        &self,
+        table_lookup: Option<&TableLookup>,
+    ) -> Result<Vec<sql::Statement>, Error> {
+        let mut statements = vec![];
+        for operation in self.alter_operations.iter() {
+            statements.push(sql::Statement::AlterTable {
+                name: Into::into(&self.table),
+                operation: operation.into_sql_alter_operation(table_lookup)?,
+            });
+        }
+        Ok(statements)
+    }
+}
+
+impl AlterOperation {
+    fn into_sql_alter_operation(
+        &self,
+        table_lookup: Option<&TableLookup>,
+    ) -> Result<sql::AlterTableOperation, Error> {
+        match self {
+            AlterOperation::AddColumn(column_def) => {
+                Ok(sql::AlterTableOperation::AddColumn(
+                    column_def.into_sql_column_def(table_lookup)?,
+                ))
+            }
+            AlterOperation::DropColumn(column) => {
+                Ok(sql::AlterTableOperation::DropColumn {
+                    column: Into::into(column),
+                    if_exists: true,
+                    cascade: true,
+                })
+            }
+            // get the old column definition
+            // from the table_lookup and see
+            // if it needs rename, add to index, add to unique,
+            // drop the index, etc.
+            AlterOperation::AlterColumn(column, column_def) => todo!(),
+        }
     }
 }
 
@@ -419,6 +467,24 @@ mod tests {
                     })
                 ],
             }
+        );
+    }
+
+    #[test]
+    fn parse_alter_operation_simple() {
+        let input = to_chars("product{-description,+discount:f32?(0.1)}");
+        let ret = alter_table().parse(&input).expect("must be parsed");
+        println!("{:#?}", ret);
+
+        let statements = ret.into_sql_statements(None).unwrap();
+        assert_eq!(statements.len(), 2);
+        assert_eq!(
+            statements[0].to_string(),
+            "ALTER TABLE product DROP COLUMN IF EXISTS description CASCADE"
+        );
+        assert_eq!(
+            statements[1].to_string(),
+            "ALTER TABLE product ADD COLUMN discount float DEFAULT 0.1"
         );
     }
 

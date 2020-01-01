@@ -1,5 +1,6 @@
 use crate::Error;
 pub use ddl::{
+    AlterTable,
     DropTable,
     TableDef,
 };
@@ -37,6 +38,7 @@ pub enum Statement {
     Delete(Delete),
     Create(TableDef),
     DropTable(DropTable),
+    AlterTable(AlterTable),
 }
 
 #[derive(Debug, PartialEq, Default, Clone)]
@@ -99,7 +101,6 @@ impl Range {
 
     pub(crate) fn offset(&self) -> Option<i64> {
         match self {
-            // TODO: calculate this properly
             Range::Page(page) => Some((page.page - 1) * page.page_size),
             Range::Limit(limit) => limit.offset,
         }
@@ -136,6 +137,15 @@ impl Statement {
                 Ok(create.into_sql_statement(table_lookup)?)
             }
             Statement::DropTable(drop_table) => Ok(Into::into(drop_table)),
+            Statement::AlterTable(alter_table) => {
+                let mut statements =
+                    alter_table.into_sql_statements(table_lookup)?;
+                if statements.len() == 1 {
+                    Ok(statements.remove(0))
+                } else {
+                    Err(Error::MoreThanOneStatement)
+                }
+            }
         }
     }
 }
