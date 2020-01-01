@@ -6,7 +6,7 @@ rust-nightly:
   image: rustlang/rust:nightly
   before_script:
     - cd ../ && git clone https://github.com/apache/arrow && cd -
-    - cd ../ && git clone https://github.com/ivanceras/sqlparser-rs && cd -
+    - cd ../ && git clone -b alter-add-column https://github.com/ivanceras/sqlparser-rs && cd -
     - cd ../ && git clone https://github.com/ivanceras/pom && cd -
   script:
     - cargo build --all
