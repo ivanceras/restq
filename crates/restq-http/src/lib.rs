@@ -5,8 +5,15 @@ use http::{
 pub use restq::{
     ast::{
         ddl::{
+            alter_table,
+            drop_table,
             table_def,
             ColumnDef,
+        },
+        dml::{
+            delete,
+            insert,
+            update,
         },
         Delete,
         Insert,
@@ -32,6 +39,7 @@ use std::io::{
 };
 use thiserror::Error;
 
+/// Parse into SQL Statement AST from http::Request
 pub fn parse_statement(request: &Request<String>) -> Result<Statement, Error> {
     match *request.method() {
         Method::GET => parse_select(request).map(Into::into),
@@ -40,11 +48,49 @@ pub fn parse_statement(request: &Request<String>) -> Result<Statement, Error> {
     }
 }
 
+/// Parse into SQL Statement AST from separate parts
+/// this is useful when using a different crate for the http request
+pub fn parse_statement_from_parts(
+    method: &Method,
+    url: &str,
+    body: Option<Vec<u8>>,
+) -> Result<Statement, Error> {
+    let url_chars = to_chars(url);
+    match *method {
+        Method::GET => parse_select_chars(&url_chars).map(Into::into),
+        Method::PUT => parse_create_chars(&url_chars).map(Into::into),
+        _ => todo!(),
+    }
+}
+
+/// attempt to parse statement
+pub fn try_parse_statement(
+    url: &str,
+    body: Option<Vec<u8>>,
+) -> Result<Statement, Error> {
+    let url_chars = to_chars(url);
+    parse_statement_chars(&url_chars)
+}
+
+fn parse_statement_chars(input: &[char]) -> Result<Statement, Error> {
+    Ok(statement().parse(input)?)
+}
+
+fn statement<'a>() -> Parser<'a, char, Statement> {
+    select().map(Statement::Select)
+        | insert().map(Statement::Insert)
+        | table_def().map(Statement::Create)
+        | delete().map(Statement::Delete)
+        | update().map(Statement::Update)
+        | drop_table().map(Statement::DropTable)
+        | alter_table().map(Statement::AlterTable)
+}
+
 fn extract_path_and_query<T>(request: &Request<T>) -> Option<&str> {
     request.uri().path_and_query().map(|pnq| pnq.as_str())
 }
 
-pub fn parse_select(request: &Request<String>) -> Result<Select, Error> {
+pub fn parse_select<T>(request: &Request<T>) -> Result<Select, Error> {
     let pnq = extract_path_and_query(request).unwrap();
     let input = to_chars(&pnq);
     parse_select_chars(&input)
@@ -55,7 +101,7 @@ pub fn parse_select_chars(input: &[char]) -> Result<Select, Error> {
 }
 
 fn url_select<'a>() -> Parser<'a, char, Select> {
-    sym('/') * select()
+    sym('/') * select() | select()
 }
 
 pub fn parse_create<T>(request: &Request<T>) -> Result<TableDef, Error> {
@@ -154,7 +200,7 @@ mod tests {
                 foreign: None,
             }],
         };
-        let mut table_lookup = TableLookup::new(); //no table lookup
+        let mut table_lookup = TableLookup::new();
         table_lookup.add_table(users_table);
         assert_eq!(
             statement
@@ -209,7 +255,7 @@ mod tests {
                 }),
             }],
         };
-        let mut table_lookup = TableLookup::new(); //no table lookup
+        let mut table_lookup = TableLookup::new();
         table_lookup.add_table(person_table);
         table_lookup.add_table(users_table);
         assert_eq!(

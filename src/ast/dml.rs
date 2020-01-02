@@ -137,7 +137,7 @@ fn columns<'a>() -> Parser<'a, char, Vec<Column>> {
 }
 
 /// product{product_id,created_by,created,is_active}?returning=product_id,name
-fn insert<'a>() -> Parser<'a, char, Insert> {
+pub fn insert<'a>() -> Parser<'a, char, Insert> {
     (table() - sym('{') + columns() - sym('}') + (sym('?') * returning()).opt())
         .map(|((into, columns), returning)| {
             Insert {
@@ -158,7 +158,7 @@ fn column_values<'a>() -> Parser<'a, char, Vec<(Column, Value)>> {
 }
 
 /// product{description="I'm the new description now",is_active=false}?product_id=1
-fn update<'a>() -> Parser<'a, char, Update> {
+pub fn update<'a>() -> Parser<'a, char, Update> {
     (table() - sym('{') + column_values() - sym('}')
         + (sym('?') * filter_expr()).opt())
     .map(|((table, column_values), condition)| {
@@ -173,7 +173,7 @@ fn update<'a>() -> Parser<'a, char, Update> {
 }
 
 ///  product?product_id=1
-fn delete<'a>() -> Parser<'a, char, Delete> {
+pub fn delete<'a>() -> Parser<'a, char, Delete> {
     (table() + (sym('?') * filter_expr()).opt())
         .map(|(from, condition)| Delete { from, condition })
 }

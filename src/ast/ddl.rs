@@ -356,7 +356,7 @@ pub fn data_type_def<'a>() -> Parser<'a, char, DataTypeDef> {
         .name("data_type_def")
 }
 
-fn drop_table<'a>() -> Parser<'a, char, DropTable> {
+pub fn drop_table<'a>() -> Parser<'a, char, DropTable> {
     sym('-') * table().map(|table| DropTable { table })
 }
 
@@ -383,7 +383,7 @@ fn alter_operations<'a>() -> Parser<'a, char, Vec<AlterOperation>> {
         | sym('{') * list_fail(alter_operation(), sym(',')) - sym('}')
 }
 
-fn alter_table<'a>() -> Parser<'a, char, AlterTable> {
+pub fn alter_table<'a>() -> Parser<'a, char, AlterTable> {
     (table() + alter_operations()).map(|(table, alter_operations)| {
         AlterTable {
             table,
