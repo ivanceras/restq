@@ -334,7 +334,7 @@ fn enclosed_column_def_list<'a>() -> Parser<'a, char, Vec<ColumnDef>> {
 /// query part.
 /// So it is safe to use the parenthesis `()` when used in actual rest api request.
 pub fn table_def<'a>() -> Parser<'a, char, TableDef> {
-    (table() + enclosed_column_def_list())
+    (table() + enclosed_column_def_list() - end())
         .map(|(table, columns)| TableDef { table, columns })
 }
 
@@ -357,7 +357,7 @@ pub fn data_type_def<'a>() -> Parser<'a, char, DataTypeDef> {
 }
 
 pub fn drop_table<'a>() -> Parser<'a, char, DropTable> {
-    sym('-') * table().map(|table| DropTable { table })
+    (sym('-') * table() - end()).map(|table| DropTable { table })
 }
 
 fn drop_column<'a>() -> Parser<'a, char, AlterOperation> {
@@ -384,7 +384,7 @@ fn alter_operations<'a>() -> Parser<'a, char, Vec<AlterOperation>> {
 }
 
 pub fn alter_table<'a>() -> Parser<'a, char, AlterTable> {
-    (table() + alter_operations()).map(|(table, alter_operations)| {
+    (table() + alter_operations() - end()).map(|(table, alter_operations)| {
         AlterTable {
             table,
             alter_operations,

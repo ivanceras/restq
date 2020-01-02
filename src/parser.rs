@@ -389,7 +389,8 @@ pub fn select<'a>() -> Parser<'a, char, Select> {
         + (sym('&') * tag("having=") * filter_expr()).opt()
         + (sym('&') * tag("order_by=") * list_fail(call(order), sym(',')))
             .opt()
-        + (sym('&') * range()).opt())
+        + (sym('&') * range()).opt()
+        - end())
     .map(
         |(
             (

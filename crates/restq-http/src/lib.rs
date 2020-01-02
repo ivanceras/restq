@@ -135,10 +135,12 @@ fn statement_with_method_prefix<'a>() -> Parser<'a, char, Statement> {
             * (url_alter_table().map(Statement::AlterTable)
                 | url_update().map(Statement::Update))
             .expect("alter or update after PATCH")
-        | (get_prefix() - space()).opt()
+        | (get_prefix() - space())
             * url_select()
                 .map(Statement::Select)
-                .expect("a select operation") // GET in select is optional
+                .expect("a select after GET")
+        | (get_prefix() - space()).opt()
+            * url_select().map(Statement::Select).expect("a select") // GET in select is optional
 }
 
 fn url_select<'a>() -> Parser<'a, char, Select> {
@@ -229,6 +231,16 @@ mod tests {
             .unwrap()
             .to_string()
             .contains("Expect create after PUT"));
+
+        let create =
+            try_parse_statement("GET /product{id:i32,name:text}", None);
+        println!("create: {:#?}", create);
+
+        assert!(create
+            .err()
+            .unwrap()
+            .to_string()
+            .contains("Expect a select after GET"));
     }
 
     #[test]
