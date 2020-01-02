@@ -43,6 +43,14 @@ use std::io::{
 };
 use thiserror::Error;
 
+pub enum Prefix {
+    Get,
+    Put,
+    Post,
+    Patch,
+    Delete,
+}
+
 /// Parse into SQL Statement AST from http::Request
 pub fn parse_statement(request: &Request<String>) -> Result<Statement, Error> {
     match *request.method() {
@@ -90,16 +98,47 @@ fn statement<'a>() -> Parser<'a, char, Statement> {
         | url_alter_table().map(Statement::AlterTable)
 }
 
+fn post_prefix<'a>() -> Parser<'a, char, Prefix> {
+    tag("POST").map(|_| Prefix::Post)
+}
+
+fn delete_prefix<'a>() -> Parser<'a, char, Prefix> {
+    tag("DELETE").map(|_| Prefix::Delete)
+}
+
+fn patch_prefix<'a>() -> Parser<'a, char, Prefix> {
+    tag("PATCH").map(|_| Prefix::Patch)
+}
+
+fn get_prefix<'a>() -> Parser<'a, char, Prefix> {
+    tag("GET").map(|_| Prefix::Get)
+}
+
+fn put_prefix<'a>() -> Parser<'a, char, Prefix> {
+    tag("PUT").map(|_| Prefix::Put)
+}
+
 fn statement_with_method_prefix<'a>() -> Parser<'a, char, Statement> {
-    (tag("POST") - space()) * url_insert().map(Statement::Insert)
-        | (tag("PUT") - space()) * url_create().map(Statement::Create)
-        | (tag("DELETE") - space())
+    (post_prefix() - space())
+        * url_insert()
+            .expect("insert after POST")
+            .map(Statement::Insert)
+        | (put_prefix() - space())
+            * url_create()
+                .expect("create after PUT")
+                .map(Statement::Create)
+        | (delete_prefix() - space())
             * (url_drop_table().map(Statement::DropTable)
                 | url_delete().map(Statement::Delete))
-        | (tag("PATCH") - space())
+            .expect("drop table or delete after DELETE")
+        | (patch_prefix() - space())
             * (url_alter_table().map(Statement::AlterTable)
                 | url_update().map(Statement::Update))
-        | (tag("GET") - space()).opt() * url_select().map(Statement::Select) // GET in select is optional
+            .expect("alter or update after PATCH")
+        | (get_prefix() - space()).opt()
+            * url_select()
+                .map(Statement::Select)
+                .expect("a select operation") // GET in select is optional
 }
 
 fn url_select<'a>() -> Parser<'a, char, Select> {
@@ -183,6 +222,16 @@ mod tests {
     };
 
     #[test]
+    fn test_statement_mismatch_prefix_for_statement() {
+        let select = try_parse_statement("PUT /product", None);
+        assert!(select
+            .err()
+            .unwrap()
+            .to_string()
+            .contains("Expect create after PUT"));
+    }
+
+    #[test]
     fn test_statement_with_method_prefix() {
         let select =
             try_parse_statement("GET /product", None).expect("must be parsed");
@@ -211,6 +260,8 @@ mod tests {
         let create =
             try_parse_statement("PUT /product{id:i32,name:text}", None)
                 .expect("must be parsed");
+        println!("create: {:#?}", create);
+
         match create {
             Statement::Create(_) => println!("ok"),
             _ => unreachable!(),
