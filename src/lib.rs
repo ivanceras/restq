@@ -23,6 +23,7 @@ pub use parser::{
     select,
     utils::{
         bytes_to_chars,
+        space,
         to_chars,
     },
 };

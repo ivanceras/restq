@@ -31,7 +31,7 @@ pub(super) fn underscore(ch: char) -> bool {
 
 /// any whitespace character
 #[allow(unused)]
-fn space<'a>() -> Parser<'a, char, ()> {
+pub fn space<'a>() -> Parser<'a, char, ()> {
     one_of(" \t\r\n").repeat(0..).discard()
 }
 

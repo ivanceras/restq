@@ -15,7 +15,9 @@ pub use restq::{
             insert,
             update,
         },
+        AlterTable,
         Delete,
+        DropTable,
         Insert,
         Select,
         Statement,
@@ -26,8 +28,10 @@ pub use restq::{
     parser::select,
     pom::parser::{
         sym,
+        tag,
         Parser,
     },
+    space,
     to_chars,
     DataValue,
     Error,
@@ -73,17 +77,57 @@ pub fn try_parse_statement(
 }
 
 fn parse_statement_chars(input: &[char]) -> Result<Statement, Error> {
-    Ok(statement().parse(input)?)
+    Ok(statement_with_method_prefix().parse(input)?)
 }
 
 fn statement<'a>() -> Parser<'a, char, Statement> {
-    select().map(Statement::Select)
-        | insert().map(Statement::Insert)
-        | table_def().map(Statement::Create)
-        | delete().map(Statement::Delete)
-        | update().map(Statement::Update)
-        | drop_table().map(Statement::DropTable)
-        | alter_table().map(Statement::AlterTable)
+    url_select().map(Statement::Select)
+        | url_insert().map(Statement::Insert)
+        | url_create().map(Statement::Create)
+        | url_delete().map(Statement::Delete)
+        | url_update().map(Statement::Update)
+        | url_drop_table().map(Statement::DropTable)
+        | url_alter_table().map(Statement::AlterTable)
+}
+
+fn statement_with_method_prefix<'a>() -> Parser<'a, char, Statement> {
+    (tag("POST") - space()) * url_insert().map(Statement::Insert)
+        | (tag("PUT") - space()) * url_create().map(Statement::Create)
+        | (tag("DELETE") - space())
+            * (url_drop_table().map(Statement::DropTable)
+                | url_delete().map(Statement::Delete))
+        | (tag("PATCH") - space())
+            * (url_alter_table().map(Statement::AlterTable)
+                | url_update().map(Statement::Update))
+        | (tag("GET") - space()).opt() * url_select().map(Statement::Select) // GET in select is optional
+}
+
+fn url_select<'a>() -> Parser<'a, char, Select> {
+    sym('/') * select() | select()
+}
+
+fn url_insert<'a>() -> Parser<'a, char, Insert> {
+    sym('/') * insert() | insert()
+}
+
+fn url_create<'a>() -> Parser<'a, char, TableDef> {
+    sym('/') * table_def() | table_def()
+}
+
+fn url_delete<'a>() -> Parser<'a, char, Delete> {
+    sym('/') * delete() | delete()
+}
+
+fn url_update<'a>() -> Parser<'a, char, Update> {
+    sym('/') * update() | update()
+}
+
+fn url_drop_table<'a>() -> Parser<'a, char, DropTable> {
+    sym('/') * drop_table() | drop_table()
+}
+
+fn url_alter_table<'a>() -> Parser<'a, char, AlterTable> {
+    sym('/') * alter_table() | alter_table()
 }
 
 fn extract_path_and_query<T>(request: &Request<T>) -> Option<&str> {
@@ -100,14 +144,14 @@ pub fn parse_select_chars(input: &[char]) -> Result<Select, Error> {
     Ok(url_select().parse(input)?)
 }
 
-fn url_select<'a>() -> Parser<'a, char, Select> {
-    sym('/') * select() | select()
-}
-
 pub fn parse_create<T>(request: &Request<T>) -> Result<TableDef, Error> {
     let pnq = extract_path_and_query(request).unwrap();
     let input = to_chars(&pnq);
     parse_create_chars(&input)
+}
+
+fn parse_create_chars(input: &[char]) -> Result<TableDef, Error> {
+    Ok(url_create().parse(input)?)
 }
 
 fn parse_body_to_csv(
@@ -127,14 +171,6 @@ fn parse_csv_data(
     Ok(csv_rows)
 }
 
-fn parse_create_chars(input: &[char]) -> Result<TableDef, Error> {
-    Ok(url_table_def().parse(input)?)
-}
-
-fn url_table_def<'a>() -> Parser<'a, char, TableDef> {
-    sym('/') * table_def()
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -145,6 +181,88 @@ mod tests {
         },
         *,
     };
+
+    #[test]
+    fn test_statement_with_method_prefix() {
+        let select =
+            try_parse_statement("GET /product", None).expect("must be parsed");
+        println!("select: {:#?}", select);
+        match select {
+            Statement::Select(_) => println!("ok"),
+            _ => unreachable!(),
+        }
+
+        let select_no_prefix =
+            try_parse_statement("/product", None).expect("must be parsed");
+        println!("select no prefix: {:#?}", select_no_prefix);
+        match select_no_prefix {
+            Statement::Select(_) => println!("ok"),
+            _ => unreachable!(),
+        }
+
+        let insert = try_parse_statement("POST /product{id,name}", None)
+            .expect("must be parsed");
+        println!("insert: {:#?}", insert);
+        match insert {
+            Statement::Insert(_) => println!("ok"),
+            _ => unreachable!(),
+        }
+
+        let create =
+            try_parse_statement("PUT /product{id:i32,name:text}", None)
+                .expect("must be parsed");
+        match create {
+            Statement::Create(_) => println!("ok"),
+            _ => unreachable!(),
+        }
+
+        let delete = try_parse_statement("DELETE /product", None)
+            .expect("must be parsed");
+        println!("delete: {:#?}", delete);
+        match delete {
+            Statement::Delete(_) => println!("ok"),
+            _ => unreachable!(),
+        }
+
+        let drop = try_parse_statement("DELETE /-product", None)
+            .expect("must be parsed");
+        println!("drop: {:#?}", drop);
+        match drop {
+            Statement::DropTable(_) => println!("ok"),
+            _ => unreachable!(),
+        }
+
+        let update = try_parse_statement(
+            "PATCH /product{name='new name',description='new desc'}",
+            None,
+        )
+        .expect("must be parsed");
+        println!("update: {:#?}", update);
+        match update {
+            Statement::Update(_) => println!("ok"),
+            _ => unreachable!(),
+        }
+
+        let alter =
+            try_parse_statement("PATCH /product{-name,-description}", None)
+                .expect("must be parsed");
+        println!("alter: {:#?}", alter);
+        match alter {
+            Statement::AlterTable(_) => println!("ok"),
+            _ => unreachable!(),
+        }
+
+        let alter_add_column = try_parse_statement(
+            "PATCH /product{-name,-description,+discount:f32?(0.0)}",
+            None,
+        )
+        .expect("must be parsed");
+        println!("alter add column: {:#?}", alter_add_column);
+        match alter_add_column {
+            Statement::AlterTable(_) => println!("ok"),
+            _ => unreachable!(),
+        }
+    }
 
     #[test]
     fn test_parse_create_statement_with_rows() {
