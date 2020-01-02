@@ -85,7 +85,7 @@ fn restricted_ident<'a>() -> Parser<'a, char, &'a str> {
 }
 
 pub(crate) fn strict_ident<'a>() -> Parser<'a, char, String> {
-    !(restricted_ident() - (end() | one_of(",&=").map(|_| ()))) * ident()
+    !(restricted_ident() - (end_or_ln() | one_of(",&=").map(|_| ()))) * ident()
 }
 
 /// column name can not be followed with direction: asc, desc
@@ -390,7 +390,7 @@ pub fn select<'a>() -> Parser<'a, char, Select> {
         + (sym('&') * tag("order_by=") * list_fail(call(order), sym(',')))
             .opt()
         + (sym('&') * range()).opt()
-        - end())
+        - end_or_ln())
     .map(
         |(
             (

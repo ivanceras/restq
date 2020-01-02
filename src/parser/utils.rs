@@ -29,8 +29,11 @@ pub(super) fn underscore(ch: char) -> bool {
     ch == '_'
 }
 
+pub fn end_or_ln<'a>() -> Parser<'a, char, ()> {
+    end() | one_of("\n").discard()
+}
+
 /// any whitespace character
-#[allow(unused)]
 pub fn space<'a>() -> Parser<'a, char, ()> {
     one_of(" \t\r\n").repeat(0..).discard()
 }
