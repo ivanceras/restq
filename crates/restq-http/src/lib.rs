@@ -53,11 +53,10 @@ pub enum Prefix {
 
 /// Parse into SQL Statement AST from http::Request
 pub fn parse_statement(request: &Request<String>) -> Result<Statement, Error> {
-    match *request.method() {
-        Method::GET => parse_select(request).map(Into::into),
-        Method::PUT => parse_create(request).map(Into::into),
-        _ => panic!("not yet"),
-    }
+    let method = request.method();
+    let url = extract_path_and_query(request);
+    let body = request.body().as_bytes().to_vec();
+    parse_statement_from_parts(&method, url, Some(body))
 }
 
 /// Parse into SQL Statement AST from separate parts
@@ -73,6 +72,50 @@ pub fn parse_statement_from_parts(
         Method::PUT => parse_create_chars(&url_chars).map(Into::into),
         _ => todo!(),
     }
+}
+
+fn extract_path_and_query<T>(request: &Request<T>) -> &str {
+    request
+        .uri()
+        .path_and_query()
+        .map(|pnq| pnq.as_str())
+        .unwrap_or("/")
+}
+
+pub fn parse_select<T>(request: &Request<T>) -> Result<Select, Error> {
+    let pnq = extract_path_and_query(request);
+    let input = to_chars(&pnq);
+    parse_select_chars(&input)
+}
+pub fn parse_create<T>(request: &Request<T>) -> Result<TableDef, Error> {
+    let pnq = extract_path_and_query(request);
+    let input = to_chars(&pnq);
+    parse_create_chars(&input)
+}
+
+pub fn parse_select_chars(input: &[char]) -> Result<Select, Error> {
+    Ok(url_select().parse(input)?)
+}
+
+fn parse_create_chars(input: &[char]) -> Result<TableDef, Error> {
+    Ok(url_create().parse(input)?)
+}
+
+fn parse_body_to_csv(
+    request: Request<Vec<u8>>,
+    column_defs: Vec<ColumnDef>,
+) -> Result<impl Iterator<Item = Vec<DataValue>>, Error> {
+    let data = request.into_body();
+    parse_csv_data(data, column_defs)
+}
+
+fn parse_csv_data(
+    data: Vec<u8>,
+    column_defs: Vec<ColumnDef>,
+) -> Result<impl Iterator<Item = Vec<DataValue>>, Error> {
+    println!("data: {}", String::from_utf8_lossy(&data));
+    let csv_rows = CsvRows::new(BufReader::new(Cursor::new(data)), column_defs);
+    Ok(csv_rows)
 }
 
 /// attempt to parse statement
@@ -169,47 +212,6 @@ fn url_drop_table<'a>() -> Parser<'a, char, DropTable> {
 
 fn url_alter_table<'a>() -> Parser<'a, char, AlterTable> {
     sym('/') * alter_table() | alter_table()
-}
-
-fn extract_path_and_query<T>(request: &Request<T>) -> Option<&str> {
-    request.uri().path_and_query().map(|pnq| pnq.as_str())
-}
-
-pub fn parse_select<T>(request: &Request<T>) -> Result<Select, Error> {
-    let pnq = extract_path_and_query(request).unwrap();
-    let input = to_chars(&pnq);
-    parse_select_chars(&input)
-}
-
-pub fn parse_select_chars(input: &[char]) -> Result<Select, Error> {
-    Ok(url_select().parse(input)?)
-}
-
-pub fn parse_create<T>(request: &Request<T>) -> Result<TableDef, Error> {
-    let pnq = extract_path_and_query(request).unwrap();
-    let input = to_chars(&pnq);
-    parse_create_chars(&input)
-}
-
-fn parse_create_chars(input: &[char]) -> Result<TableDef, Error> {
-    Ok(url_create().parse(input)?)
-}
-
-fn parse_body_to_csv(
-    request: Request<Vec<u8>>,
-    column_defs: Vec<ColumnDef>,
-) -> Result<impl Iterator<Item = Vec<DataValue>>, Error> {
-    let data = request.into_body();
-    parse_csv_data(data, column_defs)
-}
-
-fn parse_csv_data(
-    data: Vec<u8>,
-    column_defs: Vec<ColumnDef>,
-) -> Result<impl Iterator<Item = Vec<DataValue>>, Error> {
-    println!("data: {}", String::from_utf8_lossy(&data));
-    let csv_rows = CsvRows::new(BufReader::new(Cursor::new(data)), column_defs);
-    Ok(csv_rows)
 }
 
 #[cfg(test)]
