@@ -232,6 +232,16 @@ impl ColumnDef {
             .map(|option| sql::ColumnOptionDef { name: None, option })
             .collect())
     }
+
+    pub fn is_primary(&self) -> bool {
+        if let Some(attributes) = &self.attributes {
+            attributes
+                .iter()
+                .any(|att| ColumnAttribute::Primary == *att)
+        } else {
+            false
+        }
+    }
 }
 
 impl DataTypeDef {

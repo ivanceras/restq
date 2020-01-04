@@ -8,14 +8,18 @@ mod data_type;
 pub mod data_value;
 pub mod parser;
 
-use ast::{
-    ddl::table_def,
+pub use ast::{
+    ddl::{
+        table_def,
+        ColumnDef,
+    },
     Expr,
     Select,
     TableDef,
     TableError,
 };
-
+pub use chrono;
+pub use csv_data::CsvRows;
 pub use data_type::DataType;
 pub use data_value::DataValue;
 pub use parser::{
