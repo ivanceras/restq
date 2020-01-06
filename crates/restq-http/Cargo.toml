@@ -10,5 +10,5 @@ readme = "../../README.md"
 
 [dependencies]
 http = "0.2.0"
-restq = { path = "../../" }
+restq = { version = "0.1.0", path = "../../" }
 thiserror = "1.0.9"
