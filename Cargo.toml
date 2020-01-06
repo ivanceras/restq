@@ -1,6 +1,6 @@
 [package]
 name = "restq"
-version = "0.1.0"
+version = "0.1.1"
 authors = [ "Jovansonlee Cesar<ivanceras@gmail.com>" ]
 license = "MIT"
 description = "Compacting SQL query into a URL suitable for rest api calls"
@@ -11,7 +11,7 @@ edition = "2018"
 keywords = ["url", "param", "parser", "rest", "sql"]
 
 [dependencies]
-pom = { version = "3.0.4-alpha-1", package = "pom-preview" }
+pom = { version = "3.1.0" }
 url = "2.1.0"
 chrono = "0.4.10"
 uuid = "0.8.1"

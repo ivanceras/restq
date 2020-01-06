@@ -10,7 +10,7 @@ Roughly translate to sql:
 SELECT * FROM person
 WHERE age < 42
     AND (student = true OR gender = 'M')
-    GROUP BY sum(age), grade, gender
+GROUP BY sum(age), grade, gender
 HAVING min(age) > 42
 ORDER BY age DESC, height ASC
 LIMIT 100 OFFSET 1900 ROWS
