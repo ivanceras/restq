@@ -11,18 +11,16 @@ edition = "2018"
 keywords = ["url", "param", "parser", "rest", "query", "sql"]
 
 [dependencies]
-#pom = "3.0.2"
-#pom = { path = "../pom" }
-pom = { git = "https://github.com/ivanceras/pom" }
+pom = { version = "3.0.4-alpha-1", package = "pom-preview" }
 url = "2.1.0"
 chrono = "0.4.10"
 uuid = "0.8.1"
 webpki = "0.21.0"
 lazy_static = "1.4.0"
-#sqlparser = { path = "../sqlparser-rs" }
-sqlparser = { git = "https://github.com/ivanceras/sqlparser-rs", branch="alter-add-column" }
+sqlparser = { version = "0.5.1-alpha-1", package = "sql-ast" }
 thiserror = "1.0.9"
 csv = "1.1.1"
+log = "0.4.8"
 
 
 [workspace]

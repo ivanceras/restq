@@ -34,6 +34,9 @@ pub use parser::{
 pub use pom;
 use thiserror::Error;
 
+#[macro_use]
+extern crate log;
+
 #[derive(Error, Debug)]
 pub enum Error {
     #[error("ParseError: {0}")]
