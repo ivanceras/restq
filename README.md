@@ -282,7 +282,7 @@ SELECT product.*, users.user_name
 
 ## Prior crate and inspiration
  - [inquerest](https://github.com/ivanceras/inquerest), in the works of porting to call this library.
- - [postgres](https://github.com/PostgREST/postgrest), restq differs syntax to postgrest, with focus on intuitive filter clause
+ - [postgrest](https://github.com/PostgREST/postgrest), restq differs syntax to postgrest, with focus on intuitive filter clause
 
 #### Please support this project:
  [![Become a patron](https://c5.patreon.com/external/logo/become_a_patron_button.png)](https://www.patreon.com/ivanceras)
