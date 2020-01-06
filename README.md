@@ -274,12 +274,15 @@ SELECT product.*, users.user_name
 ## Join tables
 
  ### Supported join types
- - [X] INNER JOIN
+ - [X] INNER JOIN  `table1-><-table2`
  - OUTER JOIN
-      - [X] LEFT JOIN
-      - [X] RIGHT JOIN
-      - [X] FULL JOIN
+      - [X] LEFT JOIN  `table1<-table2`
+      - [X] RIGHT JOIN  `table1->table2`
+      - [X] FULL JOIN `table1<-->table2`
 
+## Prior crate and inspiration
+ - [inquerest](https://github.com/ivanceras/inquerest), in the works of porting to call this library.
+ - [postgres](https://github.com/PostgREST/postgrest), restq differs syntax to postgrest, with focus on intuitive filter clause
 
 #### Please support this project:
  [![Become a patron](https://c5.patreon.com/external/logo/become_a_patron_button.png)](https://www.patreon.com/ivanceras)
