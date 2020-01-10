@@ -1,19 +1,75 @@
 use crate::{
     ast::{
-        ddl::ColumnDef,
+        ddl,
+        ddl::{
+            ColumnDef,
+            TableDef,
+        },
         Value,
     },
     data_value::cast_data_value,
+    parser::utils::bytes_to_chars,
     DataValue,
 };
 use csv::{
     ReaderBuilder,
     StringRecordsIntoIter,
 };
-use std::io::{
-    BufReader,
-    Read,
+use std::{
+    io,
+    io::{
+        BufRead,
+        BufReader,
+        Cursor,
+        Read,
+    },
 };
+use thiserror::Error;
+
+#[derive(Error, Debug)]
+pub enum CsvError {
+    #[error("error parsing header {0}")]
+    HeaderParseError(pom::Error),
+    #[error("io error {0}")]
+    HeaderIoError(io::Error),
+}
+
+pub struct CsvData<R>
+where
+    R: Read + Send + Sync,
+{
+    pub table_def: TableDef,
+    pub rows_iter: CsvRows<R>,
+}
+
+impl<R> CsvData<R>
+where
+    R: Read + Send + Sync,
+{
+    pub fn from_reader(reader: R) -> Result<Self, CsvError> {
+        let mut bufread = BufReader::new(reader);
+        let mut first_line = vec![];
+        let _header_len = bufread
+            .read_until(b'\n', &mut first_line)
+            .map_err(|e| CsvError::HeaderIoError(e))?;
+
+        let header_input = bytes_to_chars(&first_line);
+        let table_def = ddl::table_def()
+            .parse(&header_input)
+            .map_err(|e| CsvError::HeaderParseError(e))?;
+
+        let column_defs = table_def.columns.clone();
+        let rows_iter = CsvRows::new(bufread, column_defs);
+        Ok(CsvData {
+            table_def,
+            rows_iter,
+        })
+    }
+
+    pub fn rows_iter(&mut self) -> &mut CsvRows<R> {
+        &mut self.rows_iter
+    }
+}
 
 pub struct CsvRows<R>
 where
