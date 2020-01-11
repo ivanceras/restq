@@ -19,7 +19,10 @@ pub use ast::{
     TableError,
 };
 pub use chrono;
-pub use csv_data::CsvRows;
+pub use csv_data::{
+    CsvData,
+    CsvRows,
+};
 pub use data_type::DataType;
 pub use data_value::DataValue;
 pub use parser::{
