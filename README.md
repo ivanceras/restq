@@ -2,7 +2,7 @@
 is a compact data format/language suitable for use in a rest api.
 
 ```
-GET/person?age=lt.42&(student=eq.true|gender=eq.'M')&group_by=sum(age),grade,gender&having=min(age)=gt.42&order_by=age.desc,height.asc&page=20&page_size=100
+GET /person?age=lt.42&(student=eq.true|gender=eq.'M')&group_by=sum(age),grade,gender&having=min(age)=gt.42&order_by=age.desc,height.asc&page=20&page_size=100
 ```
 
 Roughly translate to sql:
@@ -112,7 +112,7 @@ operator = "and" | "or" | "eq" | "gte" | "lte" ,..etc
 
 ## Creating a table and inserting records in one request.
 ```
-PUT/+product{*product_id:s32,name:text,created_by(users):u32,created:utc,is_active:bool}
+PUT /+product{*product_id:s32,name:text,created_by(users):u32,created:utc,is_active:bool}
 Content-Type: text/csv; charset=UTF-8
 
 1,go pro,1,2019-10-31 11:59:59.872,,true
@@ -141,19 +141,19 @@ VALUES(
 
 ## Show the table definition
 ```
-HEAD/product
+HEAD /product
 
 ```
 
 ## Show all tables
 ```
-HEAD/
+HEAD /
 ```
 
 ## Querying the records
 
 ```
-GET/product{product_id,name}?is_active=eq.true&order_by=created.desc
+GET /product{product_id,name}?is_active=eq.true&order_by=created.desc
 ```
 
 ```sql
@@ -162,7 +162,7 @@ SELECT product_id,name FROM product WHERE is_active = true ORDER BY created DESC
 
 ## Inserting records
 ```
-POST/product{product_id,name,created_by,created,is_active}
+POST /product{product_id,name,created_by,created,is_active}
 1,go pro,1,2019-10-31 11:59:59.872,,true
 2,shovel,1,2019-11-01 07:30:00.462,,false
 ```
@@ -177,7 +177,7 @@ VALUES(
 
 ## Insert with query
 ```
-POST/user{user_id,name,person_id(GET/person{id}?person.name=name)}
+POST /user{user_id,name,person_id(GET/person{id}?person.name=name)}
 1,TOM JONES,,
 ```
 ```sql
@@ -188,7 +188,7 @@ VALUES(1, 'TOM JONES', (SELECT person.id FROM person WHERE person.name='TOM JONE
 ## Updating records
 
 ```
-PATCH/product{description="I'm the new description now"}?product_id=1
+PATCH /product{description="I'm the new description now"}?product_id=1
 ```
 ```sql
 UPDATE product SET description = 'I\'m the new description now' WHERE product_id = 1;
@@ -198,7 +198,7 @@ UPDATE product SET description = 'I\'m the new description now' WHERE product_id
 
 2 versions of the same record is passed, first is the original, the next is the updated one
 ```
-PATCH/product{*product_id,name}
+PATCH /product{*product_id,name}
 1,go pro,1,go pro hero4
 2,shovel,2,slightly used shovel
 ```
@@ -210,7 +210,7 @@ UPDATE product SET name = 'slightly used shovel' WHERE id = 2'
 ## Delete
 
 ```
-DELETE/product?product_id=1
+DELETE /product?product_id=1
 ```
 
 ```sql
@@ -219,7 +219,7 @@ DELETE FROM product WHERE product_id = '1'
 
 ## Delete multiple
 ```
-DELETE/product{product_id}
+DELETE /product{product_id}
 1
 2
 3
@@ -231,7 +231,7 @@ DELETE FROM product WHERE product_id IN ('1','2','3')
 
 ## Delete multiple, by name(no primary keys).
 ```
-DELETE/product{name,is_active}
+DELETE /product{name,is_active}
 Go Pro,true
 Shovel,true
 Chair,true
@@ -244,7 +244,7 @@ DELETE FROM product WHERE name  = 'Chair' AND is_active = 'true';
 
 ## Delete all records of a table
 ```
-DELETE/product
+DELETE /product
 ```
 
 ```sql
@@ -254,7 +254,7 @@ TRUNCATE product;
 ## Complex select (with joins)
 
 ```restq
-GET/product<-users{product.*,users.user_name}?product_id=1&is_active=true&created=gt.2019-11-05T08:45:03.432
+GET /product<-users{product.*,users.user_name}?product_id=1&is_active=true&created=gt.2019-11-05T08:45:03.432
 ```
 
 ```sql

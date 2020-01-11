@@ -49,4 +49,6 @@ pub enum Error {
     GenericError(String),
     #[error("More than 1 statement is generated")]
     MoreThanOneStatement,
+    #[error("{0}")]
+    IoError(#[from] std::io::Error),
 }

@@ -228,21 +228,25 @@ mod tests {
     #[test]
     fn test_statement_mismatch_prefix_for_statement() {
         let select = try_parse_statement("PUT /product", None);
-        assert!(select
-            .err()
-            .unwrap()
-            .to_string()
-            .contains("Expect create after PUT"));
+        assert!(
+            select
+                .err()
+                .unwrap()
+                .to_string()
+                .contains("Expect create after PUT")
+        );
 
         let create =
             try_parse_statement("GET /product{id:i32,name:text}", None);
         println!("create: {:#?}", create);
 
-        assert!(create
-            .err()
-            .unwrap()
-            .to_string()
-            .contains("Expect a select after GET"));
+        assert!(
+            create
+                .err()
+                .unwrap()
+                .to_string()
+                .contains("Expect a select after GET")
+        );
     }
 
     #[test]
@@ -442,7 +446,10 @@ mod tests {
         table_lookup.add_table(person_table);
         table_lookup.add_table(users_table);
         assert_eq!(
-            statement.into_sql_statement(Some(&table_lookup)).unwrap().to_string(),
+            statement
+                .into_sql_statement(Some(&table_lookup))
+                .unwrap()
+                .to_string(),
             "SELECT name, age, class FROM person JOIN users ON users.person_id = person.id WHERE (age > 42 AND student = true) OR (gender = 'M' AND is_active = true) GROUP BY sum(age), grade, gender HAVING min(age) >= 42 ORDER BY age DESC, height ASC LIMIT 10 OFFSET 10 ROWS"
         );
     }

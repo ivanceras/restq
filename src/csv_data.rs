@@ -5,6 +5,7 @@ use crate::{
             ColumnDef,
             TableDef,
         },
+        Statement,
         Value,
     },
     data_value::cast_data_value,
@@ -15,6 +16,7 @@ use csv::{
     ReaderBuilder,
     StringRecordsIntoIter,
 };
+use parser::parse_statement_chars;
 use std::{
     io,
     io::{
@@ -25,6 +27,8 @@ use std::{
     },
 };
 use thiserror::Error;
+
+mod parser;
 
 #[derive(Error, Debug)]
 pub enum CsvError {
@@ -38,36 +42,36 @@ pub struct CsvData<R>
 where
     R: Read + Send + Sync,
 {
-    pub table_def: TableDef,
-    pub rows_iter: CsvRows<R>,
+    pub header: Statement,
+    pub body: BufReader<R>,
 }
 
 impl<R> CsvData<R>
 where
     R: Read + Send + Sync,
 {
-    pub fn from_reader(reader: R) -> Result<Self, CsvError> {
+    pub fn from_reader(reader: R) -> Result<Self, crate::Error> {
         let mut bufread = BufReader::new(reader);
         let mut first_line = vec![];
-        let _header_len = bufread
-            .read_until(b'\n', &mut first_line)
-            .map_err(|e| CsvError::HeaderIoError(e))?;
+        let _header_len = bufread.read_until(b'\n', &mut first_line)?;
 
         let header_input = bytes_to_chars(&first_line);
-        let table_def = ddl::table_def()
-            .parse(&header_input)
-            .map_err(|e| CsvError::HeaderParseError(e))?;
+        let statement = parse_statement_chars(&header_input)?;
 
-        let column_defs = table_def.columns.clone();
-        let rows_iter = CsvRows::new(bufread, column_defs);
         Ok(CsvData {
-            table_def,
-            rows_iter,
+            header: statement,
+            body: bufread,
         })
     }
 
-    pub fn rows_iter(&mut self) -> &mut CsvRows<R> {
-        &mut self.rows_iter
+    /// consume self and return as csv rows iterator
+    pub fn rows_iter(self) -> CsvRows<R> {
+        match self.header {
+            Statement::Create(table_def) => {
+                CsvRows::new(self.body, table_def.columns)
+            }
+            _ => todo!(),
+        }
     }
 }
 
@@ -125,5 +129,25 @@ where
             }
             None => None,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_csv_data() {
+        let data = "PUT /product(*product_id:s32,@name:text,description:text,updated:utc,created_by(users):u32,@is_active:bool)\n\
+            1,go pro,a slightly used go pro, 2019-10-31 10:10:10\n\
+            2,shovel,a slightly used shovel, 2019-11-11 11:11:11\n\
+            ";
+
+        let csv_data =
+            CsvData::from_reader(data.as_bytes()).expect("must be valid");
+
+        let rows: Vec<Vec<DataValue>> = csv_data.rows_iter().collect();
+        println!("rows: {:#?}", rows);
+        assert_eq!(rows.len(), 2);
     }
 }
