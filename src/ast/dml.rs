@@ -125,6 +125,7 @@ impl Source {
                 ))
             }
             Source::Parameterized(params) => {
+                println!("parameterized params: {:?}", params);
                 sql::SetExpr::ParameterizedValue(params.to_owned())
             }
         };
@@ -224,7 +225,9 @@ mod tests {
     #[test]
     fn test_insert() {
         let input = to_chars(
-            "product{product_id,created_by,created,is_active}?returning=product_id,name",
+            "product{product_id,created_by,created,is_active}?returning=product_id,name\n\
+            1,1,2019-10-10T10:10:10.122,true
+            ",
         );
         let ret = insert().parse(&input).expect("must be parsed");
         println!("{:#?}", ret);
