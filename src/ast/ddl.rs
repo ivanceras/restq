@@ -1,5 +1,9 @@
 use crate::{
     ast::{
+        dml::{
+            Insert,
+            Source,
+        },
         Column,
         Statement,
         Table,
@@ -79,6 +83,25 @@ pub enum AlterOperation {
     DropColumn(Column),
     AddColumn(ColumnDef),
     AlterColumn(Column, ColumnDef),
+}
+
+impl TableDef {
+    pub fn derive_insert(&self) -> Insert {
+        let columns: Vec<Column> =
+            self.columns.iter().map(|c| c.column.clone()).collect();
+        Insert {
+            into: self.table.clone(),
+            columns: columns.clone(),
+            source: Source::Parameterized(
+                self.columns
+                    .iter()
+                    .enumerate()
+                    .map(|(i, _c)| i + 1)
+                    .collect(),
+            ),
+            returning: Some(columns),
+        }
+    }
 }
 
 impl Into<Statement> for TableDef {
@@ -197,7 +220,7 @@ impl ColumnDef {
                         None => {
                             return Err(TableError::TableNotFound(
                                 foreign.name.to_string(),
-                            ))
+                            ));
                         }
                         Some(foreign_table_def) => {
                             let pk = foreign_table_def.get_primary_columns();
@@ -524,11 +547,12 @@ mod tests {
         let ret = data_type_def().parse(&input);
         println!("{:#?}", ret);
         assert!(ret.is_err());
-        assert!(ret
-            .err()
-            .unwrap()
-            .to_string()
-            .contains(r#"InvalidDataType("invalid32")"#));
+        assert!(
+            ret.err()
+                .unwrap()
+                .to_string()
+                .contains(r#"InvalidDataType("invalid32")"#)
+        );
     }
 
     #[test]
@@ -595,11 +619,12 @@ mod tests {
         let ret = column_def_list().parse(&input);
         println!("{:#?}", ret);
         assert!(ret.is_err());
-        assert!(ret
-            .err()
-            .unwrap()
-            .to_string()
-            .contains(r#"InvalidDataType("invalid32")"#));
+        assert!(
+            ret.err()
+                .unwrap()
+                .to_string()
+                .contains(r#"InvalidDataType("invalid32")"#)
+        );
     }
 
     #[test]
@@ -608,11 +633,12 @@ mod tests {
         let ret = column_def_list().parse(&input);
         println!("{:#?}", ret);
         assert!(ret.is_err());
-        assert!(ret
-            .err()
-            .unwrap()
-            .to_string()
-            .contains(r#"InvalidDataType("invalid32")"#));
+        assert!(
+            ret.err()
+                .unwrap()
+                .to_string()
+                .contains(r#"InvalidDataType("invalid32")"#)
+        );
     }
 
     #[test]
@@ -621,11 +647,12 @@ mod tests {
         let ret = column_def_list().parse(&input);
         println!("{:#?}", ret);
         assert!(ret.is_err());
-        assert!(ret
-            .err()
-            .unwrap()
-            .to_string()
-            .contains(r#"InvalidDataType("invalid_text")"#));
+        assert!(
+            ret.err()
+                .unwrap()
+                .to_string()
+                .contains(r#"InvalidDataType("invalid_text")"#)
+        );
     }
 
     #[test]
@@ -634,11 +661,12 @@ mod tests {
         let ret = column_def().parse(&input);
         println!("{:#?}", ret);
         assert!(ret.is_err());
-        assert!(ret
-            .err()
-            .unwrap()
-            .to_string()
-            .contains(r#"InvalidDataType("invalid32")"#));
+        assert!(
+            ret.err()
+                .unwrap()
+                .to_string()
+                .contains(r#"InvalidDataType("invalid32")"#)
+        );
     }
 
     #[test]
@@ -712,22 +740,23 @@ mod tests {
     #[test]
     fn parse_actor_table_with_invalid_data_type() {
         let input = to_chars(
-"actor{*actor_id:s32,&first_name:text,&@last_name:text,last_update:timestamp,created_by(users):u32,is_active:bool}",
+            "actor{*actor_id:s32,&first_name:text,&@last_name:text,last_update:timestamp,created_by(users):u32,is_active:bool}",
         );
         let ret = table_def().parse(&input);
         println!("{:#?}", ret);
         assert!(ret.is_err());
-        assert!(ret
-            .err()
-            .unwrap()
-            .to_string()
-            .contains(r#"InvalidDataType("timestamp")"#));
+        assert!(
+            ret.err()
+                .unwrap()
+                .to_string()
+                .contains(r#"InvalidDataType("timestamp")"#)
+        );
     }
 
     #[test]
     fn parse_actor_table() {
         let input = to_chars(
-"actor{*actor_id:s32,&first_name:text,&@last_name:text,last_update:utc,created_by(users):u32,is_active:bool}",
+            "actor{*actor_id:s32,&first_name:text,&@last_name:text,last_update:utc,created_by(users):u32,is_active:bool}",
         );
         let ret = table_def().parse(&input).expect("must be parsed");
         println!("{:#?}", ret);

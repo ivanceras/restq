@@ -26,10 +26,10 @@ use sqlparser::ast as sql;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Insert {
-    into: Table,
-    columns: Vec<Column>,
-    source: Source,
-    returning: Option<Vec<Column>>,
+    pub into: Table,
+    pub columns: Vec<Column>,
+    pub source: Source,
+    pub returning: Option<Vec<Column>>,
 }
 
 /// Insert can get data from a set of values
@@ -38,20 +38,21 @@ pub struct Insert {
 pub enum Source {
     Select(Select),
     Values(Vec<Vec<Value>>),
+    Parameterized(Vec<usize>),
 }
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Delete {
-    from: Table,
-    condition: Option<Expr>,
+    pub from: Table,
+    pub condition: Option<Expr>,
 }
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Update {
-    table: Table,
-    columns: Vec<Column>,
-    values: Vec<Value>, // one value for each column
-    condition: Option<Expr>,
+    pub table: Table,
+    pub columns: Vec<Column>,
+    pub values: Vec<Value>, // one value for each column
+    pub condition: Option<Expr>,
 }
 
 impl Insert {
@@ -122,6 +123,9 @@ impl Source {
                         })
                         .collect(),
                 ))
+            }
+            Source::Parameterized(params) => {
+                sql::SetExpr::ParameterizedValue(params.to_owned())
             }
         };
         Ok(ret)
@@ -219,12 +223,17 @@ mod tests {
 
     #[test]
     fn test_insert() {
-        let input = to_chars("product{product_id,created_by,created,is_active}?returning=product_id,name");
+        let input = to_chars(
+            "product{product_id,created_by,created,is_active}?returning=product_id,name",
+        );
         let ret = insert().parse(&input).expect("must be parsed");
         println!("{:#?}", ret);
         let statement: sql::Statement =
             ret.into_sql_statement(None).expect("must not fail");
-        assert_eq!(statement.to_string(), "INSERT INTO product (product_id, created_by, created, is_active) VALUES ");
+        assert_eq!(
+            statement.to_string(),
+            "INSERT INTO product (product_id, created_by, created, is_active) VALUES "
+        );
         assert_eq!(
             ret,
             Insert {
@@ -260,11 +269,16 @@ mod tests {
 
     #[test]
     fn test_update() {
-        let input = to_chars(r#"product{description="I'm the new description now",is_active=false}?product_id=1"#);
+        let input = to_chars(
+            r#"product{description="I'm the new description now",is_active=false}?product_id=1"#,
+        );
         let ret = update().parse(&input).expect("must be parsed");
         println!("{:#?}", ret);
         let statement: sql::Statement = Into::into(&ret);
-        assert_eq!(statement.to_string(), r#"UPDATE product SET description = 'I''m the new description now', is_active = false WHERE product_id = 1"#);
+        assert_eq!(
+            statement.to_string(),
+            r#"UPDATE product SET description = 'I''m the new description now', is_active = false WHERE product_id = 1"#
+        );
         assert_eq!(
             ret,
             Update {
