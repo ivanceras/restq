@@ -15,7 +15,7 @@ pub use expr::{
     ExprRename,
 };
 pub use operator::Operator;
-use sqlparser::ast as sql;
+use sql_ast::ast as sql;
 pub use table::{
     FromTable,
     JoinType,

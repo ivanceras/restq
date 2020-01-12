@@ -1,4 +1,4 @@
-use sqlparser::ast as sql;
+use sql_ast::ast as sql;
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Operator {
@@ -24,7 +24,7 @@ pub enum Operator {
     Starts, // Starts with, which will become ILIKE 'value%'
 }
 
-/// convert restq to sqlparser operator
+/// convert restq to sql_ast operator
 impl Into<sql::BinaryOperator> for &Operator {
     fn into(self) -> sql::BinaryOperator {
         match self {

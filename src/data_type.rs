@@ -3,7 +3,7 @@ use crate::{
     Error,
 };
 use pom::parser::*;
-use sqlparser::ast as sql;
+use sql_ast::ast as sql;
 use std::{
     collections::BTreeMap,
     fmt,

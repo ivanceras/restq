@@ -9,7 +9,7 @@ use crate::ast::{
     Expr,
     Operator,
 };
-use sqlparser::ast as sql;
+use sql_ast::ast as sql;
 use std::collections::BTreeMap;
 use thiserror::Error;
 

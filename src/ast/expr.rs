@@ -4,7 +4,7 @@ use crate::ast::{
     Operator,
     Value,
 };
-use sqlparser::ast as sql;
+use sql_ast::ast as sql;
 
 //TODO: Should be able to do math operations
 // such as: *, +, -, /, %

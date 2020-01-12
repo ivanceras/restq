@@ -31,7 +31,7 @@ use pom::parser::{
     tag,
     Parser,
 };
-use sqlparser::ast as sql;
+use sql_ast::ast as sql;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct ColumnDef {

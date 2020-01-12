@@ -12,7 +12,7 @@ use chrono::{
     NaiveDateTime,
     Utc,
 };
-use sqlparser::ast as sql;
+use sql_ast::ast as sql;
 use std::net::IpAddr;
 use url::Url;
 use uuid::Uuid;
