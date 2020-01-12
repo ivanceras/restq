@@ -18,7 +18,8 @@ uuid = "0.8.1"
 webpki = "0.21.0"
 lazy_static = "1.4.0"
 #sqlparser = { version = "0.5.1-alpha-1", package = "sql-ast" }
-sqlparser = { path = "../sqlparser-preview", package = "sql-ast" }
+#sqlparser = { path = "../sql-ast", package = "sql-ast" }
+sqlparser = { version = "0.6.0", package = "sql-ast" }
 thiserror = "1.0.9"
 csv = "1.1.1"
 log = "0.4.8"
