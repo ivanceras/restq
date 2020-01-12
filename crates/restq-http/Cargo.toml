@@ -1,6 +1,6 @@
 [package]
 name = "restq-http"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Jovansonlee Cesar <ivanceras@gmail.com>"]
 edition = "2018"
 readme = "../../README.md"
@@ -13,5 +13,5 @@ keywords = ["http", "request","query", "sql"]
 
 [dependencies]
 http = "0.2.0"
-restq = { version = "0.1.0", path = "../../" }
+restq = { version = "0.2.0", path = "../../" }
 thiserror = "1.0.9"
