@@ -65,20 +65,28 @@ where
         })
     }
 
+    pub fn statement(&self) -> Statement {
+        self.header.clone()
+    }
+
     /// consume self and return as csv rows iterator
-    pub fn rows_iter(self, table_lookup: Option<&TableLookup>) -> CsvRows<R> {
+    pub fn rows_iter(
+        self,
+        table_lookup: Option<&TableLookup>,
+    ) -> Option<CsvRows<R>> {
         match self.header {
             Statement::Create(table_def) => {
-                CsvRows::new(self.body, table_def.columns)
+                Some(CsvRows::new(self.body, table_def.columns))
             }
             Statement::Insert(insert) => {
                 let table_def = table_lookup
                     .expect("need table lookup")
                     .get_table_def(&insert.into.name)
                     .expect("must have table lookup");
-                CsvRows::new(self.body, table_def.columns.clone())
+                Some(CsvRows::new(self.body, table_def.columns.clone()))
             }
-            _ => todo!(),
+            Statement::Select(_) => None,
+            _ => todo!("coming.."),
         }
     }
 }
@@ -154,7 +162,10 @@ mod tests {
         let csv_data =
             CsvData::from_reader(data.as_bytes()).expect("must be valid");
 
-        let rows: Vec<Vec<DataValue>> = csv_data.rows_iter(None).collect();
+        let rows: Vec<Vec<DataValue>> = csv_data
+            .rows_iter(None)
+            .expect("must have iterator")
+            .collect();
         println!("rows: {:#?}", rows);
         assert_eq!(rows.len(), 2);
     }
