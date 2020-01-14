@@ -51,7 +51,15 @@ pub fn parse_statement(
     let method = request.method();
     let url = extract_path_and_query(request);
     let body = request.body().as_bytes().to_vec();
-    let csv_data = csv_data_from_parts(&method, url, Some(body))?;
+    parse_statement_from_parts(method, url, Some(body))
+}
+
+fn parse_statement_from_parts(
+    method: &Method,
+    url: &str,
+    body: Option<Vec<u8>>,
+) -> Result<(Statement, Vec<Vec<DataValue>>), Error> {
+    let csv_data = csv_data_from_parts(&method, url, body)?;
     let statement = csv_data.statement();
     let csv_rows = csv_data.rows_iter(None);
 
@@ -70,6 +78,13 @@ fn extract_path_and_query<T>(request: &Request<T>) -> &str {
         .path_and_query()
         .map(|pnq| pnq.as_str())
         .unwrap_or("/")
+}
+
+pub fn extract_restq_from_request<T>(request: &Request<T>) -> String {
+    let method = request.method();
+    let url = extract_path_and_query(request);
+    let prefix = method_to_prefix(method);
+    format!("{} {}\n", prefix, url)
 }
 
 fn method_to_prefix(method: &Method) -> &'static str {
