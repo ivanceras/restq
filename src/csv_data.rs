@@ -89,6 +89,7 @@ where
                 ))
             }
             Statement::Select(_) => None,
+            Statement::Delete(_) => None,
             Statement::BulkDelete(delete) => {
                 let table_def = table_lookup
                     .expect("need table lookup")
@@ -99,7 +100,17 @@ where
                     table_def.matching_column_def(&delete.columns),
                 ))
             }
-            _ => todo!("coming.."),
+            Statement::BulkUpdate(update) => {
+                let table_def = table_lookup
+                    .expect("need table lookup")
+                    .get_table_def(&update.table.name)
+                    .expect("must have table lookup");
+                Some(CsvRows::new(
+                    self.body,
+                    table_def.matching_column_def(&update.columns),
+                ))
+            }
+            _ => todo!("rows_iter for {:?}.. not yet", self.header),
         }
     }
 }

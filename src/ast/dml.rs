@@ -206,38 +206,23 @@ pub fn delete<'a>() -> Parser<'a, char, Delete> {
         .map(|(from, condition)| Delete { from, condition })
 }
 
-fn bulk_delete<'a>() -> Parser<'a, char, Delete> {
+fn bulk_delete<'a>() -> Parser<'a, char, BulkDelete> {
     (table() - sym('{') + columns() - sym('}')).map(|(from, columns)| {
-        let mut columns_iter = columns.into_iter();
-        let first = columns_iter.next();
-        let condition = first.map(|first| {
-            let first_condition =
-                Expr::BinaryOperation(Box::new(BinaryOperation {
-                    left: Expr::Column(first),
-                    operator: Operator::Eq,
-                    right: Expr::Value(Value::String("$1".to_string())),
-                }));
-            columns_iter.enumerate().fold(
-                first_condition,
-                |condition, (i, column)| {
-                    Expr::BinaryOperation(Box::new(BinaryOperation {
-                        left: condition,
-                        operator: Operator::And,
-                        right: Expr::BinaryOperation(Box::new(
-                            BinaryOperation {
-                                left: Expr::Column(column),
-                                operator: Operator::Eq,
-                                right: Expr::Value(Value::String(format!(
-                                    "${}",
-                                    i + 2
-                                ))),
-                            },
-                        )),
-                    }))
-                },
-            )
-        });
-        Delete { from, condition }
+        BulkDelete {
+            from,
+            columns,
+            values: vec![],
+        }
+    })
+}
+
+fn bulk_update<'a>() -> Parser<'a, char, BulkUpdate> {
+    (table() - sym('{') + columns() - sym('}')).map(|(table, columns)| {
+        BulkUpdate {
+            table,
+            columns,
+            values: vec![],
+        }
     })
 }
 
@@ -371,37 +356,43 @@ mod tests {
         println!("{:#?}", ret);
         assert_eq!(
             ret,
-            Delete {
+            BulkDelete {
                 from: Table {
                     name: "product".into()
                 },
-                condition: Some(Expr::BinaryOperation(Box::new(
-                    BinaryOperation {
-                        left: Expr::BinaryOperation(Box::new(
-                            BinaryOperation {
-                                left: Expr::Column(Column {
-                                    name: "name".into()
-                                }),
-                                operator: Operator::Eq,
-                                right: Expr::Value(Value::String(
-                                    "$1".to_string()
-                                ))
-                            }
-                        )),
-                        operator: Operator::And,
-                        right: Expr::BinaryOperation(Box::new(
-                            BinaryOperation {
-                                left: Expr::Column(Column {
-                                    name: "is_active".into()
-                                }),
-                                operator: Operator::Eq,
-                                right: Expr::Value(Value::String(
-                                    "$2".to_string()
-                                ))
-                            }
-                        )),
+                columns: vec![
+                    Column {
+                        name: "name".into()
+                    },
+                    Column {
+                        name: "is_active".into()
                     }
-                )))
+                ],
+                values: vec![]
+            }
+        );
+    }
+
+    #[test]
+    fn test_bulk_update() {
+        let input = to_chars("product{name,is_active}");
+        let ret = bulk_update().parse(&input).expect("must be parsed");
+        println!("{:#?}", ret);
+        assert_eq!(
+            ret,
+            BulkUpdate {
+                table: Table {
+                    name: "product".into()
+                },
+                columns: vec![
+                    Column {
+                        name: "name".into()
+                    },
+                    Column {
+                        name: "is_active".into()
+                    }
+                ],
+                values: vec![]
             }
         );
     }
