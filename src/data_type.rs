@@ -70,12 +70,6 @@ pub enum DataType {
     /// A valid identifier string defined by begining of alpha_or_underscore character and
     /// optionally followed by alphnumeric characters
     Ident,
-    /// A valid email address
-    Email,
-    /// A valid domain name
-    Domain,
-    /// A valid ip address
-    IpAddr,
     /// A valid url
     Url,
 }
@@ -106,9 +100,6 @@ impl DataType {
             DataType::Utc,
             DataType::Text,
             DataType::Ident,
-            DataType::Email,
-            DataType::Domain,
-            DataType::IpAddr,
             DataType::Url,
         ]
     }
@@ -137,9 +128,6 @@ impl DataType {
             "utc" => Ok(DataType::Utc),
             "text" => Ok(DataType::Text),
             "ident" => Ok(DataType::Ident),
-            "email" => Ok(DataType::Email),
-            "domain" => Ok(DataType::Domain),
-            "ip_addr" => Ok(DataType::IpAddr),
             "url" => Ok(DataType::Url),
             _ => Err(Error::InvalidDataType(dt.to_string())),
         }
@@ -171,9 +159,6 @@ impl fmt::Display for DataType {
             DataType::Utc => "utc",
             DataType::Text => "text",
             DataType::Ident => "ident",
-            DataType::Email => "email",
-            DataType::Domain => "domain",
-            DataType::IpAddr => "ip_addr",
             DataType::Url => "url",
         };
 
@@ -210,9 +195,6 @@ impl Into<sql::DataType> for &DataType {
             DataType::Utc => sql::DataType::Timestamp,
             DataType::Text => sql::DataType::Text,
             DataType::Ident => sql::DataType::Text,
-            DataType::Email => sql::DataType::Text,
-            DataType::Domain => sql::DataType::Text,
-            DataType::IpAddr => sql::DataType::Text,
             DataType::Url => sql::DataType::Text,
         }
     }
@@ -275,9 +257,6 @@ mod tests {
             "utc",
             "text",
             "ident",
-            "email",
-            "domain",
-            "ip_addr",
             "url",
         ];
 
