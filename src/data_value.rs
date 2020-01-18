@@ -16,7 +16,6 @@ use sql_ast::ast as sql;
 use std::net::IpAddr;
 use url::Url;
 use uuid::Uuid;
-use webpki::DNSName;
 
 /// strict data value
 /// where each has exact byte definitions, etc.
@@ -45,9 +44,6 @@ pub enum DataValue {
     Utc(DateTime<Utc>),
     Text(String),
     Ident(String),
-    Email(String),
-    Domain(DNSName),
-    IpAddr(IpAddr),
     Url(Url),
 }
 
@@ -79,9 +75,6 @@ impl DataValue {
             DataValue::Utc(_) => DataType::Utc,
             DataValue::Text(_) => DataType::Text,
             DataValue::Ident(_) => DataType::Ident,
-            DataValue::Email(_) => DataType::Email,
-            DataValue::Domain(_) => DataType::Domain,
-            DataValue::IpAddr(_) => DataType::IpAddr,
             DataValue::Url(_) => DataType::Url,
         };
         Some(dt)

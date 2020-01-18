@@ -15,7 +15,6 @@ pom = { version = "3.1.0" }
 url = "2.1.0"
 chrono = "0.4.10"
 uuid = "0.8.1"
-webpki = "0.21.0"
 lazy_static = "1.4.0"
 sql-ast = { version = "0.6.0" }
 thiserror = "1.0.9"
