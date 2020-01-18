@@ -138,6 +138,7 @@ impl TableDef {
         // TODO for indexes constraint
 
         Ok(sql::Statement::CreateTable {
+            if_not_exists: true,
             name: Into::into(&self.table),
             columns: column_defs,
             constraints: vec![],
@@ -146,6 +147,17 @@ impl TableDef {
             file_format: None,
             location: None,
         })
+    }
+
+    pub(crate) fn matching_column_def(
+        &self,
+        columns: &[Column],
+    ) -> Vec<ColumnDef> {
+        self.columns
+            .iter()
+            .filter(|c| columns.contains(&c.column))
+            .map(|c| c.clone())
+            .collect()
     }
 }
 

@@ -83,9 +83,22 @@ where
                     .expect("need table lookup")
                     .get_table_def(&insert.into.name)
                     .expect("must have table lookup");
-                Some(CsvRows::new(self.body, table_def.columns.clone()))
+                Some(CsvRows::new(
+                    self.body,
+                    table_def.matching_column_def(&insert.columns),
+                ))
             }
             Statement::Select(_) => None,
+            Statement::BulkDelete(delete) => {
+                let table_def = table_lookup
+                    .expect("need table lookup")
+                    .get_table_def(&delete.from.name)
+                    .expect("must have table lookup");
+                Some(CsvRows::new(
+                    self.body,
+                    table_def.matching_column_def(&delete.columns),
+                ))
+            }
             _ => todo!("coming.."),
         }
     }

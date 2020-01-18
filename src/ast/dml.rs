@@ -41,18 +41,41 @@ pub enum Source {
     Parameterized(Vec<usize>),
 }
 
+/// DELETE /product?product_id=1
 #[derive(Debug, PartialEq, Clone)]
 pub struct Delete {
     pub from: Table,
     pub condition: Option<Expr>,
 }
 
+/// DELETE /product{product_id}
+/// 1
+/// 2
+/// 3
+#[derive(Debug, PartialEq, Clone)]
+pub struct BulkDelete {
+    pub from: Table,
+    pub columns: Vec<Column>,
+    pub values: Vec<Vec<Value>>,
+}
+
+/// PATCH /product{description="I'm the new description now"}?product_id=1
 #[derive(Debug, PartialEq, Clone)]
 pub struct Update {
     pub table: Table,
     pub columns: Vec<Column>,
     pub values: Vec<Value>, // one value for each column
     pub condition: Option<Expr>,
+}
+
+/// PATCH /product{*product_id,name}
+/// 1,go pro,1,go pro hero4
+/// 2,shovel,2,slightly used shovel
+#[derive(Debug, PartialEq, Clone)]
+pub struct BulkUpdate {
+    pub table: Table,
+    pub columns: Vec<Column>,
+    pub values: Vec<Vec<Value>>,
 }
 
 impl Insert {

@@ -5,6 +5,8 @@ pub use ddl::{
     TableDef,
 };
 pub use dml::{
+    BulkDelete,
+    BulkUpdate,
     Delete,
     Insert,
     Update,
@@ -35,7 +37,9 @@ pub enum Statement {
     Select(Select),
     Insert(Insert),
     Update(Update),
+    BulkUpdate(BulkUpdate),
     Delete(Delete),
+    BulkDelete(BulkDelete),
     Create(TableDef),
     DropTable(DropTable),
     AlterTable(AlterTable),
@@ -133,6 +137,8 @@ impl Statement {
             }
             Statement::Update(update) => Ok(Into::into(update)),
             Statement::Delete(delete) => Ok(Into::into(delete)),
+            Statement::BulkUpdate(update) => todo!(),
+            Statement::BulkDelete(delete) => todo!(),
             Statement::Create(create) => {
                 Ok(create.into_sql_statement(table_lookup)?)
             }
