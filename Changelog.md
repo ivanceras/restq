@@ -1,7 +1,7 @@
 # Changelog
 
-## Unreleased
-- Rename CsvData to appropriate StmtData
+## 0.3.0
+- Rename `CsvData` to a more appropriate name `StmtData`
 - Add PlainData which parses only data with table definition and the csv rows
 - modularize `csv_rows` into its own module
 
