@@ -21,6 +21,7 @@ pub use parser::{
     utils::{bytes_to_chars, space, to_chars},
 };
 pub use pom;
+pub use stmt_data::parse_select_chars;
 pub use stmt_data::StmtData;
 use thiserror::Error;
 

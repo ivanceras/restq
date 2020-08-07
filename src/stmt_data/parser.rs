@@ -2,13 +2,12 @@ use crate::{
     ast::{
         ddl::{alter_table, drop_table, table_def},
         dml::{delete, insert, update},
-        Statement,
+        Select, Statement,
     },
     parser::{utils::space, *},
     to_chars,
 };
 use pom::parser::*;
-
 pub enum Prefix {
     Get,
     Put,
@@ -27,6 +26,12 @@ pub(crate) fn parse_statement_chars(
     input: &[char],
 ) -> Result<Statement, crate::Error> {
     Ok(statement_with_prefix().parse(input)?)
+}
+
+/// parses a typical http url into a select statement
+pub fn parse_select_chars(input: &[char]) -> Result<Select, crate::Error> {
+    let url_parser = sym('/') * select();
+    Ok(url_parser.parse(input)?)
 }
 
 fn statement_with_prefix<'a>() -> Parser<'a, char, Statement> {

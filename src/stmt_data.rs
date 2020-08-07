@@ -4,6 +4,7 @@ use crate::{
     parser::utils::bytes_to_chars,
     CsvRows,
 };
+pub use parser::parse_select_chars;
 use parser::parse_statement_chars;
 use std::io::{BufRead, BufReader, Read};
 
