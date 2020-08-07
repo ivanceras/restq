@@ -1,3 +1,5 @@
+#![deny(warnings)]
+
 use http::{Method, Request};
 pub use restq::{
     ast::{
@@ -10,8 +12,7 @@ pub use restq::{
     pom::parser::{sym, tag, Parser},
     space, to_chars, CsvRows, DataValue, Error, StmtData,
 };
-use std::io::{BufReader, Cursor, Read};
-use thiserror::Error;
+use std::io::Cursor;
 
 /// Parse into SQL Statement AST from http::Request
 pub fn parse_statement(
@@ -70,7 +71,7 @@ fn method_to_prefix(method: &Method) -> &'static str {
             todo!("maybe used this for precaching/db_url connect")
         }
         _ => {
-            let ext = method.as_str();
+            let _ext = method.as_str();
             todo!("Support for DROP, PURGE, ALTER, CREATE here")
         }
     }
