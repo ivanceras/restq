@@ -1,6 +1,6 @@
 [package]
 name = "restq"
-version = "0.2.0"
+version = "0.2.1"
 authors = [ "Jovansonlee Cesar<ivanceras@gmail.com>" ]
 license = "MIT"
 description = "Compacting SQL query into a URL suitable for rest api calls"
@@ -16,8 +16,7 @@ url = "2.1.0"
 chrono = "0.4.10"
 uuid = "0.8.1"
 lazy_static = "1.4.0"
-#sql-ast = { version = "0.6.0" }
-sql-ast = { path = "../sql-ast" }
+sql-ast = { version = "0.7.0"}
 thiserror = "1.0.9"
 csv = "1.1.1"
 log = "0.4.8"
