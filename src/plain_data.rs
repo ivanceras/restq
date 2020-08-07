@@ -1,23 +1,10 @@
 //! Plain csv data
 //! contains only the table definition and the csv data
 use crate::ast::ddl::table_def;
-use crate::{
-    ast::{
-        ddl,
-        ddl::{ColumnDef, TableDef},
-        Statement, TableLookup, Value,
-    },
-    data_value::cast_data_value,
-    parser::utils::bytes_to_chars,
-    CsvRows, DataValue,
-};
-use csv::{ReaderBuilder, StringRecordsIntoIter};
-use std::{
-    io,
-    io::{BufRead, BufReader, Cursor, Read},
-};
-use thiserror::Error;
+use crate::{ast::ddl::TableDef, parser::utils::bytes_to_chars, CsvRows};
+use std::io::{BufRead, BufReader, Read};
 
+/// contains just the table definition and the csv data
 pub struct PlainData<R>
 where
     R: Read + Send + Sync,
@@ -57,6 +44,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::data_value::DataValue;
 
     #[test]
     fn test_plain_data() {

@@ -1,30 +1,10 @@
 use crate::Error;
-pub use ddl::{
-    AlterTable,
-    DropTable,
-    TableDef,
-};
-pub use dml::{
-    BulkDelete,
-    BulkUpdate,
-    Delete,
-    Insert,
-    Update,
-};
-pub use expr::{
-    BinaryOperation,
-    Expr,
-    ExprRename,
-};
+pub use ddl::{AlterTable, DropTable, TableDef};
+pub use dml::{BulkDelete, BulkUpdate, Delete, Insert, Update};
+pub use expr::{BinaryOperation, Expr, ExprRename};
 pub use operator::Operator;
 use sql_ast::ast as sql;
-pub use table::{
-    FromTable,
-    JoinType,
-    Table,
-    TableError,
-    TableLookup,
-};
+pub use table::{FromTable, JoinType, Table, TableError, TableLookup};
 
 pub mod ddl;
 pub mod dml;
@@ -137,8 +117,8 @@ impl Statement {
             }
             Statement::Update(update) => Ok(Into::into(update)),
             Statement::Delete(delete) => Ok(Into::into(delete)),
-            Statement::BulkUpdate(update) => todo!(),
-            Statement::BulkDelete(delete) => todo!(),
+            Statement::BulkUpdate(_update) => todo!(),
+            Statement::BulkDelete(_delete) => todo!(),
             Statement::Create(create) => {
                 Ok(create.into_sql_statement(table_lookup)?)
             }
@@ -218,11 +198,9 @@ impl Select {
                 sql::Expr::Value(sql::Value::Number(range.limit().to_string()))
             }),
             offset: match &self.range {
-                Some(range) => {
-                    range.offset().map(|offset| {
-                        sql::Expr::Value(sql::Value::Number(offset.to_string()))
-                    })
-                }
+                Some(range) => range.offset().map(|offset| {
+                    sql::Expr::Value(sql::Value::Number(offset.to_string()))
+                }),
                 None => None,
             },
             fetch: None,
@@ -273,11 +251,9 @@ impl Into<sql::OrderByExpr> for &Order {
     fn into(self) -> sql::OrderByExpr {
         sql::OrderByExpr {
             expr: Into::into(&self.expr),
-            asc: self.direction.as_ref().map(|direction| {
-                match direction {
-                    Direction::Asc => true,
-                    Direction::Desc => false,
-                }
+            asc: self.direction.as_ref().map(|direction| match direction {
+                Direction::Asc => true,
+                Direction::Desc => false,
             }),
         }
     }

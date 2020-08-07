@@ -1,29 +1,10 @@
 use crate::{
     ast::{
-        ddl::{
-            alter_table,
-            drop_table,
-            table_def,
-            ColumnDef,
-        },
-        dml::{
-            delete,
-            insert,
-            update,
-        },
-        AlterTable,
-        Delete,
-        DropTable,
-        Insert,
-        Select,
+        ddl::{alter_table, drop_table, table_def},
+        dml::{delete, insert, update},
         Statement,
-        TableDef,
-        Update,
     },
-    parser::{
-        utils::space,
-        *,
-    },
+    parser::{utils::space, *},
     to_chars,
 };
 use pom::parser::*;
@@ -36,6 +17,7 @@ pub enum Prefix {
     Delete,
 }
 
+#[allow(unused)]
 pub fn parse_statement(url: &str) -> Result<Statement, crate::Error> {
     let url_chars = to_chars(url);
     parse_statement_chars(&url_chars)

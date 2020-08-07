@@ -1,27 +1,9 @@
 use crate::{
-    ast::{
-        BinaryOperation,
-        Column,
-        Expr,
-        Operator,
-        Select,
-        Table,
-        TableLookup,
-        Value,
-    },
+    ast::{Column, Expr, Select, Table, TableLookup, Value},
     parser::*,
-    to_chars,
     Error,
 };
-use pom::parser::{
-    call,
-    end,
-    is_a,
-    one_of,
-    sym,
-    tag,
-    Parser,
-};
+use pom::parser::{sym, tag, Parser};
 use sql_ast::ast as sql;
 
 #[derive(Debug, PartialEq, Clone)]
@@ -115,11 +97,9 @@ impl Into<sql::Statement> for &Update {
                 .columns
                 .iter()
                 .zip(self.values.iter())
-                .map(|(column, value)| {
-                    sql::Assignment {
-                        id: Into::into(column),
-                        value: Into::into(value),
-                    }
+                .map(|(column, value)| sql::Assignment {
+                    id: Into::into(column),
+                    value: Into::into(value),
                 })
                 .collect(),
             selection: self.condition.as_ref().map(|expr| Into::into(expr)),
@@ -133,20 +113,16 @@ impl Source {
         table_lookup: Option<&TableLookup>,
     ) -> Result<sql::SetExpr, Error> {
         let ret = match self {
-            Source::Select(select) => {
-                sql::SetExpr::Select(Box::new(
-                    select.into_sql_select(table_lookup)?,
-                ))
-            }
-            Source::Values(rows) => {
-                sql::SetExpr::Values(sql::Values(
-                    rows.iter()
-                        .map(|record| {
-                            record.iter().map(|v| Into::into(v)).collect()
-                        })
-                        .collect(),
-                ))
-            }
+            Source::Select(select) => sql::SetExpr::Select(Box::new(
+                select.into_sql_select(table_lookup)?,
+            )),
+            Source::Values(rows) => sql::SetExpr::Values(sql::Values(
+                rows.iter()
+                    .map(|record| {
+                        record.iter().map(|v| Into::into(v)).collect()
+                    })
+                    .collect(),
+            )),
             Source::Parameterized(params) => {
                 println!("parameterized params: {:?}", params);
                 sql::SetExpr::ParameterizedValue(params.to_owned())
@@ -167,13 +143,11 @@ fn columns<'a>() -> Parser<'a, char, Vec<Column>> {
 /// product{product_id,created_by,created,is_active}?returning=product_id,name
 pub fn insert<'a>() -> Parser<'a, char, Insert> {
     (table() - sym('{') + columns() - sym('}') + (sym('?') * returning()).opt())
-        .map(|((into, columns), returning)| {
-            Insert {
-                into,
-                columns,
-                returning,
-                source: Source::Values(vec![]),
-            }
+        .map(|((into, columns), returning)| Insert {
+            into,
+            columns,
+            returning,
+            source: Source::Values(vec![]),
         })
 }
 
@@ -206,6 +180,7 @@ pub fn delete<'a>() -> Parser<'a, char, Delete> {
         .map(|(from, condition)| Delete { from, condition })
 }
 
+#[allow(unused)]
 fn bulk_delete<'a>() -> Parser<'a, char, BulkDelete> {
     (table() - sym('{') + columns() - sym('}')).map(|(from, columns)| {
         BulkDelete {
@@ -216,6 +191,7 @@ fn bulk_delete<'a>() -> Parser<'a, char, BulkDelete> {
     })
 }
 
+#[allow(unused)]
 fn bulk_update<'a>() -> Parser<'a, char, BulkUpdate> {
     (table() - sym('{') + columns() - sym('}')).map(|(table, columns)| {
         BulkUpdate {
@@ -229,6 +205,9 @@ fn bulk_update<'a>() -> Parser<'a, char, BulkUpdate> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::ast::expr::BinaryOperation;
+    use crate::ast::Operator;
+    use crate::parser::utils::to_chars;
 
     #[test]
     fn test_insert() {

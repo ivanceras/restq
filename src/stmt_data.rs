@@ -1,33 +1,16 @@
-/// CmdData, this contains both command and the data
+/// StmtData, this contains both statement and the data
 use crate::{
-    ast::{
-        ddl,
-        ddl::{ColumnDef, TableDef},
-        Statement, TableLookup, Value,
-    },
-    data_value::cast_data_value,
+    ast::{Statement, TableLookup},
     parser::utils::bytes_to_chars,
-    CsvRows, DataValue,
+    CsvRows,
 };
-use csv::{ReaderBuilder, StringRecordsIntoIter};
 use parser::parse_statement_chars;
-use std::{
-    io,
-    io::{BufRead, BufReader, Cursor, Read},
-};
-use thiserror::Error;
+use std::io::{BufRead, BufReader, Read};
 
 mod parser;
 
-#[derive(Error, Debug)]
-pub enum CsvError {
-    #[error("error parsing header {0}")]
-    HeaderParseError(pom::Error),
-    #[error("io error {0}")]
-    HeaderIoError(io::Error),
-}
-
-pub struct CsvData<R>
+/// Contains both the statement commands and the data
+pub struct StmtData<R>
 where
     R: Read + Send + Sync,
 {
@@ -35,7 +18,7 @@ where
     pub body: BufReader<R>,
 }
 
-impl<R> CsvData<R>
+impl<R> StmtData<R>
 where
     R: Read + Send + Sync,
 {
@@ -47,7 +30,7 @@ where
         let header_input = bytes_to_chars(&first_line);
         let statement = parse_statement_chars(&header_input)?;
 
-        Ok(CsvData {
+        Ok(StmtData {
             header: statement,
             body: bufread,
         })
@@ -106,6 +89,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::data_value::DataValue;
 
     #[test]
     fn test_csv_data() {
@@ -115,7 +99,7 @@ mod tests {
             ";
 
         let csv_data =
-            CsvData::from_reader(data.as_bytes()).expect("must be valid");
+            StmtData::from_reader(data.as_bytes()).expect("must be valid");
 
         let rows: Vec<Vec<DataValue>> = csv_data
             .rows_iter(None)

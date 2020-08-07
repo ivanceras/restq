@@ -1,21 +1,18 @@
-//#![deny(warnings)]
-#[macro_use]
-extern crate lazy_static;
+#![deny(warnings)]
 
 pub mod ast;
-pub mod csv_data;
 mod csv_rows;
 mod data_type;
 pub mod data_value;
 pub mod parser;
 pub mod plain_data;
+pub mod stmt_data;
 
 pub use ast::{
     ddl::{table_def, ColumnDef},
     Expr, Select, TableDef, TableError,
 };
 pub use chrono;
-pub use csv_data::CsvData;
 pub use csv_rows::CsvRows;
 pub use data_type::DataType;
 pub use data_value::DataValue;
@@ -24,10 +21,8 @@ pub use parser::{
     utils::{bytes_to_chars, space, to_chars},
 };
 pub use pom;
+pub use stmt_data::StmtData;
 use thiserror::Error;
-
-#[macro_use]
-extern crate log;
 
 #[derive(Error, Debug)]
 pub enum Error {

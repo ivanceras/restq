@@ -1,19 +1,11 @@
 /// contains Row iterator for the csv data
 use crate::{
-    ast::{
-        ddl,
-        ddl::{ColumnDef, TableDef},
-        Statement, TableLookup, Value,
-    },
+    ast::{ddl::ColumnDef, Value},
     data_value::cast_data_value,
-    parser::utils::bytes_to_chars,
     DataValue,
 };
 use csv::{ReaderBuilder, StringRecordsIntoIter};
-use std::{
-    io,
-    io::{BufRead, BufReader, Cursor, Read},
-};
+use std::io::{BufReader, Read};
 
 pub struct CsvRows<R>
 where

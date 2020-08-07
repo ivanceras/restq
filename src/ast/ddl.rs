@@ -1,36 +1,15 @@
 use crate::{
     ast::{
-        dml::{
-            Insert,
-            Source,
-        },
-        Column,
-        Statement,
-        Table,
-        TableError,
-        TableLookup,
+        dml::{Insert, Source},
+        Column, Statement, Table, TableError, TableLookup,
     },
-    data_type::{
-        data_type,
-        DataType,
-    },
+    data_type::{data_type, DataType},
     data_value,
     data_value::DataValue,
-    parser::{
-        utils::end_or_ln,
-        *,
-    },
+    parser::{utils::end_or_ln, *},
     Error,
 };
-use pom::parser::{
-    call,
-    end,
-    is_a,
-    one_of,
-    sym,
-    tag,
-    Parser,
-};
+use pom::parser::{sym, Parser};
 use sql_ast::ast as sql;
 
 #[derive(Debug, PartialEq, Clone)]
@@ -199,7 +178,7 @@ impl AlterOperation {
             // from the table_lookup and see
             // if it needs rename, add to index, add to unique,
             // drop the index, etc.
-            AlterOperation::AlterColumn(column, column_def) => todo!(),
+            AlterOperation::AlterColumn(_column, _column_def) => todo!(),
         }
     }
 }
@@ -210,12 +189,10 @@ impl ColumnDef {
         table_lookup: Option<&TableLookup>,
     ) -> Result<Vec<sql::ColumnOption>, TableError> {
         let mut att_column_options = match &self.attributes {
-            Some(attributes) => {
-                attributes
-                    .iter()
-                    .filter_map(|att| att.into_sql_column_option())
-                    .collect()
-            }
+            Some(attributes) => attributes
+                .iter()
+                .filter_map(|att| att.into_sql_column_option())
+                .collect(),
             None => vec![],
         };
         att_column_options
@@ -282,7 +259,7 @@ impl ColumnDef {
 impl DataTypeDef {
     fn into_sql_column_options(
         &self,
-        table_lookup: Option<&TableLookup>,
+        _table_lookup: Option<&TableLookup>,
     ) -> Vec<sql::ColumnOption> {
         vec![
             if !self.is_optional {
@@ -341,7 +318,7 @@ fn column_attributes<'a>() -> Parser<'a, char, Vec<ColumnAttribute>> {
 
 /// foreign = "(", table, ")"
 fn foreign<'a>() -> Parser<'a, char, Table> {
-    (sym('(') * table() - sym(')'))
+    sym('(') * table() - sym(')')
 }
 
 /// parse column definition with the format
@@ -351,13 +328,11 @@ fn foreign<'a>() -> Parser<'a, char, Table> {
 fn column_def<'a>() -> Parser<'a, char, ColumnDef> {
     ((column_attributes().opt() + column() + foreign().opt() - sym(':')
         + data_type_def())
-    .map(|(((attributes, column), foreign), data_type)| {
-        ColumnDef {
-            column,
-            attributes,
-            data_type_def: data_type,
-            foreign,
-        }
+    .map(|(((attributes, column), foreign), data_type)| ColumnDef {
+        column,
+        attributes,
+        data_type_def: data_type,
+        foreign,
     }))
     .name("column_def")
 }
@@ -433,11 +408,9 @@ fn alter_operations<'a>() -> Parser<'a, char, Vec<AlterOperation>> {
 
 pub fn alter_table<'a>() -> Parser<'a, char, AlterTable> {
     (table() + alter_operations() - end_or_ln()).map(
-        |(table, alter_operations)| {
-            AlterTable {
-                table,
-                alter_operations,
-            }
+        |(table, alter_operations)| AlterTable {
+            table,
+            alter_operations,
         },
     )
 }
@@ -559,12 +532,11 @@ mod tests {
         let ret = data_type_def().parse(&input);
         println!("{:#?}", ret);
         assert!(ret.is_err());
-        assert!(
-            ret.err()
-                .unwrap()
-                .to_string()
-                .contains(r#"InvalidDataType("invalid32")"#)
-        );
+        assert!(ret
+            .err()
+            .unwrap()
+            .to_string()
+            .contains(r#"InvalidDataType("invalid32")"#));
     }
 
     #[test]
@@ -631,12 +603,11 @@ mod tests {
         let ret = column_def_list().parse(&input);
         println!("{:#?}", ret);
         assert!(ret.is_err());
-        assert!(
-            ret.err()
-                .unwrap()
-                .to_string()
-                .contains(r#"InvalidDataType("invalid32")"#)
-        );
+        assert!(ret
+            .err()
+            .unwrap()
+            .to_string()
+            .contains(r#"InvalidDataType("invalid32")"#));
     }
 
     #[test]
@@ -645,12 +616,11 @@ mod tests {
         let ret = column_def_list().parse(&input);
         println!("{:#?}", ret);
         assert!(ret.is_err());
-        assert!(
-            ret.err()
-                .unwrap()
-                .to_string()
-                .contains(r#"InvalidDataType("invalid32")"#)
-        );
+        assert!(ret
+            .err()
+            .unwrap()
+            .to_string()
+            .contains(r#"InvalidDataType("invalid32")"#));
     }
 
     #[test]
@@ -659,12 +629,11 @@ mod tests {
         let ret = column_def_list().parse(&input);
         println!("{:#?}", ret);
         assert!(ret.is_err());
-        assert!(
-            ret.err()
-                .unwrap()
-                .to_string()
-                .contains(r#"InvalidDataType("invalid_text")"#)
-        );
+        assert!(ret
+            .err()
+            .unwrap()
+            .to_string()
+            .contains(r#"InvalidDataType("invalid_text")"#));
     }
 
     #[test]
@@ -673,12 +642,11 @@ mod tests {
         let ret = column_def().parse(&input);
         println!("{:#?}", ret);
         assert!(ret.is_err());
-        assert!(
-            ret.err()
-                .unwrap()
-                .to_string()
-                .contains(r#"InvalidDataType("invalid32")"#)
-        );
+        assert!(ret
+            .err()
+            .unwrap()
+            .to_string()
+            .contains(r#"InvalidDataType("invalid32")"#));
     }
 
     #[test]
@@ -757,12 +725,11 @@ mod tests {
         let ret = table_def().parse(&input);
         println!("{:#?}", ret);
         assert!(ret.is_err());
-        assert!(
-            ret.err()
-                .unwrap()
-                .to_string()
-                .contains(r#"InvalidDataType("timestamp")"#)
-        );
+        assert!(ret
+            .err()
+            .unwrap()
+            .to_string()
+            .contains(r#"InvalidDataType("timestamp")"#));
     }
 
     #[test]

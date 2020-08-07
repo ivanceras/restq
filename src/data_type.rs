@@ -1,14 +1,7 @@
-use crate::{
-    parser::ident,
-    Error,
-};
+use crate::{parser::ident, Error};
 use pom::parser::*;
 use sql_ast::ast as sql;
-use std::{
-    collections::BTreeMap,
-    fmt,
-    iter::FromIterator,
-};
+use std::fmt;
 
 /// restq supports comprehensive data types
 /// based on rust and postgresql type, combined together
