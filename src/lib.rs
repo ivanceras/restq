@@ -20,6 +20,7 @@ pub use parser::{
     filter_expr, select,
     utils::{bytes_to_chars, space, to_chars},
 };
+pub use plain_data::PlainData;
 pub use pom;
 pub use stmt_data::parse_select_chars;
 pub use stmt_data::StmtData;
