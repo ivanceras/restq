@@ -1,47 +1,16 @@
-use http::{
-    Method,
-    Request,
-};
+use http::{Method, Request};
 pub use restq::{
     ast::{
-        ddl::{
-            alter_table,
-            drop_table,
-            table_def,
-            ColumnDef,
-        },
-        dml::{
-            delete,
-            insert,
-            update,
-        },
-        AlterTable,
-        Delete,
-        DropTable,
-        Insert,
-        Select,
-        Statement,
-        TableDef,
+        ddl::{alter_table, drop_table, table_def, ColumnDef},
+        dml::{delete, insert, update},
+        AlterTable, Delete, DropTable, Insert, Select, Statement, TableDef,
         Update,
     },
-    csv_data::CsvRows,
     parser::select,
-    pom::parser::{
-        sym,
-        tag,
-        Parser,
-    },
-    space,
-    to_chars,
-    CsvData,
-    DataValue,
-    Error,
+    pom::parser::{sym, tag, Parser},
+    space, to_chars, CsvRows, DataValue, Error, StmtData,
 };
-use std::io::{
-    BufReader,
-    Cursor,
-    Read,
-};
+use std::io::{BufReader, Cursor, Read};
 use thiserror::Error;
 
 /// Parse into SQL Statement AST from http::Request
@@ -113,7 +82,7 @@ pub fn csv_data_from_parts(
     method: &Method,
     url: &str,
     body: Option<Vec<u8>>,
-) -> Result<CsvData<Cursor<Vec<u8>>>, Error> {
+) -> Result<StmtData<Cursor<Vec<u8>>>, Error> {
     let prefix = method_to_prefix(method);
     let mut prefixed_url_and_body =
         format!("{} {}\n", prefix, url).into_bytes();
@@ -122,17 +91,14 @@ pub fn csv_data_from_parts(
         String::from_utf8_lossy(&prefixed_url_and_body)
     );
     body.map(|body| prefixed_url_and_body.extend(body));
-    Ok(CsvData::from_reader(Cursor::new(prefixed_url_and_body))?)
+    Ok(StmtData::from_reader(Cursor::new(prefixed_url_and_body))?)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use restq::{
-        ast::{
-            ddl::*,
-            *,
-        },
+        ast::{ddl::*, *},
         *,
     };
 
