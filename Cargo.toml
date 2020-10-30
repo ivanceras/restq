@@ -26,3 +26,6 @@ log = "0.4.8"
 members = [
     "crates/restq-http",
 ]
+
+[patch.crates-io]
+sql-ast = { path = "../sql-ast" }

@@ -65,6 +65,10 @@ pub enum DataType {
     Ident,
     /// A valid url
     Url,
+    /// json type
+    Json,
+    /// bytes
+    Bytes,
 }
 
 impl DataType {
@@ -94,6 +98,8 @@ impl DataType {
             DataType::Text,
             DataType::Ident,
             DataType::Url,
+            DataType::Json,
+            DataType::Bytes,
         ]
     }
 
@@ -122,6 +128,8 @@ impl DataType {
             "text" => Ok(DataType::Text),
             "ident" => Ok(DataType::Ident),
             "url" => Ok(DataType::Url),
+            "json" => Ok(DataType::Json),
+            "bytes" => Ok(DataType::Bytes),
             _ => Err(Error::InvalidDataType(dt.to_string())),
         }
     }
@@ -153,6 +161,8 @@ impl fmt::Display for DataType {
             DataType::Text => "text",
             DataType::Ident => "ident",
             DataType::Url => "url",
+            DataType::Json => "json",
+            DataType::Bytes => "bytes",
         };
 
         write!(f, "{}", display)
@@ -163,6 +173,7 @@ pub fn data_type<'a>() -> Parser<'a, char, DataType> {
     ident().convert(|v| DataType::match_data_type(&v))
 }
 
+/// the corresponding sql type for this data type
 impl Into<sql::DataType> for &DataType {
     fn into(self) -> sql::DataType {
         match self {
@@ -189,6 +200,8 @@ impl Into<sql::DataType> for &DataType {
             DataType::Text => sql::DataType::Text,
             DataType::Ident => sql::DataType::Text,
             DataType::Url => sql::DataType::Text,
+            DataType::Json => sql::DataType::Json,
+            DataType::Bytes => sql::DataType::Bytea,
         }
     }
 }
