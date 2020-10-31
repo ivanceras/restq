@@ -12,6 +12,7 @@ use crate::{
     Error,
 };
 use sql_ast::ast as sql;
+use std::fmt;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct ColumnDef {
@@ -303,6 +304,16 @@ impl ColumnAttribute {
                 Some(sql::ColumnOption::Unique { is_primary: false })
             }
             ColumnAttribute::Index => None,
+        }
+    }
+}
+
+impl fmt::Display for ColumnAttribute {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            ColumnAttribute::Primary => write!(f, "*"),
+            ColumnAttribute::Unique => write!(f, "&"),
+            ColumnAttribute::Index => write!(f, "@"),
         }
     }
 }
