@@ -1,16 +1,17 @@
+pub mod ddl;
+pub mod dml;
+mod expr;
+mod operator;
+mod table;
+
 use crate::Error;
 pub use ddl::{AlterTable, DropTable, TableDef};
 pub use dml::{BulkDelete, BulkUpdate, Delete, Insert, Update};
 pub use expr::{BinaryOperation, Expr, ExprRename};
 pub use operator::Operator;
 use sql_ast::ast as sql;
+use std::fmt;
 pub use table::{FromTable, JoinType, Table, TableError, TableLookup};
-
-pub mod ddl;
-pub mod dml;
-mod expr;
-mod operator;
-mod table;
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Statement {
@@ -233,6 +234,12 @@ impl Into<sql::Function> for &Function {
 impl Into<sql::Ident> for &Column {
     fn into(self) -> sql::Ident {
         sql::Ident::new(&self.name)
+    }
+}
+
+impl fmt::Display for Column {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.name)
     }
 }
 

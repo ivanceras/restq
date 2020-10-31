@@ -4,6 +4,7 @@ use crate::ast::{
 };
 use sql_ast::ast as sql;
 use std::collections::BTreeMap;
+use std::fmt;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -54,6 +55,12 @@ impl Into<sql::TableFactor> for &Table {
 impl Into<sql::ObjectName> for &Table {
     fn into(self) -> sql::ObjectName {
         sql::ObjectName(vec![sql::Ident::new(&self.name)])
+    }
+}
+
+impl fmt::Display for Table {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.name)
     }
 }
 

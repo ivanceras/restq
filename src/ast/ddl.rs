@@ -279,6 +279,19 @@ impl DataTypeDef {
     }
 }
 
+impl fmt::Display for DataTypeDef {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.data_type.fmt(f)?;
+        if self.is_optional {
+            write!(f, "?")?;
+        }
+        if let Some(default) = &self.default {
+            write!(f, "({})", default)?;
+        }
+        Ok(())
+    }
+}
+
 impl ColumnDef {
     fn into_sql_column_def(
         &self,
@@ -290,6 +303,23 @@ impl ColumnDef {
             collation: None,
             options: self.into_sql_column_options_def(table_lookup)?,
         })
+    }
+}
+
+impl fmt::Display for ColumnDef {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        if let Some(attrs) = &self.attributes {
+            for att in attrs {
+                att.fmt(f)?;
+            }
+        }
+        self.column.fmt(f)?;
+        if let Some(foreign) = &self.foreign {
+            write!(f, "({})", foreign)?;
+        }
+        write!(f, ":")?;
+        self.data_type_def.fmt(f)?;
+        Ok(())
     }
 }
 
@@ -461,6 +491,52 @@ mod tests {
                 },
                 foreign: None,
             },
+        );
+    }
+
+    #[test]
+    fn display_column_def() {
+        assert_eq!(
+            "*product_id:u32",
+            ColumnDef {
+                column: Column {
+                    name: "product_id".to_string()
+                },
+                attributes: Some(vec![ColumnAttribute::Primary]),
+                data_type_def: DataTypeDef {
+                    data_type: DataType::U32,
+                    is_optional: false,
+                    default: None,
+                },
+                foreign: None,
+            }
+            .to_string(),
+        );
+    }
+
+    #[test]
+    fn display_column_def2() {
+        assert_eq!(
+            "*&@product_id(product):u32?(qr-123)",
+            ColumnDef {
+                column: Column {
+                    name: "product_id".to_string()
+                },
+                attributes: Some(vec![
+                    ColumnAttribute::Primary,
+                    ColumnAttribute::Unique,
+                    ColumnAttribute::Index
+                ]),
+                data_type_def: DataTypeDef {
+                    data_type: DataType::U32,
+                    is_optional: true,
+                    default: Some(DataValue::Text("qr-123".to_string())),
+                },
+                foreign: Some(Table {
+                    name: "product".to_string()
+                }),
+            }
+            .to_string(),
         );
     }
 

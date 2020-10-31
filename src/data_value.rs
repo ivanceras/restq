@@ -4,6 +4,7 @@ use crate::{
 };
 use chrono::{offset::FixedOffset, DateTime, Local, NaiveDateTime, Utc};
 use sql_ast::ast as sql;
+use std::fmt;
 use url::Url;
 use uuid::Uuid;
 
@@ -421,6 +422,37 @@ pub fn cast_data_value(value: &Value, required_type: &DataType) -> DataValue {
                 "unsupported conversion from {:?} to {:?}",
                 value, required_type
             ),
+        }
+    }
+}
+
+impl fmt::Display for DataValue {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            DataValue::Nil => write!(f, ""),
+            DataValue::Bool(v) => write!(f, "{}", v),
+            DataValue::S8(v) => write!(f, "{}", v),
+            DataValue::S16(v) => write!(f, "{}", v),
+            DataValue::S32(v) => write!(f, "{}", v),
+            DataValue::S64(v) => write!(f, "{}", v),
+            DataValue::F32(v) => write!(f, "{}", v),
+            DataValue::F64(v) => write!(f, "{}", v),
+            DataValue::U8(v) => write!(f, "{}", v),
+            DataValue::U16(v) => write!(f, "{}", v),
+            DataValue::U32(v) => write!(f, "{}", v),
+            DataValue::U64(v) => write!(f, "{}", v),
+            DataValue::I8(v) => write!(f, "{}", v),
+            DataValue::I16(v) => write!(f, "{}", v),
+            DataValue::I32(v) => write!(f, "{}", v),
+            DataValue::I64(v) => write!(f, "{}", v),
+            DataValue::Uuid(v) => write!(f, "{}", v),
+            DataValue::UuidRand(v) => write!(f, "{}", v),
+            DataValue::UuidSlug(v) => write!(f, "{}", v),
+            DataValue::Local(v) => write!(f, "{}", v),
+            DataValue::Utc(v) => write!(f, "{}", v),
+            DataValue::Text(v) => write!(f, "{}", v),
+            DataValue::Ident(v) => write!(f, "{}", v),
+            DataValue::Url(v) => write!(f, "{}", v),
         }
     }
 }
