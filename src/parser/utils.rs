@@ -1,10 +1,7 @@
 use pom::parser::*;
 use std::{
     iter::FromIterator,
-    str::{
-        self,
-        FromStr,
-    },
+    str::{self, FromStr},
 };
 
 pub fn to_chars(input: &str) -> Vec<char> {

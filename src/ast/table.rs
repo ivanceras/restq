@@ -1,13 +1,6 @@
 use crate::ast::{
-    ddl::{
-        ColumnAttribute,
-        ColumnDef,
-        TableDef,
-    },
-    BinaryOperation,
-    Column,
-    Expr,
-    Operator,
+    ddl::{ColumnAttribute, ColumnDef, TableDef},
+    BinaryOperation, Column, Expr, Operator,
 };
 use sql_ast::ast as sql;
 use std::collections::BTreeMap;
@@ -101,11 +94,9 @@ impl TableDef {
     ) -> Vec<&ColumnDef> {
         self.columns
             .iter()
-            .filter(|column| {
-                match &column.foreign {
-                    Some(foreign) => foreign.name == table_name,
-                    None => false,
-                }
+            .filter(|column| match &column.foreign {
+                Some(foreign) => foreign.name == table_name,
+                None => false,
             })
             .collect()
     }
@@ -114,15 +105,11 @@ impl TableDef {
     pub(crate) fn get_primary_columns(&self) -> Vec<&ColumnDef> {
         self.columns
             .iter()
-            .filter(|column| {
-                match &column.attributes {
-                    Some(attributes) => {
-                        attributes
-                            .iter()
-                            .any(|att| *att == ColumnAttribute::Primary)
-                    }
-                    None => false,
-                }
+            .filter(|column| match &column.attributes {
+                Some(attributes) => attributes
+                    .iter()
+                    .any(|att| *att == ColumnAttribute::Primary),
+                None => false,
             })
             .collect()
     }
@@ -146,12 +133,10 @@ impl FromTable {
     ) -> Result<Vec<sql::Join>, TableError> {
         match table_lookup {
             Some(table_lookup) => self.extract_join(table_lookup),
-            None => {
-                match self.join {
-                    Some(_) => Err(TableError::NoSuppliedTableLookup),
-                    None => Ok(vec![]),
-                }
-            }
+            None => match self.join {
+                Some(_) => Err(TableError::NoSuppliedTableLookup),
+                None => Ok(vec![]),
+            },
         }
     }
 
@@ -170,16 +155,12 @@ impl FromTable {
                     table_lookup.get_table_def(&self.from.name);
 
                 match (this_table_def, joined_table_def) {
-                    (None, _) => {
-                        Err(TableError::TableNotFound(
-                            self.from.name.to_string(),
-                        ))
-                    }
-                    (_, None) => {
-                        Err(TableError::TableNotFound(
-                            joined_table.from.name.to_string(),
-                        ))
-                    }
+                    (None, _) => Err(TableError::TableNotFound(
+                        self.from.name.to_string(),
+                    )),
+                    (_, None) => Err(TableError::TableNotFound(
+                        joined_table.from.name.to_string(),
+                    )),
                     (Some(this_table_def), Some(joined_table_def)) => {
                         let this_primary_keys =
                             this_table_def.get_primary_columns();

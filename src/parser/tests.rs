@@ -1,14 +1,8 @@
 use super::*;
 use crate::{
     ast::{
-        ddl::{
-            ColumnAttribute,
-            ColumnDef,
-            DataTypeDef,
-            TableDef,
-        },
-        Column,
-        Table,
+        ddl::{ColumnAttribute, ColumnDef, DataTypeDef, TableDef},
+        Column, Table,
     },
     DataType,
 };
