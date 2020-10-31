@@ -217,3 +217,18 @@ impl FromTable {
         }
     }
 }
+
+impl fmt::Display for TableDef {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.table.fmt(f)?;
+        write!(f, "{{")?;
+        for (i, col) in self.columns.iter().enumerate() {
+            if i > 0 {
+                write!(f, ",")?;
+            }
+            col.fmt(f)?;
+        }
+        write!(f, "}}")?;
+        Ok(())
+    }
+}

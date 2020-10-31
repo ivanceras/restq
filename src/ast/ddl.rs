@@ -806,4 +806,95 @@ mod tests {
             }
         )
     }
+
+    #[test]
+    fn displa_actor_table() {
+        assert_eq!(
+            "actor{*actor_id:s32,&first_name:text,&@last_name:text,last_update:utc,created_by(users):u32,is_active:bool}",
+            TableDef {
+                table: Table {
+                    name: "actor".into()
+                },
+                columns: vec![
+                    ColumnDef {
+                        column: Column {
+                            name: "actor_id".to_string()
+                        },
+                        attributes: Some(vec![ColumnAttribute::Primary]),
+                        data_type_def: DataTypeDef {
+                            data_type: DataType::S32,
+                            is_optional: false,
+                            default: None,
+                        },
+                        foreign: None,
+                    },
+                    ColumnDef {
+                        column: Column {
+                            name: "first_name".into()
+                        },
+                        attributes: Some(vec![ColumnAttribute::Unique]),
+                        data_type_def: DataTypeDef {
+                            data_type: DataType::Text,
+                            is_optional: false,
+                            default: None,
+                        },
+                        foreign: None,
+                    },
+                    ColumnDef {
+                        column: Column {
+                            name: "last_name".into()
+                        },
+                        attributes: Some(vec![
+                            ColumnAttribute::Unique,
+                            ColumnAttribute::Index
+                        ]),
+                        data_type_def: DataTypeDef {
+                            data_type: DataType::Text,
+                            is_optional: false,
+                            default: None,
+                        },
+                        foreign: None,
+                    },
+                    ColumnDef {
+                        column: Column {
+                            name: "last_update".into()
+                        },
+                        attributes: None,
+                        data_type_def: DataTypeDef {
+                            data_type: DataType::Utc,
+                            is_optional: false,
+                            default: None,
+                        },
+                        foreign: None,
+                    },
+                    ColumnDef {
+                        column: Column {
+                            name: "created_by".into()
+                        },
+                        attributes: None,
+                        data_type_def: DataTypeDef {
+                            data_type: DataType::U32,
+                            is_optional: false,
+                            default: None,
+                        },
+                        foreign: Some(Table {
+                            name: "users".into()
+                        }),
+                    },
+                    ColumnDef {
+                        column: Column {
+                            name: "is_active".into()
+                        },
+                        attributes: None,
+                        data_type_def: DataTypeDef {
+                            data_type: DataType::Bool,
+                            is_optional: false,
+                            default: None,
+                        },
+                        foreign: None,
+                    },
+                ]
+            }.to_string()
+        )
+    }
 }
