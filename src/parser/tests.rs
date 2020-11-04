@@ -75,7 +75,6 @@ fn test_right_join_table() {
 
 #[test]
 #[should_panic]
-//FIXME: this should fail, since the table name `123213` is invalid name
 fn test_expect_valid_table_after_join() {
     let input = to_chars("product->123213");
     let ret = select().parse(&input).expect("must be parsed");
