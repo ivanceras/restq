@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.3.2
+- Fix issue: query only has table and paging, the paging was incorrectly parsed as filter.
+
 ## 0.3.1
  - Add an expose `parse_select_chars` for usage in `inquerest` crate
 
