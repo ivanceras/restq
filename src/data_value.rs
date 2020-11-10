@@ -73,18 +73,19 @@ impl DataValue {
 }
 
 fn naive_date_parser(v: &str) -> NaiveDateTime {
-    let ts = NaiveDateTime::parse_from_str(&v, "%Y-%m-%d %H:%M:%S");
-    let ts = if let Ok(ts) = ts {
+    if let Ok(ts) = NaiveDateTime::parse_from_str(&v, "%Y-%m-%dT%H:%M:%S%z") {
+        ts
+    } else if let Ok(ts) =
+        NaiveDateTime::parse_from_str(&v, "%Y-%m-%d %H:%M:%S")
+    {
+        ts
+    } else if let Ok(ts) =
+        NaiveDateTime::parse_from_str(&v, "%Y-%m-%d %H:%M:%S.%f")
+    {
         ts
     } else {
-        let ts = NaiveDateTime::parse_from_str(&v, "%Y-%m-%d %H:%M:%S.%f");
-        if let Ok(ts) = ts {
-            ts
-        } else {
-            panic!("unable to parse timestamp: {}", v);
-        }
-    };
-    ts
+        panic!("unable to parse timestamp: {}", v);
+    }
 }
 
 impl Into<u32> for DataValue {
