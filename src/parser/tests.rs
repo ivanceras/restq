@@ -274,6 +274,19 @@ fn test_simple_select_to_sql() {
 }
 
 #[test]
+fn test_table_query_with_range_only() {
+    let input = to_chars("person&page=1&page_size=20");
+    let ret = select().parse(&input).expect("must be parsed");
+    let select = ret.into_sql_query(None).expect("must not fail");
+    println!("{}", select);
+    assert_eq!(
+        select.to_string(),
+        "SELECT * FROM person \
+         LIMIT 20 OFFSET 0 ROWS"
+    );
+}
+
+#[test]
 fn test_complex_query() {
     let input = to_chars("person{name,age,class}?(age=gt.42&student=eq.true)|(gender=eq.'M'&is_active=true)&group_by=sum(age),grade,gender&having=min(age)=gte.42&order_by=age.desc,height.asc&page=2&page_size=10");
     let ret = select().parse(&input).expect("must be parsed");

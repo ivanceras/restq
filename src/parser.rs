@@ -74,6 +74,8 @@ fn restricted_ident<'a>() -> Parser<'a, char, &'a str> {
         | tag("limit")
         | tag("asc")
         | tag("desc")
+        | tag("page")
+        | tag("page_size")
 }
 
 pub(crate) fn strict_ident<'a>() -> Parser<'a, char, String> {
