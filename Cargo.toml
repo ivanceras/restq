@@ -16,7 +16,7 @@ url = "2.1.0"
 chrono = "0.4.10"
 uuid = "0.8.1"
 lazy_static = "1.4.0"
-sql-ast = { version = "0.7.0"}
+sql-ast = { version = "0.7.1"}
 thiserror = "1.0.9"
 csv = "1.1.1"
 log = "0.4.8"
@@ -27,5 +27,5 @@ members = [
     "crates/restq-http",
 ]
 
-[patch.crates-io]
-sql-ast = { path = "../sql-ast" }
+#[patch.crates-io]
+#sql-ast = { path = "../sql-ast" }
