@@ -83,6 +83,8 @@ fn naive_date_parser(v: &str) -> NaiveDateTime {
         NaiveDateTime::parse_from_str(&v, "%Y-%m-%d %H:%M:%S.%f")
     {
         ts
+    } else if let Ok(ts) = NaiveDateTime::parse_from_str(&v, "%Y-%m-%d") {
+        ts
     } else {
         panic!("unable to parse timestamp: {}", v);
     }
@@ -221,6 +223,10 @@ pub fn cast_data_value(value: &Value, required_type: &DataType) -> DataValue {
                 DataType::I16 => DataValue::I16(if v { 1 } else { 0 }),
                 DataType::I32 => DataValue::I32(if v { 1 } else { 0 }),
                 DataType::I64 => DataValue::I64(if v { 1 } else { 0 }),
+                DataType::S8 => DataValue::S8(if v { 1 } else { 0 }),
+                DataType::S16 => DataValue::S16(if v { 1 } else { 0 }),
+                DataType::S32 => DataValue::S32(if v { 1 } else { 0 }),
+                DataType::S64 => DataValue::S64(if v { 1 } else { 0 }),
                 _ => panic!(
                     "unsupported conversion from {:?} to {:?}",
                     value, required_type
@@ -237,6 +243,10 @@ pub fn cast_data_value(value: &Value, required_type: &DataType) -> DataValue {
                 DataType::I64 => DataValue::I64(v as i64),
                 DataType::F32 => DataValue::F32(v as f32),
                 DataType::F64 => DataValue::F64(v as f64),
+                DataType::S8 => DataValue::S8(v as u8),
+                DataType::S16 => DataValue::S16(v as u16),
+                DataType::S32 => DataValue::S32(v as u32),
+                DataType::S64 => DataValue::S64(v as u64),
                 _ => panic!(
                     "unsupported conversion from {:?} to {:?}",
                     value, required_type
