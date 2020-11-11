@@ -23,6 +23,7 @@ pub use parser::{
 pub use plain_data::PlainData;
 pub use pom;
 pub use stmt_data::parse_select_chars;
+pub use stmt_data::parse_statement;
 pub use stmt_data::StmtData;
 use thiserror::Error;
 pub use uuid::Uuid;

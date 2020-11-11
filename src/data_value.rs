@@ -2,7 +2,10 @@ use crate::{
     ast::{Expr, Value},
     data_type::DataType,
 };
-use chrono::{offset::FixedOffset, DateTime, Local, NaiveDateTime, Utc};
+use chrono::{
+    offset::FixedOffset, DateTime, Local, NaiveDate, NaiveDateTime, NaiveTime,
+    Utc,
+};
 use sql_ast::ast as sql;
 use std::fmt;
 use url::Url;
@@ -36,6 +39,7 @@ pub enum DataValue {
     Text(String),
     Ident(String),
     Url(Url),
+    Bytes(Vec<u8>),
 }
 
 impl DataValue {
@@ -67,13 +71,18 @@ impl DataValue {
             DataValue::Text(_) => DataType::Text,
             DataValue::Ident(_) => DataType::Ident,
             DataValue::Url(_) => DataType::Url,
+            DataValue::Bytes(_) => DataType::Bytes,
         };
         Some(dt)
     }
 }
 
 fn naive_date_parser(v: &str) -> NaiveDateTime {
-    if let Ok(ts) = NaiveDateTime::parse_from_str(&v, "%Y-%m-%dT%H:%M:%S%z") {
+    if let Ok(dt) = DateTime::parse_from_rfc3339(v) {
+        dt.naive_local()
+    } else if let Ok(ts) =
+        NaiveDateTime::parse_from_str(&v, "%Y-%m-%dT%H:%M:%S%z")
+    {
         ts
     } else if let Ok(ts) =
         NaiveDateTime::parse_from_str(&v, "%Y-%m-%d %H:%M:%S")
@@ -83,8 +92,8 @@ fn naive_date_parser(v: &str) -> NaiveDateTime {
         NaiveDateTime::parse_from_str(&v, "%Y-%m-%d %H:%M:%S.%f")
     {
         ts
-    } else if let Ok(ts) = NaiveDateTime::parse_from_str(&v, "%Y-%m-%d") {
-        ts
+    } else if let Ok(nd) = NaiveDate::parse_from_str(&v, "%Y-%m-%d") {
+        NaiveDateTime::new(nd, NaiveTime::from_hms_milli(0, 0, 0, 0))
     } else {
         panic!("unable to parse timestamp: {}", v);
     }
@@ -263,7 +272,9 @@ pub fn cast_data_value(value: &Value, required_type: &DataType) -> DataValue {
                         _ => DataValue::Bool(false),
                     },
                     DataType::S8 => {
-                        if let Ok(v) = v.parse::<u8>() {
+                        if v.is_empty() {
+                            DataValue::Nil
+                        } else if let Ok(v) = v.parse::<u8>() {
                             DataValue::S8(v)
                         } else {
                             panic!(
@@ -273,7 +284,9 @@ pub fn cast_data_value(value: &Value, required_type: &DataType) -> DataValue {
                         }
                     }
                     DataType::S16 => {
-                        if let Ok(v) = v.parse::<u16>() {
+                        if v.is_empty() {
+                            DataValue::Nil
+                        } else if let Ok(v) = v.parse::<u16>() {
                             DataValue::S16(v)
                         } else {
                             panic!(
@@ -283,7 +296,9 @@ pub fn cast_data_value(value: &Value, required_type: &DataType) -> DataValue {
                         }
                     }
                     DataType::S32 => {
-                        if let Ok(v) = v.parse::<u32>() {
+                        if v.is_empty() {
+                            DataValue::Nil
+                        } else if let Ok(v) = v.parse::<u32>() {
                             DataValue::S32(v)
                         } else {
                             panic!(
@@ -293,7 +308,9 @@ pub fn cast_data_value(value: &Value, required_type: &DataType) -> DataValue {
                         }
                     }
                     DataType::S64 => {
-                        if let Ok(v) = v.parse::<u64>() {
+                        if v.is_empty() {
+                            DataValue::Nil
+                        } else if let Ok(v) = v.parse::<u64>() {
                             DataValue::S64(v)
                         } else {
                             panic!(
@@ -303,7 +320,11 @@ pub fn cast_data_value(value: &Value, required_type: &DataType) -> DataValue {
                         }
                     }
                     DataType::U8 => {
-                        if let Ok(v) = v.parse::<u8>() {
+                        if v.is_empty() {
+                            DataValue::Nil
+                        } else if v.is_empty() {
+                            DataValue::Nil
+                        } else if let Ok(v) = v.parse::<u8>() {
                             DataValue::U8(v)
                         } else {
                             panic!(
@@ -313,7 +334,9 @@ pub fn cast_data_value(value: &Value, required_type: &DataType) -> DataValue {
                         }
                     }
                     DataType::U16 => {
-                        if let Ok(v) = v.parse::<u16>() {
+                        if v.is_empty() {
+                            DataValue::Nil
+                        } else if let Ok(v) = v.parse::<u16>() {
                             DataValue::U16(v)
                         } else {
                             panic!(
@@ -323,7 +346,9 @@ pub fn cast_data_value(value: &Value, required_type: &DataType) -> DataValue {
                         }
                     }
                     DataType::U32 => {
-                        if let Ok(v) = v.parse::<u32>() {
+                        if v.is_empty() {
+                            DataValue::Nil
+                        } else if let Ok(v) = v.parse::<u32>() {
                             DataValue::U32(v)
                         } else {
                             panic!(
@@ -333,7 +358,9 @@ pub fn cast_data_value(value: &Value, required_type: &DataType) -> DataValue {
                         }
                     }
                     DataType::U64 => {
-                        if let Ok(v) = v.parse::<u64>() {
+                        if v.is_empty() {
+                            DataValue::Nil
+                        } else if let Ok(v) = v.parse::<u64>() {
                             DataValue::U64(v)
                         } else {
                             panic!(
@@ -343,7 +370,9 @@ pub fn cast_data_value(value: &Value, required_type: &DataType) -> DataValue {
                         }
                     }
                     DataType::I8 => {
-                        if let Ok(v) = v.parse::<i8>() {
+                        if v.is_empty() {
+                            DataValue::Nil
+                        } else if let Ok(v) = v.parse::<i8>() {
                             DataValue::I8(v)
                         } else {
                             panic!(
@@ -353,7 +382,9 @@ pub fn cast_data_value(value: &Value, required_type: &DataType) -> DataValue {
                         }
                     }
                     DataType::I16 => {
-                        if let Ok(v) = v.parse::<i16>() {
+                        if v.is_empty() {
+                            DataValue::Nil
+                        } else if let Ok(v) = v.parse::<i16>() {
                             DataValue::I16(v)
                         } else {
                             panic!(
@@ -363,7 +394,9 @@ pub fn cast_data_value(value: &Value, required_type: &DataType) -> DataValue {
                         }
                     }
                     DataType::I32 => {
-                        if let Ok(v) = v.parse::<i32>() {
+                        if v.is_empty() {
+                            DataValue::Nil
+                        } else if let Ok(v) = v.parse::<i32>() {
                             DataValue::I32(v)
                         } else {
                             panic!(
@@ -373,7 +406,9 @@ pub fn cast_data_value(value: &Value, required_type: &DataType) -> DataValue {
                         }
                     }
                     DataType::I64 => {
-                        if let Ok(v) = v.parse::<i64>() {
+                        if v.is_empty() {
+                            DataValue::Nil
+                        } else if let Ok(v) = v.parse::<i64>() {
                             DataValue::I64(v)
                         } else {
                             panic!(
@@ -383,7 +418,9 @@ pub fn cast_data_value(value: &Value, required_type: &DataType) -> DataValue {
                         }
                     }
                     DataType::F32 => {
-                        if let Ok(v) = v.parse::<f32>() {
+                        if v.is_empty() {
+                            DataValue::Nil
+                        } else if let Ok(v) = v.parse::<f32>() {
                             DataValue::F32(v)
                         } else {
                             panic!(
@@ -393,7 +430,9 @@ pub fn cast_data_value(value: &Value, required_type: &DataType) -> DataValue {
                         }
                     }
                     DataType::F64 => {
-                        if let Ok(v) = v.parse::<f64>() {
+                        if v.is_empty() {
+                            DataValue::Nil
+                        } else if let Ok(v) = v.parse::<f64>() {
                             DataValue::F64(v)
                         } else {
                             panic!(
@@ -423,6 +462,11 @@ pub fn cast_data_value(value: &Value, required_type: &DataType) -> DataValue {
                     DataType::UuidSlug => DataValue::UuidSlug(v.to_string()),
                     //TODO: validate identifier
                     DataType::Ident => DataValue::Ident(v.to_string()),
+                    DataType::Bytes => {
+                        let bytes = base64::decode_config(&v, base64::MIME)
+                            .expect("must be a valid base64 bytes");
+                        DataValue::Bytes(bytes)
+                    }
                     _ => panic!(
                         "unsupported conversion from {:?} to {:?}",
                         value, required_type
@@ -464,6 +508,28 @@ impl fmt::Display for DataValue {
             DataValue::Text(v) => write!(f, "{}", v),
             DataValue::Ident(v) => write!(f, "{}", v),
             DataValue::Url(v) => write!(f, "{}", v),
+            DataValue::Bytes(v) => {
+                let encoded = base64::encode_config(&v, base64::MIME);
+                write!(f, "{}", encoded)
+            }
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn parse_simple_date() {
+        let date = "2006-02-14";
+
+        let parsed = NaiveDateTime::parse_from_str(date, "%Y-%m-%d");
+        println!("parsed: {:?}", parsed);
+
+        let res = naive_date_parser(date);
+        let naive_date = NaiveDate::from_ymd(2006, 2, 14);
+        let naive_time = NaiveTime::from_hms_milli(0, 0, 0, 0);
+        assert_eq!(res, NaiveDateTime::new(naive_date, naive_time));
     }
 }

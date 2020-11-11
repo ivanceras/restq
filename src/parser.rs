@@ -339,7 +339,7 @@ fn page<'a>() -> Parser<'a, char, Page> {
     ((tag("page") - sym('='))
         * integer().expect("Expecting an integer value for page")
         - sym('&')
-        + page_size())
+        + page_size().expect("must specify a page_size"))
     .map(|(page, page_size)| Page { page, page_size })
 }
 

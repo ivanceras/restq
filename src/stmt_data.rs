@@ -5,6 +5,7 @@ use crate::{
     CsvRows,
 };
 pub use parser::parse_select_chars;
+pub use parser::parse_statement;
 use parser::parse_statement_chars;
 use std::io::{BufRead, BufReader, Read};
 
