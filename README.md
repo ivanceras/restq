@@ -1,5 +1,9 @@
 # RestQ
-is a compact data format/language suitable for use in a rest api.
+
+Restq is suitable to use for data intensive rest API.
+It is using `rest` and `csv` to descibe the data operation.
+
+Example:
 
 ```
 GET /person?age=lt.42&(student=eq.true|gender=eq.'M')&group_by=sum(age),grade,gender&having=min(age)=gt.42&order_by=age.desc,height.asc&page=20&page_size=100
