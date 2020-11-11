@@ -253,4 +253,15 @@ mod tests {
             _ => unreachable!(),
         }
     }
+
+    #[test]
+    fn test_select_and_paging() {
+        let select = parse_statement("/product&page=1&page_size=20")
+            .expect("must be parsed");
+        println!("select: {:#?}", select);
+        match select {
+            Statement::Select(_) => println!("ok"),
+            _ => unreachable!(),
+        }
+    }
 }
