@@ -12,6 +12,7 @@ pub use ast::{
         table_def,
         ColumnDef,
     },
+    parser,
     parser::{
         filter_expr,
         select,

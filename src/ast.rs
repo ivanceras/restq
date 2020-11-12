@@ -165,6 +165,10 @@ impl Into<Statement> for Select {
 }
 
 impl Select {
+    pub fn set_page(&mut self, page: i64, page_size: i64) {
+        self.range = Some(Range::Page(Page { page, page_size }));
+    }
+
     pub fn into_sql_select(
         &self,
         table_lookup: Option<&TableLookup>,
