@@ -1,4 +1,4 @@
-use crate::{parser::ident, Error};
+use crate::{ast::parser::ident, Error};
 use pom::parser::*;
 use sql_ast::ast as sql;
 use std::fmt;
@@ -209,7 +209,7 @@ impl Into<sql::DataType> for &DataType {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::parser::utils::*;
+    use crate::ast::parser::utils::*;
 
     #[test]
     fn test_data_type() {

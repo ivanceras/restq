@@ -1,9 +1,9 @@
 use super::*;
 use crate::{
+    ast::parser::{utils::end_or_ln, *},
     ast::Table,
     data_type::data_type,
     data_value,
-    parser::{utils::end_or_ln, *},
 };
 use pom::parser::{sym, Parser};
 

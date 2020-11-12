@@ -3,8 +3,8 @@ mod dml_parser;
 pub use dml_parser::*;
 
 use crate::{
+    ast::parser::*,
     ast::{Column, Expr, Select, Table, TableLookup, Value},
-    parser::*,
     Error,
 };
 use pom::parser::{sym, tag, Parser};
@@ -140,8 +140,8 @@ impl Source {
 mod tests {
     use super::*;
     use crate::ast::expr::BinaryOperation;
+    use crate::ast::parser::utils::to_chars;
     use crate::ast::Operator;
-    use crate::parser::utils::to_chars;
 
     #[test]
     fn test_insert() {

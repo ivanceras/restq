@@ -2,6 +2,7 @@ pub mod ddl;
 pub mod dml;
 mod expr;
 mod operator;
+pub mod parser;
 mod table;
 
 use crate::Error;

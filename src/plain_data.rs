@@ -1,7 +1,7 @@
 //! Plain csv data
 //! contains only the table definition and the csv data
 use crate::ast::ddl::table_def;
-use crate::{ast::ddl::TableDef, parser::utils::bytes_to_chars, CsvRows};
+use crate::{ast::ddl::TableDef, ast::parser::utils::bytes_to_chars, CsvRows};
 use std::io::{BufRead, BufReader, Read};
 
 /// contains just the table definition and the csv data

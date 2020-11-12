@@ -15,3 +15,4 @@
               - [X] -> Solution: release a fork crate name: sql-ast
         - [X] pom (expose method field in Parser)
               - [X] -> Solution: release a fork
+- [ ] Implement `fmt::Display` on `Statement` AST such as `Select`

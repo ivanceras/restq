@@ -1,10 +1,10 @@
 use crate::{
+    ast::parser::{utils::space, *},
     ast::{
         ddl::{alter_table, drop_table, table_def},
         dml::{delete, insert, update},
         Select, Statement,
     },
-    parser::{utils::space, *},
     to_chars,
 };
 use pom::parser::*;

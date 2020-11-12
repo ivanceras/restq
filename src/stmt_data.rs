@@ -1,7 +1,7 @@
 /// StmtData, this contains both statement and the data
 use crate::{
+    ast::parser::utils::bytes_to_chars,
     ast::{Statement, TableLookup},
-    parser::utils::bytes_to_chars,
     CsvRows,
 };
 pub use parser::parse_select_chars;
