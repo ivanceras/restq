@@ -85,6 +85,17 @@ impl JoinType {
     }
 }
 
+impl fmt::Display for JoinType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            JoinType::InnerJoin => write!(f, "-><-"),
+            JoinType::LeftJoin => write!(f, "<-"),
+            JoinType::RightJoin => write!(f, "->"),
+            JoinType::FullJoin => write!(f, "<-->"),
+        }
+    }
+}
+
 pub struct TableLookup(BTreeMap<String, TableDef>);
 
 impl TableLookup {
@@ -236,6 +247,17 @@ impl FromTable {
             }
             None => Ok(vec![]),
         }
+    }
+}
+
+impl fmt::Display for FromTable {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.from.fmt(f)?;
+        if let Some((join_type, from_table)) = &self.join {
+            join_type.fmt(f)?;
+            from_table.fmt(f)?;
+        }
+        Ok(())
     }
 }
 

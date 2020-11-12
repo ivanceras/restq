@@ -9,7 +9,6 @@ use restq::{
 
 #[test]
 fn complex_table_def() {
-    //let input = "actor{*actor_id:s32,&first_name:text,&@last_name:text,last_update:utc,created_by(users):u32,is_active:bool}";
     let input = r#"public.film{*film_id:s32,title:text,description:text?,release_year:s16?,language_id(public.language):s16,original_language_id(public.language):s16?,rental_duration:s16(3),rental_rate:f64(4.99),length:s16?,replacement_cost:f64(19.99),rating:text?("'G'::mpaa_rating"),last_update:local,special_features:text?,fulltext:text}"#;
     //let input = "public.film{*film_id:s32,title:text,description:text?,release_year:s16?,language_id(public.language):s16,original_language_id(public.language):s16?,rental_duration:s16(3),rental_rate:f64(4.99),length:s16?,replacement_cost:f64(19.99),rating:text?(mpaa_rating),last_update:local,special_features:text?,fulltext:text}";
     let input_chars = to_chars(input);

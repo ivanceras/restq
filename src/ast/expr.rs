@@ -5,6 +5,7 @@ use crate::ast::{
     Value,
 };
 use sql_ast::ast as sql;
+use std::fmt;
 
 //TODO: Should be able to do math operations
 // such as: *, +, -, /, %
@@ -53,5 +54,37 @@ impl Into<sql::Expr> for &Expr {
                 sql::Expr::Nested(Box::new(Into::into(expr.as_ref())))
             }
         }
+    }
+}
+
+impl fmt::Display for Expr {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Expr::Column(column) => column.fmt(f),
+            Expr::Function(function) => function.fmt(f),
+            Expr::Value(value) => value.fmt(f),
+            Expr::BinaryOperation(bop) => bop.fmt(f),
+            Expr::Nested(expr) => write!(f, "({})", expr),
+        }
+    }
+}
+
+impl fmt::Display for BinaryOperation {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        if self.operator.needs_separator() {
+            write!(f, "{}={}.{}", self.left, self.operator, self.right)
+        } else {
+            write!(f, "{}{}{}", self.left, self.operator, self.right)
+        }
+    }
+}
+
+impl fmt::Display for ExprRename {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.expr.fmt(f)?;
+        if let Some(rename) = &self.rename {
+            write!(f, "=>{}", rename)?;
+        }
+        Ok(())
     }
 }

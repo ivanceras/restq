@@ -243,6 +243,57 @@ impl Select {
     }
 }
 
+impl fmt::Display for Select {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.from_table.fmt(f)?;
+        if let Some(projection) = &self.projection {
+            write!(f, "(")?;
+            for (i, exprr) in projection.iter().enumerate() {
+                if i > 0 {
+                    write!(f, ",")?;
+                }
+                exprr.fmt(f)?;
+            }
+            write!(f, ")")?;
+        }
+
+        if let Some(filter) = &self.filter {
+            write!(f, "?")?;
+            filter.fmt(f)?;
+        }
+
+        if let Some(group_by) = &self.group_by {
+            write!(f, "&group_by=")?;
+            for (i, expr) in group_by.iter().enumerate() {
+                if i > 0 {
+                    write!(f, ",")?;
+                }
+                expr.fmt(f)?;
+            }
+        }
+
+        if let Some(having) = &self.having {
+            write!(f, "&having=")?;
+            having.fmt(f)?;
+        }
+        if let Some(order_by) = &self.order_by {
+            write!(f, "&order_by=")?;
+            for (i, ord) in order_by.iter().enumerate() {
+                if i > 0 {
+                    write!(f, ",")?;
+                }
+                ord.fmt(f)?;
+            }
+        }
+        if let Some(range) = &self.range {
+            write!(f, "&")?;
+            range.fmt(f)?;
+        }
+
+        Ok(())
+    }
+}
+
 impl Into<sql::Function> for &Function {
     fn into(self) -> sql::Function {
         sql::Function {
@@ -251,6 +302,19 @@ impl Into<sql::Function> for &Function {
             over: None,
             distinct: false,
         }
+    }
+}
+
+impl fmt::Display for Function {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}(", self.name)?;
+        for (i, param) in self.params.iter().enumerate() {
+            if i > 0 {
+                write!(f, ",")?;
+            }
+            write!(f, "{}", param)?;
+        }
+        write!(f, ")")
     }
 }
 
@@ -277,6 +341,17 @@ impl Into<sql::Value> for &Value {
     }
 }
 
+impl fmt::Display for Value {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Value::Null => write!(f, "null"),
+            Value::String(v) => write!(f, "'{}'", v),
+            Value::Number(v) => write!(f, "{}", v),
+            Value::Bool(v) => write!(f, "{}", v),
+        }
+    }
+}
+
 impl Into<sql::OrderByExpr> for &Order {
     fn into(self) -> sql::OrderByExpr {
         sql::OrderByExpr {
@@ -288,5 +363,50 @@ impl Into<sql::OrderByExpr> for &Order {
                 }
             }),
         }
+    }
+}
+
+impl fmt::Display for Order {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.expr.fmt(f)?;
+        if let Some(direction) = &self.direction {
+            write!(f, ".")?;
+            direction.fmt(f)?;
+        }
+        Ok(())
+    }
+}
+
+impl fmt::Display for Direction {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Direction::Asc => write!(f, "asc"),
+            Direction::Desc => write!(f, "desc"),
+        }
+    }
+}
+
+impl fmt::Display for Range {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Range::Page(page) => page.fmt(f),
+            Range::Limit(limit) => limit.fmt(f),
+        }
+    }
+}
+
+impl fmt::Display for Page {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "page={}&page_size={}", self.page, self.page_size)
+    }
+}
+
+impl fmt::Display for Limit {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "limit={}", self.limit)?;
+        if let Some(offset) = &self.offset {
+            write!(f, "&offset={}", offset)?;
+        }
+        Ok(())
     }
 }

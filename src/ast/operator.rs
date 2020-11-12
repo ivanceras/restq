@@ -1,4 +1,5 @@
 use sql_ast::ast as sql;
+use std::fmt;
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Operator {
@@ -24,6 +25,34 @@ pub enum Operator {
     Starts, // Starts with, which will become ILIKE 'value%'
 }
 
+impl Operator {
+    pub(crate) fn needs_separator(&self) -> bool {
+        match self {
+            Operator::And
+            | Operator::Or
+            | Operator::Plus
+            | Operator::Minus
+            | Operator::Multiply
+            | Operator::Divide
+            | Operator::Modulus => false,
+
+            Operator::Eq
+            | Operator::Neq
+            | Operator::Lt
+            | Operator::Lte
+            | Operator::Gt
+            | Operator::Gte
+            | Operator::Like
+            | Operator::In
+            | Operator::NotIn
+            | Operator::Is
+            | Operator::IsNot
+            | Operator::Ilike
+            | Operator::Starts => true,
+        }
+    }
+}
+
 /// convert restq to sql_ast operator
 impl Into<sql::BinaryOperator> for &Operator {
     fn into(self) -> sql::BinaryOperator {
@@ -43,6 +72,33 @@ impl Into<sql::BinaryOperator> for &Operator {
             Operator::Divide => sql::BinaryOperator::Divide,
             Operator::Modulus => sql::BinaryOperator::Modulus,
             _ => panic!("unsupported conversion"),
+        }
+    }
+}
+
+impl fmt::Display for Operator {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Operator::Plus => write!(f, "+"),
+            Operator::Minus => write!(f, "-"),
+            Operator::Multiply => write!(f, "*"),
+            Operator::Divide => write!(f, "/"),
+            Operator::Modulus => write!(f, "%"),
+            Operator::Eq => write!(f, "eq"),
+            Operator::Neq => write!(f, "neq"),
+            Operator::Lt => write!(f, "lt"),
+            Operator::Lte => write!(f, "lte"),
+            Operator::Gt => write!(f, "gt"),
+            Operator::Gte => write!(f, "gte"),
+            Operator::And => write!(f, "&"),
+            Operator::Or => write!(f, "|"),
+            Operator::Like => write!(f, "like"),
+            Operator::In => write!(f, "in"),
+            Operator::NotIn => write!(f, "not_in"),
+            Operator::Is => write!(f, "is"),
+            Operator::IsNot => write!(f, "is_not"),
+            Operator::Ilike => write!(f, "ilike"),
+            Operator::Starts => write!(f, "starts"),
         }
     }
 }
