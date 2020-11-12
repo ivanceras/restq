@@ -7,8 +7,15 @@ pub use ddl_parser::*;
 
 use crate::{
     ast::{
-        dml::{Insert, Source},
-        Column, Statement, Table, TableError, TableLookup,
+        dml::{
+            Insert,
+            Source,
+        },
+        Column,
+        Statement,
+        Table,
+        TableError,
+        TableLookup,
     },
     data_type::DataType,
     data_value::DataValue,
@@ -194,10 +201,12 @@ impl ColumnDef {
         table_lookup: Option<&TableLookup>,
     ) -> Result<Vec<sql::ColumnOption>, TableError> {
         let mut att_column_options = match &self.attributes {
-            Some(attributes) => attributes
-                .iter()
-                .filter_map(|att| att.into_sql_column_option())
-                .collect(),
+            Some(attributes) => {
+                attributes
+                    .iter()
+                    .filter_map(|att| att.into_sql_column_option())
+                    .collect()
+            }
             None => vec![],
         };
         att_column_options

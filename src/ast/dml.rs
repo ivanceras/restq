@@ -6,11 +6,22 @@ mod dml_parser;
 pub use dml_parser::*;
 
 use crate::{
-    ast::parser::*,
-    ast::{Column, Expr, Select, Table, TableLookup, Value},
+    ast::{
+        parser::*,
+        Column,
+        Expr,
+        Select,
+        Table,
+        TableLookup,
+        Value,
+    },
     Error,
 };
-use pom::parser::{sym, tag, Parser};
+use pom::parser::{
+    sym,
+    tag,
+    Parser,
+};
 use sql_ast::ast as sql;
 
 #[derive(Debug, PartialEq, Clone)]
@@ -104,9 +115,11 @@ impl Into<sql::Statement> for &Update {
                 .columns
                 .iter()
                 .zip(self.values.iter())
-                .map(|(column, value)| sql::Assignment {
-                    id: Into::into(column),
-                    value: Into::into(value),
+                .map(|(column, value)| {
+                    sql::Assignment {
+                        id: Into::into(column),
+                        value: Into::into(value),
+                    }
                 })
                 .collect(),
             selection: self.condition.as_ref().map(|expr| Into::into(expr)),
@@ -120,16 +133,20 @@ impl Source {
         table_lookup: Option<&TableLookup>,
     ) -> Result<sql::SetExpr, Error> {
         let ret = match self {
-            Source::Select(select) => sql::SetExpr::Select(Box::new(
-                select.into_sql_select(table_lookup)?,
-            )),
-            Source::Values(rows) => sql::SetExpr::Values(sql::Values(
-                rows.iter()
-                    .map(|record| {
-                        record.iter().map(|v| Into::into(v)).collect()
-                    })
-                    .collect(),
-            )),
+            Source::Select(select) => {
+                sql::SetExpr::Select(Box::new(
+                    select.into_sql_select(table_lookup)?,
+                ))
+            }
+            Source::Values(rows) => {
+                sql::SetExpr::Values(sql::Values(
+                    rows.iter()
+                        .map(|record| {
+                            record.iter().map(|v| Into::into(v)).collect()
+                        })
+                        .collect(),
+                ))
+            }
             Source::Parameterized(params) => {
                 println!("parameterized params: {:?}", params);
                 sql::SetExpr::ParameterizedValue(params.to_owned())
@@ -142,9 +159,11 @@ impl Source {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ast::expr::BinaryOperation;
-    use crate::ast::parser::utils::to_chars;
-    use crate::ast::Operator;
+    use crate::ast::{
+        expr::BinaryOperation,
+        parser::utils::to_chars,
+        Operator,
+    };
 
     #[test]
     fn test_insert() {

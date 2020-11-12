@@ -1,16 +1,43 @@
 #![deny(warnings)]
 
-use http::{Method, Request};
+use http::{
+    Method,
+    Request,
+};
 pub use restq::{
     ast::{
-        ddl::{alter_table, drop_table, table_def, ColumnDef},
-        dml::{delete, insert, update},
-        AlterTable, Delete, DropTable, Insert, Select, Statement, TableDef,
+        ddl::{
+            alter_table,
+            drop_table,
+            table_def,
+            ColumnDef,
+        },
+        dml::{
+            delete,
+            insert,
+            update,
+        },
+        AlterTable,
+        Delete,
+        DropTable,
+        Insert,
+        Select,
+        Statement,
+        TableDef,
         Update,
     },
     parser::select,
-    pom::parser::{sym, tag, Parser},
-    space, to_chars, CsvRows, DataValue, Error, StmtData,
+    pom::parser::{
+        sym,
+        tag,
+        Parser,
+    },
+    space,
+    to_chars,
+    CsvRows,
+    DataValue,
+    Error,
+    StmtData,
 };
 use std::io::Cursor;
 
@@ -99,7 +126,10 @@ pub fn csv_data_from_parts(
 mod tests {
     use super::*;
     use restq::{
-        ast::{ddl::*, *},
+        ast::{
+            ddl::*,
+            *,
+        },
         *,
     };
 

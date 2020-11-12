@@ -1,9 +1,17 @@
 use crate::{
-    ast::{Expr, Value},
+    ast::{
+        Expr,
+        Value,
+    },
     data_type::DataType,
 };
 use chrono::{
-    offset::FixedOffset, DateTime, Local, NaiveDate, NaiveDateTime, NaiveTime,
+    offset::FixedOffset,
+    DateTime,
+    Local,
+    NaiveDate,
+    NaiveDateTime,
+    NaiveTime,
     Utc,
 };
 use sql_ast::ast as sql;
@@ -110,10 +118,12 @@ impl Into<u32> for DataValue {
             DataValue::I16(v) => v as u32,
             DataValue::I32(v) => v as u32,
             DataValue::I64(v) => v as u32,
-            _ => panic!(
-                "unsupported conversion: {:?} to u32",
-                self.get_data_type()
-            ),
+            _ => {
+                panic!(
+                    "unsupported conversion: {:?} to u32",
+                    self.get_data_type()
+                )
+            }
         }
     }
 }
@@ -129,10 +139,12 @@ impl Into<u64> for DataValue {
             DataValue::I16(v) => v as u64,
             DataValue::I32(v) => v as u64,
             DataValue::I64(v) => v as u64,
-            _ => panic!(
-                "unsupported conversion: {:?} to u64",
-                self.get_data_type()
-            ),
+            _ => {
+                panic!(
+                    "unsupported conversion: {:?} to u64",
+                    self.get_data_type()
+                )
+            }
         }
     }
 }
@@ -150,10 +162,12 @@ impl Into<f32> for DataValue {
             DataValue::I64(v) => v as f32,
             DataValue::F32(v) => v,
             DataValue::F64(v) => v as f32,
-            _ => panic!(
-                "unsupported conversion: {:?} to f32",
-                self.get_data_type()
-            ),
+            _ => {
+                panic!(
+                    "unsupported conversion: {:?} to f32",
+                    self.get_data_type()
+                )
+            }
         }
     }
 }
@@ -162,10 +176,12 @@ impl Into<String> for DataValue {
     fn into(self) -> String {
         match self {
             DataValue::Text(v) => v,
-            _ => panic!(
-                "unsupported conversion: {:?} to String",
-                self.get_data_type()
-            ),
+            _ => {
+                panic!(
+                    "unsupported conversion: {:?} to String",
+                    self.get_data_type()
+                )
+            }
         }
     }
 }
@@ -174,10 +190,12 @@ impl<'a> Into<&'a str> for &'a DataValue {
     fn into(self) -> &'a str {
         match self {
             DataValue::Text(ref v) => v,
-            _ => panic!(
-                "unsupported conversion: {:?} to &str",
-                self.get_data_type()
-            ),
+            _ => {
+                panic!(
+                    "unsupported conversion: {:?} to &str",
+                    self.get_data_type()
+                )
+            }
         }
     }
 }
@@ -222,55 +240,65 @@ pub fn cast_data_value(value: &Value, required_type: &DataType) -> DataValue {
         DataValue::Nil
     } else {
         match *value {
-            Value::Bool(v) => match *required_type {
-                DataType::Bool => DataValue::Bool(v),
-                DataType::U8 => DataValue::U8(if v { 1 } else { 0 }),
-                DataType::U16 => DataValue::U16(if v { 1 } else { 0 }),
-                DataType::U32 => DataValue::U32(if v { 1 } else { 0 }),
-                DataType::U64 => DataValue::U64(if v { 1 } else { 0 }),
-                DataType::I8 => DataValue::I8(if v { 1 } else { 0 }),
-                DataType::I16 => DataValue::I16(if v { 1 } else { 0 }),
-                DataType::I32 => DataValue::I32(if v { 1 } else { 0 }),
-                DataType::I64 => DataValue::I64(if v { 1 } else { 0 }),
-                DataType::S8 => DataValue::S8(if v { 1 } else { 0 }),
-                DataType::S16 => DataValue::S16(if v { 1 } else { 0 }),
-                DataType::S32 => DataValue::S32(if v { 1 } else { 0 }),
-                DataType::S64 => DataValue::S64(if v { 1 } else { 0 }),
-                _ => panic!(
-                    "unsupported conversion from {:?} to {:?}",
-                    value, required_type
-                ),
-            },
-            Value::Number(v) => match *required_type {
-                DataType::U8 => DataValue::U8(v as u8),
-                DataType::U16 => DataValue::U16(v as u16),
-                DataType::U32 => DataValue::U32(v as u32),
-                DataType::U64 => DataValue::U64(v as u64),
-                DataType::I8 => DataValue::I8(v as i8),
-                DataType::I16 => DataValue::I16(v as i16),
-                DataType::I32 => DataValue::I32(v as i32),
-                DataType::I64 => DataValue::I64(v as i64),
-                DataType::F32 => DataValue::F32(v as f32),
-                DataType::F64 => DataValue::F64(v as f64),
-                DataType::S8 => DataValue::S8(v as u8),
-                DataType::S16 => DataValue::S16(v as u16),
-                DataType::S32 => DataValue::S32(v as u32),
-                DataType::S64 => DataValue::S64(v as u64),
-                _ => panic!(
-                    "unsupported conversion from {:?} to {:?}",
-                    value, required_type
-                ),
-            },
+            Value::Bool(v) => {
+                match *required_type {
+                    DataType::Bool => DataValue::Bool(v),
+                    DataType::U8 => DataValue::U8(if v { 1 } else { 0 }),
+                    DataType::U16 => DataValue::U16(if v { 1 } else { 0 }),
+                    DataType::U32 => DataValue::U32(if v { 1 } else { 0 }),
+                    DataType::U64 => DataValue::U64(if v { 1 } else { 0 }),
+                    DataType::I8 => DataValue::I8(if v { 1 } else { 0 }),
+                    DataType::I16 => DataValue::I16(if v { 1 } else { 0 }),
+                    DataType::I32 => DataValue::I32(if v { 1 } else { 0 }),
+                    DataType::I64 => DataValue::I64(if v { 1 } else { 0 }),
+                    DataType::S8 => DataValue::S8(if v { 1 } else { 0 }),
+                    DataType::S16 => DataValue::S16(if v { 1 } else { 0 }),
+                    DataType::S32 => DataValue::S32(if v { 1 } else { 0 }),
+                    DataType::S64 => DataValue::S64(if v { 1 } else { 0 }),
+                    _ => {
+                        panic!(
+                            "unsupported conversion from {:?} to {:?}",
+                            value, required_type
+                        )
+                    }
+                }
+            }
+            Value::Number(v) => {
+                match *required_type {
+                    DataType::U8 => DataValue::U8(v as u8),
+                    DataType::U16 => DataValue::U16(v as u16),
+                    DataType::U32 => DataValue::U32(v as u32),
+                    DataType::U64 => DataValue::U64(v as u64),
+                    DataType::I8 => DataValue::I8(v as i8),
+                    DataType::I16 => DataValue::I16(v as i16),
+                    DataType::I32 => DataValue::I32(v as i32),
+                    DataType::I64 => DataValue::I64(v as i64),
+                    DataType::F32 => DataValue::F32(v as f32),
+                    DataType::F64 => DataValue::F64(v as f64),
+                    DataType::S8 => DataValue::S8(v as u8),
+                    DataType::S16 => DataValue::S16(v as u16),
+                    DataType::S32 => DataValue::S32(v as u32),
+                    DataType::S64 => DataValue::S64(v as u64),
+                    _ => {
+                        panic!(
+                            "unsupported conversion from {:?} to {:?}",
+                            value, required_type
+                        )
+                    }
+                }
+            }
             Value::String(ref v) => {
                 match *required_type {
                     DataType::Text => DataValue::Text(v.to_string()),
-                    DataType::Bool => match v.as_ref() {
-                        "true" => DataValue::Bool(true),
-                        "false" => DataValue::Bool(false),
-                        "1" => DataValue::Bool(true),
-                        "0" => DataValue::Bool(false),
-                        _ => DataValue::Bool(false),
-                    },
+                    DataType::Bool => {
+                        match v.as_ref() {
+                            "true" => DataValue::Bool(true),
+                            "false" => DataValue::Bool(false),
+                            "1" => DataValue::Bool(true),
+                            "0" => DataValue::Bool(false),
+                            _ => DataValue::Bool(false),
+                        }
+                    }
                     DataType::S8 => {
                         if v.is_empty() {
                             DataValue::Nil
@@ -467,16 +495,20 @@ pub fn cast_data_value(value: &Value, required_type: &DataType) -> DataValue {
                             .expect("must be a valid base64 bytes");
                         DataValue::Bytes(bytes)
                     }
-                    _ => panic!(
-                        "unsupported conversion from {:?} to {:?}",
-                        value, required_type
-                    ),
+                    _ => {
+                        panic!(
+                            "unsupported conversion from {:?} to {:?}",
+                            value, required_type
+                        )
+                    }
                 }
             }
-            _ => panic!(
-                "unsupported conversion from {:?} to {:?}",
-                value, required_type
-            ),
+            _ => {
+                panic!(
+                    "unsupported conversion from {:?} to {:?}",
+                    value, required_type
+                )
+            }
         }
     }
 }

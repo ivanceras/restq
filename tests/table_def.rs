@@ -1,7 +1,11 @@
-use restq::ast::ddl::*;
-use restq::ast::dml::*;
-use restq::ast::*;
-use restq::*;
+use restq::{
+    ast::{
+        ddl::*,
+        dml::*,
+        *,
+    },
+    *,
+};
 
 #[test]
 fn complex_table_def() {

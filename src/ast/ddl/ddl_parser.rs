@@ -2,12 +2,20 @@
 //! into an DDL AST.
 use super::*;
 use crate::{
-    ast::parser::{utils::end_or_ln, *},
-    ast::Table,
+    ast::{
+        parser::{
+            utils::end_or_ln,
+            *,
+        },
+        Table,
+    },
     data_type::data_type,
     data_value,
 };
-use pom::parser::{sym, Parser};
+use pom::parser::{
+    sym,
+    Parser,
+};
 
 pub(crate) fn column_attribute<'a>() -> Parser<'a, char, ColumnAttribute> {
     sym('*').map(|_| ColumnAttribute::Primary)
@@ -32,11 +40,13 @@ pub(crate) fn foreign<'a>() -> Parser<'a, char, Table> {
 pub(crate) fn column_def<'a>() -> Parser<'a, char, ColumnDef> {
     ((column_attributes().opt() + column() + foreign().opt() - sym(':')
         + data_type_def())
-    .map(|(((attributes, column), foreign), data_type)| ColumnDef {
-        column,
-        attributes,
-        data_type_def: data_type,
-        foreign,
+    .map(|(((attributes, column), foreign), data_type)| {
+        ColumnDef {
+            column,
+            attributes,
+            data_type_def: data_type,
+            foreign,
+        }
     }))
     .name("column_def")
 }
@@ -113,9 +123,11 @@ fn alter_operations<'a>() -> Parser<'a, char, Vec<AlterOperation>> {
 
 pub fn alter_table<'a>() -> Parser<'a, char, AlterTable> {
     (table() + alter_operations() - end_or_ln()).map(
-        |(table, alter_operations)| AlterTable {
-            table,
-            alter_operations,
+        |(table, alter_operations)| {
+            AlterTable {
+                table,
+                alter_operations,
+            }
         },
     )
 }

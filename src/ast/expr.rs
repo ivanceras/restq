@@ -1,4 +1,9 @@
-use crate::ast::{Column, Function, Operator, Value};
+use crate::ast::{
+    Column,
+    Function,
+    Operator,
+    Value,
+};
 use sql_ast::ast as sql;
 
 //TODO: Should be able to do math operations
@@ -37,11 +42,13 @@ impl Into<sql::Expr> for &Expr {
                 sql::Expr::Function(Into::into(function))
             }
             Expr::Value(value) => sql::Expr::Value(Into::into(value)),
-            Expr::BinaryOperation(binop) => sql::Expr::BinaryOp {
-                left: Box::new(Into::into(&binop.left)),
-                op: Into::into(&binop.operator),
-                right: Box::new(Into::into(&binop.right)),
-            },
+            Expr::BinaryOperation(binop) => {
+                sql::Expr::BinaryOp {
+                    left: Box::new(Into::into(&binop.left)),
+                    op: Into::into(&binop.operator),
+                    right: Box::new(Into::into(&binop.right)),
+                }
+            }
             Expr::Nested(expr) => {
                 sql::Expr::Nested(Box::new(Into::into(expr.as_ref())))
             }

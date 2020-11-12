@@ -14,11 +14,13 @@ fn columns<'a>() -> Parser<'a, char, Vec<Column>> {
 /// product{product_id,created_by,created,is_active}?returning=product_id,name
 pub fn insert<'a>() -> Parser<'a, char, Insert> {
     (table() - sym('{') + columns() - sym('}') + (sym('?') * returning()).opt())
-        .map(|((into, columns), returning)| Insert {
-            into,
-            columns,
-            returning,
-            source: Source::Values(vec![]),
+        .map(|((into, columns), returning)| {
+            Insert {
+                into,
+                columns,
+                returning,
+                source: Source::Values(vec![]),
+            }
         })
 }
 

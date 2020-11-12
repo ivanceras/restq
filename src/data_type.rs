@@ -1,4 +1,7 @@
-use crate::{ast::parser::ident, Error};
+use crate::{
+    ast::parser::ident,
+    Error,
+};
 use pom::parser::*;
 use sql_ast::ast as sql;
 use std::fmt;

@@ -1,9 +1,21 @@
 use crate::{
-    ast::parser::{utils::space, *},
     ast::{
-        ddl::{alter_table, drop_table, table_def},
-        dml::{delete, insert, update},
-        Select, Statement,
+        ddl::{
+            alter_table,
+            drop_table,
+            table_def,
+        },
+        dml::{
+            delete,
+            insert,
+            update,
+        },
+        parser::{
+            utils::space,
+            *,
+        },
+        Select,
+        Statement,
     },
     to_chars,
 };

@@ -1,13 +1,22 @@
 /// StmtData, this contains both statement and the data
 use crate::{
     ast::parser::utils::bytes_to_chars,
-    ast::{Statement, TableLookup},
+    ast::{
+        Statement,
+        TableLookup,
+    },
     CsvRows,
 };
-pub use parser::parse_select_chars;
-pub use parser::parse_statement;
 use parser::parse_statement_chars;
-use std::io::{BufRead, BufReader, Read};
+pub use parser::{
+    parse_select_chars,
+    parse_statement,
+};
+use std::io::{
+    BufRead,
+    BufReader,
+    Read,
+};
 
 mod parser;
 
