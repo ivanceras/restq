@@ -1,3 +1,6 @@
+//! DML stands for Data Manipulation Language
+//! and this module contains the AST for DML operations
+//! such as Insert, Delete, Update table.
 mod dml_parser;
 
 pub use dml_parser::*;

@@ -1,3 +1,6 @@
+//! DDL stands for Data Definition Language
+//! and this module contains the AST for DDL operations
+//! such as create, alter, drop table
 mod ddl_parser;
 
 pub use ddl_parser::*;

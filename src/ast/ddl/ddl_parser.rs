@@ -1,3 +1,5 @@
+//! ddl parser contains algorithmn for parsing restq DDL syntax
+//! into an DDL AST.
 use super::*;
 use crate::{
     ast::parser::{utils::end_or_ln, *},

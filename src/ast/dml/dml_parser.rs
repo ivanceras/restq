@@ -1,3 +1,6 @@
+//! dml parser contains algorithm for parsing restq DML syntax into
+//! a DML AST.
+//!
 use super::*;
 
 fn returning<'a>() -> Parser<'a, char, Vec<Column>> {
