@@ -1,15 +1,19 @@
 # RestQ
 
-Restq is suitable to use for data intensive rest API.
-It is using `rest` and `csv` to descibe the data operation.
+The simplest way to express data operations in a rest API.
+
+Implemented using the combination
+of appropriate HTTP methods, url and csv for the data format.
+
 
 Example:
+Querying a simple table `person` with filtering, grouping and paging.
 
 ```
 GET /person?age=lt.42&(student=eq.true|gender=eq.'M')&group_by=sum(age),grade,gender&having=min(age)=gt.42&order_by=age.desc,height.asc&page=20&page_size=100
 ```
 
-Roughly translate to sql:
+This can then be converted into a SQL query.
 ```sql
 SELECT * FROM person
 WHERE age < 42
@@ -19,6 +23,8 @@ HAVING min(age) > 42
 ORDER BY age DESC, height ASC
 LIMIT 100 OFFSET 1900 ROWS
 ```
+The response body will contain a `csv` formatted data of the results from the query.
+
 
 **RestQ Syntax/Grammar:**
 ```
@@ -112,7 +118,8 @@ operator = "and" | "or" | "eq" | "gte" | "lte" ,..etc
 - `utc`                             : timestamp with time zone in utc,
 - `local`                           : date in local timezone
 - `url`                             : url types
-- `money`                           : money in pg, numeric(10,2)/numeric(19,4) for high precision in pg as alternative, decimal(19,4) in mysql,  string in sqlite, for storing monetary values
+- `json`                            : json
+- `bytes`                           : binary data
 
 ## Creating a table and inserting records in one request.
 ```
