@@ -169,6 +169,30 @@ impl Select {
         self.range = Some(Range::Page(Page { page, page_size }));
     }
 
+    pub fn get_page(&self) -> Option<i64> {
+        if let Some(Range::Page(page)) = &self.range {
+            Some(page.page)
+        } else {
+            None
+        }
+    }
+
+    pub fn add_simple_filter(
+        &mut self,
+        column: Column,
+        operator: Operator,
+        search_key: &str,
+    ) {
+        let simple_filter = Expr::BinaryOperation(Box::new(BinaryOperation {
+            left: Expr::Column(column),
+            operator,
+            right: Expr::Value(Value::String(search_key.to_string())),
+        }));
+
+        //TODO: need to deal with existing filters
+        self.filter = Some(simple_filter);
+    }
+
     pub fn into_sql_select(
         &self,
         table_lookup: Option<&TableLookup>,

@@ -22,8 +22,11 @@ pub use ast::{
             to_chars,
         },
     },
+    Column,
     Expr,
+    Operator,
     Select,
+    Table,
     TableDef,
     TableError,
 };
