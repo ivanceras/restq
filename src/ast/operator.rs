@@ -66,6 +66,7 @@ impl Into<sql::BinaryOperator> for &Operator {
             Operator::And => sql::BinaryOperator::And,
             Operator::Or => sql::BinaryOperator::Or,
             Operator::Like => sql::BinaryOperator::Like,
+            Operator::Ilike => sql::BinaryOperator::Ilike,
             Operator::Plus => sql::BinaryOperator::Plus,
             Operator::Minus => sql::BinaryOperator::Minus,
             Operator::Multiply => sql::BinaryOperator::Multiply,

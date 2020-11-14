@@ -58,7 +58,7 @@ pub struct Select {
     pub range: Option<Range>,
 }
 
-#[derive(Debug, PartialEq, Default, Clone)]
+#[derive(Debug, PartialEq, Default, Clone, PartialOrd, Hash, Eq, Ord)]
 pub struct Column {
     pub name: String,
 }
