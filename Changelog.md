@@ -1,7 +1,18 @@
 # Changelog
 
+## Unreleased
+- Add helper methods to Select AST
+- Implement fmt::Display for Select AST
+- Improve implementation of data conversion
+- Fix conversion of serial types
+
 ## 0.3.2
 - Fix issue: query only has table and paging, the paging was incorrectly parsed as filter.
+- Add parsing for common date format
+- reexport uuid
+- implement `fmt::Display` for TableDef, DataValue, Table, ColumnDef, Column, DataTypeDef etc ColumnAttribte
+- Add Bytes and Json DataType
+- expose PlainData in the crate
 
 ## 0.3.1
  - Add an expose `parse_select_chars` for usage in `inquerest` crate
