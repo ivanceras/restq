@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.3.3
 - Add helper methods to Select AST
 - Implement fmt::Display for Select AST
 - Improve implementation of data conversion
