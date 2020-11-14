@@ -124,13 +124,21 @@ pub fn csv_data_from_parts(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use super::parse_statement;
+    use http::Request;
     use restq::{
         ast::{
-            ddl::*,
-            *,
+            ddl::{
+                ColumnAttribute,
+                ColumnDef,
+                DataTypeDef,
+            },
+            Column,
+            Table,
+            TableDef,
+            TableLookup,
         },
-        *,
+        DataType,
     };
 
     #[test]
@@ -143,7 +151,7 @@ mod tests {
                 ".to_string())
             .unwrap();
 
-        let (statement, rows) = parse_statement(&req).expect("must not fail");
+        let (statement, _rows) = parse_statement(&req).expect("must not fail");
 
         println!("statement: {:#?}", statement);
 
@@ -182,7 +190,7 @@ mod tests {
             .uri("https://localhost:8000/person-^^-users(name,age,class)?(age=gt.42&student=eq.true)|(gender=eq.`M`&is_active=true)&group_by=sum(age),grade,gender&having=min(age)=gte.42&order_by=age.desc,height.asc&page=2&page_size=10")
             .body("".to_string())
             .unwrap();
-        let (statement, rows) = parse_statement(&req).expect("must not fail");
+        let (statement, _rows) = parse_statement(&req).expect("must not fail");
         println!("statement: {:#?}", statement);
 
         let person_table = TableDef {

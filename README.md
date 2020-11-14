@@ -1,5 +1,7 @@
 # RestQ
 
+[![Latest Version](https://img.shields.io/crates/v/restq.svg)](https://crates.io/crates/restq)
+
 The simplest way to express data operations in a rest API.
 
 Implemented using the combination
