@@ -19,7 +19,7 @@ use std::fmt;
 ///     u32(10<column<=20) - check the value should be greater than 10 and less than or equal to 20
 ///     u32(<discount) - check value should be lesser than `discount` column
 ///     f32(0.0) - f32 with 0.0 as the default value
-#[derive(PartialEq, Debug, Clone)]
+#[derive(PartialEq, Debug, Clone, Hash, Eq)]
 pub enum DataType {
     /// bool
     Bool,
@@ -134,6 +134,27 @@ impl DataType {
             "json" => Ok(DataType::Json),
             "bytes" => Ok(DataType::Bytes),
             _ => Err(Error::InvalidDataType(dt.to_string())),
+        }
+    }
+
+    /// returns true if type is numeric or not
+    pub fn is_numeric(&self) -> bool {
+        match self {
+            DataType::S8
+            | DataType::S16
+            | DataType::S32
+            | DataType::S64
+            | DataType::F32
+            | DataType::F64
+            | DataType::U8
+            | DataType::U16
+            | DataType::U32
+            | DataType::U64
+            | DataType::I8
+            | DataType::I16
+            | DataType::I32
+            | DataType::I64 => true,
+            _ => false,
         }
     }
 }

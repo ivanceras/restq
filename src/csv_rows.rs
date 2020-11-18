@@ -52,11 +52,26 @@ where
             Some(row) => {
                 match row {
                     Ok(row) => {
-                        let data_values: Vec<DataValue> = self
-                            .column_defs
+                        // bulk_update uses 2 rows in one line
+                        // so, we chain the column_defs 2 times to extract
+                        // and cast the data values
+                        let double_row =
+                            row.iter().count() == self.column_defs.len() * 2;
+
+                        let columns_defs: Vec<&ColumnDef> = if double_row {
+                            self.column_defs
+                                .iter()
+                                .chain(self.column_defs.iter())
+                                .collect()
+                        } else {
+                            self.column_defs.iter().collect()
+                        };
+
+                        let data_values: Vec<DataValue> = columns_defs
                             .iter()
                             .zip(row.iter())
                             .map(|(column_def, record)| {
+                                println!("casting {:?}", record);
                                 cast_data_value(
                                     &Value::String(record.to_string()),
                                     &column_def.data_type_def.data_type,

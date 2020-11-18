@@ -103,7 +103,7 @@ fn naive_date_parser(v: &str) -> NaiveDateTime {
     } else if let Ok(nd) = NaiveDate::parse_from_str(&v, "%Y-%m-%d") {
         NaiveDateTime::new(nd, NaiveTime::from_hms_milli(0, 0, 0, 0))
     } else {
-        panic!("unable to parse timestamp: {}", v);
+        panic!("unable to parse timestamp: {:?}", v);
     }
 }
 
@@ -535,8 +535,8 @@ impl fmt::Display for DataValue {
             DataValue::Uuid(v) => write!(f, "{}", v),
             DataValue::UuidRand(v) => write!(f, "{}", v),
             DataValue::UuidSlug(v) => write!(f, "{}", v),
-            DataValue::Local(v) => write!(f, "{}", v),
-            DataValue::Utc(v) => write!(f, "{}", v),
+            DataValue::Local(v) => write!(f, "{}", v.to_rfc3339()),
+            DataValue::Utc(v) => write!(f, "{}", v.to_rfc3339()),
             DataValue::Text(v) => write!(f, "{}", v),
             DataValue::Ident(v) => write!(f, "{}", v),
             DataValue::Url(v) => write!(f, "{}", v),
@@ -562,6 +562,16 @@ mod test {
         let res = naive_date_parser(date);
         let naive_date = NaiveDate::from_ymd(2006, 2, 14);
         let naive_time = NaiveTime::from_hms_milli(0, 0, 0, 0);
+        assert_eq!(res, NaiveDateTime::new(naive_date, naive_time));
+    }
+
+    #[test]
+    fn parse_dates() {
+        let date = "2006-02-15T09:34:33+00:00";
+        let res = naive_date_parser(date);
+        println!("res: {}", res);
+        let naive_date = NaiveDate::from_ymd(2006, 2, 15);
+        let naive_time = NaiveTime::from_hms_milli(9, 34, 33, 0);
         assert_eq!(res, NaiveDateTime::new(naive_date, naive_time));
     }
 }

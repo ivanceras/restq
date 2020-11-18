@@ -3,18 +3,33 @@
 //! such as Insert, Delete, Update table.
 mod dml_parser;
 
-pub use dml_parser::*;
+pub use dml_parser::{
+    bulk_delete,
+    bulk_update,
+    delete,
+    insert,
+    update,
+};
 
 use crate::{
     ast::{
-        parser::*,
+        BinaryOperation,
         Column,
         Expr,
+        Operator,
         Select,
         Table,
         TableLookup,
         Value,
     },
+    parser::{
+        column,
+        filter_expr,
+        list_fail,
+        table,
+        value,
+    },
+    ColumnDef,
     Error,
 };
 use pom::parser::{
@@ -123,6 +138,67 @@ impl Into<sql::Statement> for &Update {
                 })
                 .collect(),
             selection: self.condition.as_ref().map(|expr| Into::into(expr)),
+        }
+    }
+}
+
+impl BulkUpdate {
+    pub fn into_sql_statement(
+        &self,
+        table_lookup: Option<&TableLookup>,
+    ) -> Result<sql::Statement, Error> {
+        let table_def = table_lookup
+            .expect("must have a table def")
+            .get_table_def(&self.table.name)
+            .expect("must have a table def");
+
+        let primary_columns = table_def.get_primary_columns();
+        assert!(
+            !primary_columns.is_empty(),
+            "must have columns for where statements"
+        );
+        let filter = Self::build_filter(&primary_columns);
+        Ok(sql::Statement::Update {
+            table_name: Into::into(&self.table),
+            assignments: self
+                .columns
+                .iter()
+                .map(|column| {
+                    sql::Assignment {
+                        id: Into::into(column),
+                        value: sql::Expr::Identifier("?".into()),
+                    }
+                })
+                .collect(),
+            selection: filter.map(|f| Into::into(&f)),
+        })
+    }
+
+    fn build_filter(columns: &[&ColumnDef]) -> Option<Expr> {
+        if let Some(column0) = columns.get(0) {
+            let mut filter0 =
+                Expr::BinaryOperation(Box::new(BinaryOperation {
+                    left: Expr::Column(column0.column.clone()),
+                    operator: Operator::Eq,
+                    right: Expr::Column(Column { name: "?".into() }),
+                }));
+            for column in columns.iter().skip(1) {
+                let next_filter =
+                    Expr::BinaryOperation(Box::new(BinaryOperation {
+                        left: Expr::Column(column.column.clone()),
+                        operator: Operator::Eq,
+                        right: Expr::Column(Column { name: "?".into() }),
+                    }));
+
+                filter0 = Expr::BinaryOperation(Box::new(BinaryOperation {
+                    left: filter0,
+                    operator: Operator::And,
+                    right: next_filter,
+                }));
+            }
+            Some(filter0)
+        } else {
+            None
         }
     }
 }

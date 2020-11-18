@@ -53,8 +53,8 @@ pub fn delete<'a>() -> Parser<'a, char, Delete> {
         .map(|(from, condition)| Delete { from, condition })
 }
 
-#[allow(unused)]
-pub(crate) fn bulk_delete<'a>() -> Parser<'a, char, BulkDelete> {
+/// bulk delete
+pub fn bulk_delete<'a>() -> Parser<'a, char, BulkDelete> {
     (table() - sym('{') + columns() - sym('}')).map(|(from, columns)| {
         BulkDelete {
             from,
@@ -64,8 +64,8 @@ pub(crate) fn bulk_delete<'a>() -> Parser<'a, char, BulkDelete> {
     })
 }
 
-#[allow(unused)]
-pub(crate) fn bulk_update<'a>() -> Parser<'a, char, BulkUpdate> {
+/// bulk update
+pub fn bulk_update<'a>() -> Parser<'a, char, BulkUpdate> {
     (table() - sym('{') + columns() - sym('}')).map(|(table, columns)| {
         BulkUpdate {
             table,

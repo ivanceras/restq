@@ -3,8 +3,6 @@
 //! such as create, alter, drop table
 mod ddl_parser;
 
-pub use ddl_parser::*;
-
 use crate::{
     ast::{
         dml::{
@@ -20,6 +18,11 @@ use crate::{
     data_type::DataType,
     data_value::DataValue,
     Error,
+};
+pub use ddl_parser::{
+    alter_table,
+    drop_table,
+    table_def,
 };
 use sql_ast::ast as sql;
 use std::fmt;
@@ -40,7 +43,7 @@ pub struct DataTypeDef {
     pub default: Option<DataValue>,
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Hash, Eq)]
 pub enum ColumnAttribute {
     Primary,
     Unique,
@@ -92,6 +95,39 @@ impl TableDef {
             ),
             returning: Some(columns),
         }
+    }
+
+    /// get the local columns that referes to the foreign table
+    pub(crate) fn get_local_columns_to_foreign_table(
+        &self,
+        table_name: &str,
+    ) -> Vec<&ColumnDef> {
+        self.columns
+            .iter()
+            .filter(|column| {
+                match &column.foreign {
+                    Some(foreign) => foreign.name == table_name,
+                    None => false,
+                }
+            })
+            .collect()
+    }
+
+    /// get the primary columns of this table
+    pub(crate) fn get_primary_columns(&self) -> Vec<&ColumnDef> {
+        self.columns
+            .iter()
+            .filter(|column| {
+                match &column.attributes {
+                    Some(attributes) => {
+                        attributes
+                            .iter()
+                            .any(|att| *att == ColumnAttribute::Primary)
+                    }
+                    None => false,
+                }
+            })
+            .collect()
     }
 }
 
@@ -364,6 +400,7 @@ impl fmt::Display for ColumnAttribute {
 mod tests {
     use super::*;
     use crate::to_chars;
+    use ddl_parser::*;
 
     #[test]
     fn parse_drop_table() {

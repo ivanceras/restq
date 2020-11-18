@@ -1,9 +1,5 @@
 use crate::ast::{
-    ddl::{
-        ColumnAttribute,
-        ColumnDef,
-        TableDef,
-    },
+    ddl::TableDef,
     BinaryOperation,
     Column,
     Expr,
@@ -30,7 +26,7 @@ pub struct FromTable {
     pub join: Option<(JoinType, Box<FromTable>)>,
 }
 
-#[derive(Debug, PartialEq, Default, Clone)]
+#[derive(Debug, PartialEq, Default, Clone, Hash, Eq)]
 pub struct Table {
     pub name: String,
 }
@@ -110,41 +106,6 @@ impl TableLookup {
     /// get the table definition with name
     pub fn get_table_def(&self, name: &str) -> Option<&TableDef> {
         self.0.get(name)
-    }
-}
-
-impl TableDef {
-    /// get the local columns that referes to the foreign table
-    pub(crate) fn get_local_columns_to_foreign_table(
-        &self,
-        table_name: &str,
-    ) -> Vec<&ColumnDef> {
-        self.columns
-            .iter()
-            .filter(|column| {
-                match &column.foreign {
-                    Some(foreign) => foreign.name == table_name,
-                    None => false,
-                }
-            })
-            .collect()
-    }
-
-    /// get the primary columns of this table
-    pub(crate) fn get_primary_columns(&self) -> Vec<&ColumnDef> {
-        self.columns
-            .iter()
-            .filter(|column| {
-                match &column.attributes {
-                    Some(attributes) => {
-                        attributes
-                            .iter()
-                            .any(|att| *att == ColumnAttribute::Primary)
-                    }
-                    None => false,
-                }
-            })
-            .collect()
     }
 }
 
