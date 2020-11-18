@@ -100,7 +100,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::data_value::DataValue;
+    use crate::ast::Value;
 
     #[test]
     fn test_csv_data() {
@@ -112,7 +112,7 @@ mod tests {
         let csv_data =
             StmtData::from_reader(data.as_bytes()).expect("must be valid");
 
-        let rows: Vec<Vec<DataValue>> = csv_data
+        let rows: Vec<Vec<Value>> = csv_data
             .rows_iter(None)
             .expect("must have iterator")
             .collect();

@@ -45,7 +45,7 @@ impl<R> Iterator for CsvRows<R>
 where
     R: Read + Send + Sync,
 {
-    type Item = Vec<DataValue>;
+    type Item = Vec<Value>;
 
     fn next(&mut self) -> Option<Self::Item> {
         match self.into_iter.next() {
@@ -67,15 +67,11 @@ where
                             self.column_defs.iter().collect()
                         };
 
-                        let data_values: Vec<DataValue> = columns_defs
+                        let data_values: Vec<Value> = columns_defs
                             .iter()
                             .zip(row.iter())
-                            .map(|(column_def, record)| {
-                                println!("casting {:?}", record);
-                                cast_data_value(
-                                    &Value::String(record.to_string()),
-                                    &column_def.data_type_def.data_type,
-                                )
+                            .map(|(_column_def, record)| {
+                                Value::String(record.to_string())
                             })
                             .collect();
                         Some(data_values)

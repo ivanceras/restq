@@ -56,7 +56,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::data_value::DataValue;
+    use crate::ast::Value;
 
     #[test]
     fn test_plain_data() {
@@ -68,7 +68,7 @@ mod tests {
         let csv_data =
             PlainData::from_reader(data.as_bytes()).expect("must be valid");
 
-        let rows: Vec<Vec<DataValue>> = csv_data.rows_iter().collect();
+        let rows: Vec<Vec<Value>> = csv_data.rows_iter().collect();
         println!("rows: {:#?}", rows);
         assert_eq!(rows.len(), 2);
     }

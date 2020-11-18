@@ -25,6 +25,7 @@ pub use restq::{
         Statement,
         TableDef,
         Update,
+        Value,
     },
     parser::select,
     pom::parser::{
@@ -44,7 +45,7 @@ use std::io::Cursor;
 /// Parse into SQL Statement AST from http::Request
 pub fn parse_statement(
     request: &Request<String>,
-) -> Result<(Statement, Vec<Vec<DataValue>>), Error> {
+) -> Result<(Statement, Vec<Vec<Value>>), Error> {
     let method = request.method();
     let url = extract_path_and_query(request);
     let body = request.body().as_bytes().to_vec();
@@ -55,12 +56,12 @@ fn parse_statement_from_parts(
     method: &Method,
     url: &str,
     body: Option<Vec<u8>>,
-) -> Result<(Statement, Vec<Vec<DataValue>>), Error> {
+) -> Result<(Statement, Vec<Vec<Value>>), Error> {
     let csv_data = csv_data_from_parts(&method, url, body)?;
     let statement = csv_data.statement();
     let csv_rows = csv_data.rows_iter(None);
 
-    let data_values: Vec<Vec<DataValue>> = if let Some(csv_rows) = csv_rows {
+    let data_values: Vec<Vec<Value>> = if let Some(csv_rows) = csv_rows {
         csv_rows.into_iter().collect()
     } else {
         vec![]
