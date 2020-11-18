@@ -59,7 +59,7 @@ fn parse_statement_from_parts(
 ) -> Result<(Statement, Vec<Vec<Value>>), Error> {
     let csv_data = csv_data_from_parts(&method, url, body)?;
     let statement = csv_data.statement();
-    let csv_rows = csv_data.rows_iter(None);
+    let csv_rows = csv_data.rows_iter();
 
     let data_values: Vec<Vec<Value>> = if let Some(csv_rows) = csv_rows {
         csv_rows.into_iter().collect()
