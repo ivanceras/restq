@@ -142,6 +142,59 @@ impl Into<sql::Statement> for &Update {
     }
 }
 
+/// a common code for building filter from columns old value and primary columns
+fn build_filter_from_columns(
+    columns: &[Column],
+    old_values: &[&Value],
+    primary_columns: &[&ColumnDef],
+) -> Option<Expr> {
+    let pk_values: Vec<&Value> = primary_columns
+        .iter()
+        .filter_map(|pk| {
+            columns.iter().zip(old_values.iter()).find_map(
+                |(col, old_value)| {
+                    if col == &pk.column {
+                        Some(*old_value)
+                    } else {
+                        None
+                    }
+                },
+            )
+        })
+        .collect();
+
+    let pk_column_values: Vec<(&ColumnDef, &Value)> = primary_columns
+        .into_iter()
+        .zip(pk_values.into_iter())
+        .map(|(column_def, value)| (*column_def, value))
+        .collect();
+
+    if let Some((column0, value0)) = pk_column_values.first() {
+        let mut filter0 = Expr::BinaryOperation(Box::new(BinaryOperation {
+            left: Expr::Column(column0.column.clone()),
+            operator: Operator::Eq,
+            right: Expr::Value((*value0).clone()),
+        }));
+        for (column, value) in pk_column_values.iter().skip(1) {
+            let next_filter =
+                Expr::BinaryOperation(Box::new(BinaryOperation {
+                    left: Expr::Column(column.column.clone()),
+                    operator: Operator::Eq,
+                    right: Expr::Value((*value).clone()),
+                }));
+
+            filter0 = Expr::BinaryOperation(Box::new(BinaryOperation {
+                left: filter0,
+                operator: Operator::And,
+                right: next_filter,
+            }));
+        }
+        Some(filter0)
+    } else {
+        None
+    }
+}
+
 impl BulkUpdate {
     /// convert bulk update into sql statements
     pub fn into_sql_statements(
@@ -200,66 +253,55 @@ impl BulkUpdate {
                     table: self.table.clone(),
                     columns,
                     values: new_values,
-                    condition: self.build_filter(table_def, &old_values),
+                    condition: build_filter_from_columns(
+                        &self.columns,
+                        &old_values,
+                        &table_def.get_primary_columns(),
+                    ),
                 }
             })
             .collect();
 
         Ok(updates)
     }
+}
 
-    fn build_filter(
+impl BulkDelete {
+    /// convert bulk delete into sql statements
+    pub fn into_sql_statements(
         &self,
-        table_def: &TableDef,
-        old_values: &[&Value],
-    ) -> Option<Expr> {
-        let primary_columns = table_def.get_primary_columns();
+        table_lookup: Option<&TableLookup>,
+    ) -> Result<Vec<sql::Statement>, Error> {
+        let table_def = table_lookup
+            .expect("must have a table lookup")
+            .get_table_def(&self.from.name)
+            .expect("must have a table_def");
+        let deletes = self.into_deletes(table_def)?;
+        Ok(deletes
+            .into_iter()
+            .map(|delete| Into::into(&delete))
+            .collect())
+    }
 
-        let pk_values: Vec<&Value> = primary_columns
+    /// convert BulkDelete into multiple Delete AST
+    fn into_deletes(&self, table_def: &TableDef) -> Result<Vec<Delete>, Error> {
+        let deletes = self
+            .values
             .iter()
-            .filter_map(|pk| {
-                self.columns.iter().zip(old_values.iter()).find_map(
-                    |(col, old_value)| {
-                        if col == &pk.column {
-                            Some(*old_value)
-                        } else {
-                            None
-                        }
-                    },
-                )
+            .map(|row| {
+                let old_values: Vec<&Value> = row.iter().collect();
+                Delete {
+                    from: self.from.clone(),
+                    condition: build_filter_from_columns(
+                        &self.columns,
+                        &old_values,
+                        &table_def.get_primary_columns(),
+                    ),
+                }
             })
             .collect();
 
-        let pk_column_values: Vec<(&ColumnDef, &Value)> = primary_columns
-            .into_iter()
-            .zip(pk_values.into_iter())
-            .collect();
-
-        if let Some((column0, value0)) = pk_column_values.first() {
-            let mut filter0 =
-                Expr::BinaryOperation(Box::new(BinaryOperation {
-                    left: Expr::Column(column0.column.clone()),
-                    operator: Operator::Eq,
-                    right: Expr::Value((*value0).clone()),
-                }));
-            for (column, value) in pk_column_values.iter().skip(1) {
-                let next_filter =
-                    Expr::BinaryOperation(Box::new(BinaryOperation {
-                        left: Expr::Column(column.column.clone()),
-                        operator: Operator::Eq,
-                        right: Expr::Value((*value).clone()),
-                    }));
-
-                filter0 = Expr::BinaryOperation(Box::new(BinaryOperation {
-                    left: filter0,
-                    operator: Operator::And,
-                    right: next_filter,
-                }));
-            }
-            Some(filter0)
-        } else {
-            None
-        }
+        Ok(deletes)
     }
 }
 

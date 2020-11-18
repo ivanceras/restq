@@ -6,6 +6,7 @@ use crate::{
             table_def,
         },
         dml::{
+            bulk_delete,
             bulk_update,
             delete,
             insert,
@@ -56,6 +57,7 @@ fn statement_with_prefix<'a>() -> Parser<'a, char, Statement> {
                 .expect("create after PUT")
         | (delete_prefix() - space().opt() - sym('/'))
             * (drop_table().map(Statement::DropTable)
+                | bulk_delete().map(Statement::BulkDelete)
                 | delete().map(Statement::Delete))
             .expect("drop table or delete after DELETE")
         | (patch_prefix() - space().opt() - sym('/'))
