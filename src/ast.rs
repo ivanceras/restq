@@ -71,6 +71,8 @@ pub struct Function {
 
 /// coarse value from the parsing
 /// this is close to the json values
+///
+/// TODO: include Integer variant
 #[derive(Debug, PartialEq, Clone)]
 pub enum Value {
     Null,

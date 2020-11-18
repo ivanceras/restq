@@ -114,7 +114,7 @@ impl TableDef {
     }
 
     /// get the primary columns of this table
-    pub(crate) fn get_primary_columns(&self) -> Vec<&ColumnDef> {
+    pub fn get_primary_columns(&self) -> Vec<&ColumnDef> {
         self.columns
             .iter()
             .filter(|column| {

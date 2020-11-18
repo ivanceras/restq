@@ -228,6 +228,27 @@ impl Into<sql::Value> for &DataValue {
     }
 }
 
+impl Into<Value> for &DataValue {
+    fn into(self) -> Value {
+        match self {
+            DataValue::Bool(v) => Value::Bool(*v),
+            DataValue::U8(v) => Value::Number(*v as f64),
+            DataValue::U16(v) => Value::Number(*v as f64),
+            DataValue::U32(v) => Value::Number(*v as f64),
+            DataValue::U64(v) => Value::Number(*v as f64),
+            DataValue::I8(v) => Value::Number(*v as f64),
+            DataValue::I16(v) => Value::Number(*v as f64),
+            DataValue::I32(v) => Value::Number(*v as f64),
+            DataValue::I64(v) => Value::Number(*v as f64),
+            DataValue::F32(v) => Value::Number(*v as f64),
+            DataValue::F64(v) => Value::Number(*v as f64),
+            DataValue::Text(v) => Value::String(v.clone()),
+            DataValue::Local(v) => Value::String(v.to_rfc3339()),
+            _ => panic!("todo for: {:?}", self),
+        }
+    }
+}
+
 impl Into<sql::Expr> for &DataValue {
     fn into(self) -> sql::Expr {
         sql::Expr::Value(Into::into(self))

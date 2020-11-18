@@ -3,14 +3,6 @@
 //! such as Insert, Delete, Update table.
 mod dml_parser;
 
-pub use dml_parser::{
-    bulk_delete,
-    bulk_update,
-    delete,
-    insert,
-    update,
-};
-
 use crate::{
     ast::{
         BinaryOperation,
@@ -19,6 +11,7 @@ use crate::{
         Operator,
         Select,
         Table,
+        TableDef,
         TableLookup,
         Value,
     },
@@ -31,6 +24,13 @@ use crate::{
     },
     ColumnDef,
     Error,
+};
+pub use dml_parser::{
+    bulk_delete,
+    bulk_update,
+    delete,
+    insert,
+    update,
 };
 use pom::parser::{
     sym,
@@ -143,51 +143,111 @@ impl Into<sql::Statement> for &Update {
 }
 
 impl BulkUpdate {
-    pub fn into_sql_statement(
+    /// convert bulk update into sql statements
+    pub fn into_sql_statements(
         &self,
         table_lookup: Option<&TableLookup>,
-    ) -> Result<sql::Statement, Error> {
+    ) -> Result<Vec<sql::Statement>, Error> {
         let table_def = table_lookup
-            .expect("must have a table def")
+            .expect("must have a table lookup")
             .get_table_def(&self.table.name)
-            .expect("must have a table def");
-
-        let primary_columns = table_def.get_primary_columns();
-        assert!(
-            !primary_columns.is_empty(),
-            "must have columns for where statements"
-        );
-        let filter = Self::build_filter(&primary_columns);
-        Ok(sql::Statement::Update {
-            table_name: Into::into(&self.table),
-            assignments: self
-                .columns
-                .iter()
-                .map(|column| {
-                    sql::Assignment {
-                        id: Into::into(column),
-                        value: sql::Expr::Identifier("?".into()),
-                    }
-                })
-                .collect(),
-            selection: filter.map(|f| Into::into(&f)),
-        })
+            .expect("must have a table_def");
+        let updates = self.into_updates(table_def)?;
+        Ok(updates
+            .into_iter()
+            .map(|update| Into::into(&update))
+            .collect())
     }
 
-    fn build_filter(columns: &[&ColumnDef]) -> Option<Expr> {
-        if let Some(column0) = columns.get(0) {
+    /// convert BulkUpdate into multiple Update AST
+    fn into_updates(&self, table_def: &TableDef) -> Result<Vec<Update>, Error> {
+        let columns_len = self.columns.len();
+
+        let updates = self
+            .values
+            .iter()
+            .map(|row| {
+                let old_values: Vec<&Value> =
+                    row.iter().take(columns_len).collect();
+
+                let new_values: Vec<&Value> =
+                    row.iter().skip(columns_len).collect();
+
+                assert_eq!(
+                    old_values.len(),
+                    new_values.len(),
+                    "must the same number of records"
+                );
+
+                // column and values that are changed
+                let column_new_values: Vec<(Column, Value)> = self
+                    .columns
+                    .iter()
+                    .zip(old_values.clone().iter().zip(new_values.iter()))
+                    .filter_map(|(column, (old_value, new_value))| {
+                        if old_value != new_value {
+                            Some((column.clone(), (*new_value).clone()))
+                        } else {
+                            None
+                        }
+                    })
+                    .collect();
+
+                let (columns, new_values): (Vec<Column>, Vec<Value>) =
+                    column_new_values.into_iter().unzip();
+
+                Update {
+                    table: self.table.clone(),
+                    columns,
+                    values: new_values,
+                    condition: self.build_filter(table_def, &old_values),
+                }
+            })
+            .collect();
+
+        Ok(updates)
+    }
+
+    fn build_filter(
+        &self,
+        table_def: &TableDef,
+        old_values: &[&Value],
+    ) -> Option<Expr> {
+        let primary_columns = table_def.get_primary_columns();
+
+        let pk_values: Vec<&Value> = primary_columns
+            .iter()
+            .filter_map(|pk| {
+                self.columns.iter().zip(old_values.iter()).find_map(
+                    |(col, old_value)| {
+                        if col == &pk.column {
+                            Some(*old_value)
+                        } else {
+                            None
+                        }
+                    },
+                )
+            })
+            .collect();
+
+        let pk_column_values: Vec<(&ColumnDef, &Value)> = primary_columns
+            .into_iter()
+            .zip(pk_values.into_iter())
+            .collect();
+
+        if let Some((column0, value0)) = pk_column_values.first() {
             let mut filter0 =
                 Expr::BinaryOperation(Box::new(BinaryOperation {
                     left: Expr::Column(column0.column.clone()),
                     operator: Operator::Eq,
-                    right: Expr::Column(Column { name: "?".into() }),
+                    right: Expr::Value((*value0).clone()),
                 }));
-            for column in columns.iter().skip(1) {
+            for (column, value) in pk_column_values.iter().skip(1) {
                 let next_filter =
                     Expr::BinaryOperation(Box::new(BinaryOperation {
                         left: Expr::Column(column.column.clone()),
                         operator: Operator::Eq,
-                        right: Expr::Column(Column { name: "?".into() }),
+                        right: Expr::Value((*value).clone()),
                     }));
 
                 filter0 = Expr::BinaryOperation(Box::new(BinaryOperation {
