@@ -49,7 +49,7 @@ where
 
     /// consume self and return as csv rows iterator
     pub fn rows_iter(self) -> CsvRows<R> {
-        CsvRows::new(self.body, self.header.columns)
+        CsvRows::new(self.body)
     }
 }
 

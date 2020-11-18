@@ -57,41 +57,12 @@ where
         table_lookup: Option<&TableLookup>,
     ) -> Option<CsvRows<R>> {
         match self.header {
-            Statement::Create(table_def) => {
-                Some(CsvRows::new(self.body, table_def.columns))
-            }
-            Statement::Insert(insert) => {
-                let table_def = table_lookup
-                    .expect("need table lookup")
-                    .get_table_def(&insert.into.name)
-                    .expect("must have table lookup");
-                Some(CsvRows::new(
-                    self.body,
-                    table_def.matching_column_def(&insert.columns),
-                ))
-            }
+            Statement::Create(table_def) => Some(CsvRows::new(self.body)),
+            Statement::Insert(insert) => Some(CsvRows::new(self.body)),
             Statement::Select(_) => None,
             Statement::Delete(_) => None,
-            Statement::BulkDelete(delete) => {
-                let table_def = table_lookup
-                    .expect("need table lookup")
-                    .get_table_def(&delete.from.name)
-                    .expect("must have table lookup");
-                Some(CsvRows::new(
-                    self.body,
-                    table_def.matching_column_def(&delete.columns),
-                ))
-            }
-            Statement::BulkUpdate(update) => {
-                let table_def = table_lookup
-                    .expect("need table lookup")
-                    .get_table_def(&update.table.name)
-                    .expect("must have table lookup");
-                Some(CsvRows::new(
-                    self.body,
-                    table_def.matching_column_def(&update.columns),
-                ))
-            }
+            Statement::BulkDelete(delete) => Some(CsvRows::new(self.body)),
+            Statement::BulkUpdate(update) => Some(CsvRows::new(self.body)),
             _ => todo!("rows_iter for {:?}.. not yet", self.header),
         }
     }
