@@ -1,10 +1,7 @@
 /// StmtData, this contains both statement and the data
 use crate::{
     ast::parser::utils::bytes_to_chars,
-    ast::{
-        Statement,
-        TableLookup,
-    },
+    ast::Statement,
     CsvRows,
 };
 use parser::parse_statement_chars;
@@ -52,17 +49,14 @@ where
     }
 
     /// consume self and return as csv rows iterator
-    pub fn rows_iter(
-        self,
-        table_lookup: Option<&TableLookup>,
-    ) -> Option<CsvRows<R>> {
+    pub fn rows_iter(self) -> Option<CsvRows<R>> {
         match self.header {
-            Statement::Create(table_def) => Some(CsvRows::new(self.body)),
-            Statement::Insert(insert) => Some(CsvRows::new(self.body)),
+            Statement::Create(_) => Some(CsvRows::new(self.body)),
+            Statement::Insert(_) => Some(CsvRows::new(self.body)),
             Statement::Select(_) => None,
             Statement::Delete(_) => None,
-            Statement::BulkDelete(delete) => Some(CsvRows::new(self.body)),
-            Statement::BulkUpdate(update) => Some(CsvRows::new(self.body)),
+            Statement::BulkDelete(_) => Some(CsvRows::new(self.body)),
+            Statement::BulkUpdate(_) => Some(CsvRows::new(self.body)),
             _ => todo!("rows_iter for {:?}.. not yet", self.header),
         }
     }
@@ -83,10 +77,8 @@ mod tests {
         let csv_data =
             StmtData::from_reader(data.as_bytes()).expect("must be valid");
 
-        let rows: Vec<Vec<Value>> = csv_data
-            .rows_iter(None)
-            .expect("must have iterator")
-            .collect();
+        let rows: Vec<Vec<Value>> =
+            csv_data.rows_iter().expect("must have iterator").collect();
         println!("rows: {:#?}", rows);
         assert_eq!(rows.len(), 2);
     }

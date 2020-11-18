@@ -175,17 +175,6 @@ impl TableDef {
             location: None,
         })
     }
-
-    pub(crate) fn matching_column_def(
-        &self,
-        columns: &[Column],
-    ) -> Vec<ColumnDef> {
-        self.columns
-            .iter()
-            .filter(|c| columns.contains(&c.column))
-            .map(|c| c.clone())
-            .collect()
-    }
 }
 
 impl AlterTable {
