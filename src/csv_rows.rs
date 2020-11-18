@@ -1,5 +1,10 @@
 /// contains Row iterator for the csv data
 use crate::ast::Value;
+use crate::{
+    data_value,
+    ColumnDef,
+    DataValue,
+};
 use csv::{
     ReaderBuilder,
     StringRecordsIntoIter,
@@ -27,6 +32,30 @@ where
             .into_records();
 
         CsvRows { into_iter }
+    }
+
+    pub fn into_data_values(
+        self,
+        column_defs: &[ColumnDef],
+    ) -> Vec<Vec<DataValue>> {
+        self.map(|row| Self::cast_row_to_data_value(&row, column_defs))
+            .collect()
+    }
+
+    fn cast_row_to_data_value(
+        row: &[Value],
+        column_defs: &[ColumnDef],
+    ) -> Vec<DataValue> {
+        column_defs
+            .iter()
+            .zip(row.iter())
+            .map(|(column_def, value)| {
+                data_value::cast_data_value(
+                    value,
+                    &column_def.data_type_def.data_type,
+                )
+            })
+            .collect()
     }
 }
 
