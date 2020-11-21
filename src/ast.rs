@@ -179,6 +179,14 @@ impl Select {
         }
     }
 
+    pub fn get_page_size(&self) -> Option<i64> {
+        if let Some(Range::Page(page)) = &self.range {
+            Some(page.page_size)
+        } else {
+            None
+        }
+    }
+
     pub fn add_simple_filter(
         &mut self,
         column: Column,
@@ -321,6 +329,12 @@ impl fmt::Display for Select {
         }
 
         Ok(())
+    }
+}
+
+impl Default for Direction {
+    fn default() -> Self {
+        Direction::Asc
     }
 }
 

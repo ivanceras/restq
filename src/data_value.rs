@@ -516,6 +516,7 @@ pub fn cast_data_value(value: &Value, required_type: &DataType) -> DataValue {
                             .expect("must be a valid base64 bytes");
                         DataValue::Bytes(bytes)
                     }
+                    DataType::Json => DataValue::Text(v.to_string()),
                     _ => {
                         panic!(
                             "unsupported conversion from {:?} to {:?}",
