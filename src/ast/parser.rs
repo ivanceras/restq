@@ -194,8 +194,13 @@ fn exprs<'a>() -> Parser<'a, char, Vec<Expr>> {
     list_fail(expr(), sym(','))
 }
 
-fn function<'a>() -> Parser<'a, char, Function> {
-    (strict_ident() - sym('(') + call(exprs) - sym(')'))
+pub(crate) fn function<'a>() -> Parser<'a, char, Function> {
+    (strict_ident() - sym('(') - sym(')')).map(|name| {
+        Function {
+            name,
+            params: vec![],
+        }
+    }) | (strict_ident() - sym('(') + call(exprs) - sym(')'))
         .map(|(name, params)| Function { name, params })
 }
 

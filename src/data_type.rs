@@ -157,6 +157,16 @@ impl DataType {
             _ => false,
         }
     }
+
+    pub fn is_autogenerate(&self) -> bool {
+        match self {
+            DataType::S8 | DataType::S16 | DataType::S32 | DataType::S64 => {
+                true
+            }
+            DataType::UuidRand | DataType::UuidSlug => true,
+            _ => false,
+        }
+    }
 }
 
 impl fmt::Display for DataType {

@@ -10,6 +10,7 @@ use crate::{
             Source,
         },
         Column,
+        Function,
         Statement,
         Table,
         TableError,
@@ -40,7 +41,13 @@ pub struct ColumnDef {
 pub struct DataTypeDef {
     pub data_type: DataType,
     pub is_optional: bool,
-    pub default: Option<DataValue>,
+    pub default: Option<DefaultValue>,
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub enum DefaultValue {
+    DataValue(DataValue),
+    Function(Function),
 }
 
 #[derive(Debug, PartialEq, Clone, Hash, Eq)]
@@ -341,6 +348,11 @@ impl ColumnDef {
             options: self.into_sql_column_options_def(table_lookup)?,
         })
     }
+
+    /// create a data_value from this ColumnDef
+    pub fn default_data_value() -> DataValue {
+        DataValue::Nil
+    }
 }
 
 impl fmt::Display for ColumnDef {
@@ -382,6 +394,36 @@ impl fmt::Display for ColumnAttribute {
             ColumnAttribute::Unique => write!(f, "&"),
             ColumnAttribute::Index => write!(f, "@"),
         }
+    }
+}
+
+impl fmt::Display for DefaultValue {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            DefaultValue::DataValue(v) => v.fmt(f),
+            DefaultValue::Function(v) => v.fmt(f),
+        }
+    }
+}
+
+impl Into<sql::Expr> for &DefaultValue {
+    fn into(self) -> sql::Expr {
+        match self {
+            DefaultValue::DataValue(v) => sql::Expr::Value(v.into()),
+            DefaultValue::Function(v) => sql::Expr::Function(v.into()),
+        }
+    }
+}
+
+impl From<DataValue> for DefaultValue {
+    fn from(v: DataValue) -> Self {
+        DefaultValue::DataValue(v)
+    }
+}
+
+impl From<Function> for DefaultValue {
+    fn from(f: Function) -> Self {
+        DefaultValue::Function(f)
     }
 }
 
@@ -455,7 +497,9 @@ mod tests {
                         data_type_def: DataTypeDef {
                             data_type: DataType::F32,
                             is_optional: true,
-                            default: Some(DataValue::F32(0.0,),),
+                            default: Some(DefaultValue::DataValue(
+                                DataValue::F32(0.0,)
+                            )),
                         },
                         foreign: None,
                     })
@@ -568,7 +612,9 @@ mod tests {
                 data_type_def: DataTypeDef {
                     data_type: DataType::U32,
                     is_optional: true,
-                    default: Some(DataValue::Text("qr-123".to_string())),
+                    default: Some(DefaultValue::DataValue(DataValue::Text(
+                        "qr-123".to_string()
+                    ))),
                 },
                 foreign: Some(Table {
                     name: "product".to_string()
@@ -715,7 +761,7 @@ mod tests {
             DataTypeDef {
                 data_type: DataType::F32,
                 is_optional: false,
-                default: Some(DataValue::F32(0.0)),
+                default: Some(DefaultValue::DataValue(DataValue::F32(0.0))),
             }
         );
     }
@@ -729,7 +775,7 @@ mod tests {
             DataTypeDef {
                 data_type: DataType::F64,
                 is_optional: true,
-                default: Some(DataValue::F64(11.62)),
+                default: Some(DefaultValue::DataValue(DataValue::F64(11.62))),
             }
         );
     }

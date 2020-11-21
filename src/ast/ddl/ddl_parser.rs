@@ -8,10 +8,12 @@ use crate::{
             *,
         },
         Table,
+        Value,
     },
     data_type::data_type,
     data_value,
 };
+use either::Either;
 use pom::parser::{
     sym,
     Parser,
@@ -76,22 +78,36 @@ pub fn table_def<'a>() -> Parser<'a, char, TableDef> {
         .map(|(table, columns)| TableDef { table, columns })
 }
 
+pub fn default_value<'a>() -> Parser<'a, char, Either<Function, Value>> {
+    function().map(Either::Left) | value().map(Either::Right)
+}
+
 /// data_type_def = data_type ["?"] "(" value ")"
 /// example:
 ///     u32?(0.0)
 pub fn data_type_def<'a>() -> Parser<'a, char, DataTypeDef> {
-    (data_type() + sym('?').opt() + (sym('(') * value() - sym(')')).opt())
-        .map(|((data_type, optional), default_value)| {
-            let default = default_value
-                .map(|dv| data_value::cast_data_value(&dv, &data_type));
-
-            DataTypeDef {
-                data_type,
-                is_optional: if let Some(_) = optional { true } else { false },
-                default,
+    (data_type()
+        + sym('?').opt()
+        + (sym('(') * default_value() - sym(')')).opt())
+    .map(|((data_type, optional), default_value)| {
+        let default = default_value.map(|d| {
+            match d {
+                Either::Left(df) => DefaultValue::Function(df),
+                Either::Right(dv) => {
+                    DefaultValue::DataValue(data_value::cast_data_value(
+                        &dv, &data_type,
+                    ))
+                }
             }
-        })
-        .name("data_type_def")
+        });
+
+        DataTypeDef {
+            data_type,
+            is_optional: if let Some(_) = optional { true } else { false },
+            default,
+        }
+    })
+    .name("data_type_def")
 }
 
 pub fn drop_table<'a>() -> Parser<'a, char, DropTable> {
