@@ -491,22 +491,31 @@ pub fn cast_data_value(value: &Value, required_type: &DataType) -> DataValue {
                         }
                     }
                     DataType::Local => {
-                        let ts = naive_date_parser(&v);
-                        let local = DateTime::<Local>::from_utc(
-                            ts,
-                            FixedOffset::east(0),
-                        );
-                        DataValue::Local(local)
+                        if v.is_empty() {
+                            DataValue::Nil
+                        } else {
+                            let ts = naive_date_parser(&v);
+                            let local = DateTime::<Local>::from_utc(
+                                ts,
+                                FixedOffset::east(0),
+                            );
+                            DataValue::Local(local)
+                        }
                     }
                     DataType::Utc => {
-                        let ts = naive_date_parser(&v);
-                        let utc = DateTime::<Utc>::from_utc(ts, Utc);
-                        DataValue::Utc(utc)
+                        if v.is_empty() {
+                            DataValue::Nil
+                        } else {
+                            let ts = naive_date_parser(&v);
+                            let utc = DateTime::<Utc>::from_utc(ts, Utc);
+                            DataValue::Utc(utc)
+                        }
                     }
                     DataType::Uuid | DataType::UuidRand => {
-                        let uuid =
-                            Uuid::parse_str(&v).expect("unable to parse uuid");
-                        DataValue::Uuid(uuid)
+                        match Uuid::parse_str(&v) {
+                            Ok(v) => DataValue::Uuid(v),
+                            Err(_e) => DataValue::Nil,
+                        }
                     }
                     DataType::UuidSlug => DataValue::UuidSlug(v.to_string()),
                     //TODO: validate identifier
