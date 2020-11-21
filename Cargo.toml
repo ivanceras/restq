@@ -14,7 +14,7 @@ keywords = ["url", "param", "parser", "rest", "sql"]
 pom = { version = "3.1.0" }
 url = "2.1.0"
 chrono = "0.4.10"
-uuid = "0.8.1"
+uuid = { version = "0.8.1", features = ["v4"] }
 lazy_static = "1.4.0"
 sql-ast = { version = "0.7.1", path = "../sql-ast"}
 thiserror = "1.0.9"
@@ -22,6 +22,10 @@ csv = "1.1.1"
 log = "0.4.8"
 base64 = "0.9"
 either = "1.6"
+
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+js-sys = { version = "0.3" } 
 
 
 [workspace]
