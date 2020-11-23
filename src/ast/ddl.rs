@@ -304,6 +304,17 @@ impl ColumnDef {
             false
         }
     }
+
+    pub fn data_type(&self) -> DataType {
+        self.data_type_def.data_type.clone()
+    }
+
+    /// returns true if this datatype definition have a generated value
+    /// or a default value
+    pub fn has_generated_default(&self) -> bool {
+        self.data_type().is_autogenerate()
+            | self.data_type_def.default.is_some()
+    }
 }
 
 impl DataTypeDef {
