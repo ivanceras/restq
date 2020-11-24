@@ -51,13 +51,15 @@ where
     /// consume self and return as csv rows iterator
     pub fn rows_iter(self) -> Option<CsvRows<R>> {
         match self.header {
-            Statement::Create(_) => Some(CsvRows::new(self.body)),
-            Statement::Insert(_) => Some(CsvRows::new(self.body)),
             Statement::Select(_) => None,
             Statement::Delete(_) => None,
+            Statement::AlterTable(_) => None,
+            Statement::DropTable(_) => None,
+            Statement::Update(_) => None,
+            Statement::Create(_) => Some(CsvRows::new(self.body)),
+            Statement::Insert(_) => Some(CsvRows::new(self.body)),
             Statement::BulkDelete(_) => Some(CsvRows::new(self.body)),
             Statement::BulkUpdate(_) => Some(CsvRows::new(self.body)),
-            _ => todo!("rows_iter for {:?}.. not yet", self.header),
         }
     }
 }

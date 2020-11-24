@@ -107,6 +107,10 @@ impl TableLookup {
     pub fn get_table_def(&self, name: &str) -> Option<&TableDef> {
         self.0.get(name)
     }
+
+    pub fn find_table(&self, table: &Table) -> Option<&TableDef> {
+        self.get_table_def(&table.name)
+    }
 }
 
 impl FromTable {

@@ -9,7 +9,7 @@
 -     - [X] Implement add_column parser
 -     - [X] Implement rename column parser
 - [ ] Support for money type using Bigdecimal crate
-- [ ] Publish to crate.io
+- [X] Publish to crate.io
         ## Blocked by:
         - [X] sqlparser-rs  (Problem: slow release cycle, busy main dev)
               - [X] -> Solution: release a fork crate name: sql-ast

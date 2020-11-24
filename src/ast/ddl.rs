@@ -108,6 +108,13 @@ impl TableDef {
         }
     }
 
+    /// find the column def for this column name matching their name
+    pub fn find_column(&self, column: &Column) -> Option<&ColumnDef> {
+        self.columns
+            .iter()
+            .find(|col| col.column.name == column.name)
+    }
+
     /// get the local columns that referes to the foreign table
     pub(crate) fn get_local_columns_to_foreign_table(
         &self,
@@ -153,22 +160,22 @@ impl Into<Statement> for DropTable {
     }
 }
 
-impl Into<sql::Statement> for &DropTable {
-    fn into(self) -> sql::Statement {
-        sql::Statement::Drop {
+impl DropTable {
+    pub fn into_sql_statement(&self) -> Result<sql::Statement, Error> {
+        Ok(sql::Statement::Drop {
             object_type: sql::ObjectType::Table,
             if_exists: true,
             names: vec![Into::into(&self.table)],
             cascade: true,
-        }
+        })
     }
 }
 
 impl TableDef {
-    pub(crate) fn into_sql_statement(
+    pub fn into_sql_statement(
         &self,
         table_lookup: Option<&TableLookup>,
-    ) -> Result<sql::Statement, TableError> {
+    ) -> Result<sql::Statement, Error> {
         let mut column_defs = vec![];
         for column in self.columns.iter() {
             column_defs.push(column.into_sql_column_def(table_lookup)?);

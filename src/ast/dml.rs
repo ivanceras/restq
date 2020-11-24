@@ -113,18 +113,18 @@ impl Insert {
     }
 }
 
-impl Into<sql::Statement> for &Delete {
-    fn into(self) -> sql::Statement {
-        sql::Statement::Delete {
+impl Delete {
+    pub fn into_sql_statement(&self) -> Result<sql::Statement, Error> {
+        Ok(sql::Statement::Delete {
             table_name: Into::into(&self.from),
             selection: self.condition.as_ref().map(|expr| Into::into(expr)),
-        }
+        })
     }
 }
 
-impl Into<sql::Statement> for &Update {
-    fn into(self) -> sql::Statement {
-        sql::Statement::Update {
+impl Update {
+    pub fn into_sql_statement(&self) -> Result<sql::Statement, Error> {
+        Ok(sql::Statement::Update {
             table_name: Into::into(&self.table),
             assignments: self
                 .columns
@@ -138,7 +138,7 @@ impl Into<sql::Statement> for &Update {
                 })
                 .collect(),
             selection: self.condition.as_ref().map(|expr| Into::into(expr)),
-        }
+        })
     }
 }
 
@@ -208,7 +208,7 @@ impl BulkUpdate {
         let updates = self.into_updates(table_def)?;
         Ok(updates
             .into_iter()
-            .map(|update| Into::into(&update))
+            .map(|update| update.into_sql_statement().expect("must convert"))
             .collect())
     }
 
@@ -279,7 +279,7 @@ impl BulkDelete {
         let deletes = self.into_deletes(table_def)?;
         Ok(deletes
             .into_iter()
-            .map(|delete| Into::into(&delete))
+            .map(|delete| delete.into_sql_statement().expect("must convert"))
             .collect())
     }
 
@@ -398,7 +398,7 @@ mod tests {
         );
         let ret = update().parse(&input).expect("must be parsed");
         println!("{:#?}", ret);
-        let statement: sql::Statement = Into::into(&ret);
+        let statement: sql::Statement = ret.into_sql_statement().unwrap();
         assert_eq!(
             statement.to_string(),
             r#"UPDATE product SET description = 'I''m the new description now', is_active = false WHERE product_id = 1"#
@@ -438,7 +438,7 @@ mod tests {
         let input = to_chars(r#"product?product_id=1"#);
         let ret = delete().parse(&input).expect("must be parsed");
         println!("{:#?}", ret);
-        let statement: sql::Statement = Into::into(&ret);
+        let statement: sql::Statement = ret.into_sql_statement().unwrap();
         assert_eq!(
             statement.to_string(),
             "DELETE FROM product WHERE product_id = 1"

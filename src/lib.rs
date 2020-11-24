@@ -6,6 +6,8 @@ mod data_type;
 pub mod data_value;
 pub mod plain_data;
 pub mod stmt_data;
+//reexport sql-ast
+pub use sql_ast as sql;
 
 pub use ast::{
     ddl::{

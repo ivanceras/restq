@@ -139,14 +139,16 @@ impl Statement {
             Statement::Insert(insert) => {
                 insert.into_sql_statement(table_lookup)
             }
-            Statement::Update(update) => Ok(Into::into(update)),
-            Statement::Delete(delete) => Ok(Into::into(delete)),
+            Statement::Update(update) => update.into_sql_statement(),
+            Statement::Delete(delete) => delete.into_sql_statement(),
             Statement::BulkUpdate(_update) => todo!(),
             Statement::BulkDelete(_delete) => todo!(),
             Statement::Create(create) => {
                 Ok(create.into_sql_statement(table_lookup)?)
             }
-            Statement::DropTable(drop_table) => Ok(Into::into(drop_table)),
+            Statement::DropTable(drop_table) => {
+                Ok(drop_table.into_sql_statement()?)
+            }
             Statement::AlterTable(alter_table) => {
                 let mut statements =
                     alter_table.into_sql_statements(table_lookup)?;
