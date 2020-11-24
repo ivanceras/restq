@@ -6,8 +6,8 @@ use crate::{
 };
 use parser::parse_statement_chars;
 pub use parser::{
+    parse_header,
     parse_select_chars,
-    parse_statement,
 };
 use std::io::{
     BufRead,

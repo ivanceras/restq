@@ -30,8 +30,7 @@ pub enum Prefix {
     Delete,
 }
 
-#[allow(unused)]
-pub fn parse_statement(url: &str) -> Result<Statement, crate::Error> {
+pub fn parse_header(url: &str) -> Result<Statement, crate::Error> {
     let url_chars = to_chars(url);
     parse_statement_chars(&url_chars)
 }

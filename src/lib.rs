@@ -40,7 +40,6 @@ pub use plain_data::PlainData;
 pub use pom;
 pub use stmt_data::{
     parse_select_chars,
-    parse_statement,
     StmtData,
 };
 use thiserror::Error;
