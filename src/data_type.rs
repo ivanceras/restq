@@ -210,12 +210,20 @@ pub fn data_type<'a>() -> Parser<'a, char, DataType> {
 /// the corresponding sql type for this data type
 impl Into<sql::DataType> for &DataType {
     fn into(self) -> sql::DataType {
+        let serial =
+            sql::DataType::Custom(sql::ObjectName(vec![sql::Ident::new(
+                "SERIAL",
+            )]));
+        let big_serial =
+            sql::DataType::Custom(sql::ObjectName(vec![sql::Ident::new(
+                "BIGSERIAL",
+            )]));
         match self {
             DataType::Bool => sql::DataType::Boolean,
-            DataType::S8 => sql::DataType::SmallInt,
-            DataType::S16 => sql::DataType::SmallInt,
-            DataType::S32 => sql::DataType::Int,
-            DataType::S64 => sql::DataType::BigInt,
+            DataType::S8 => serial,
+            DataType::S16 => serial,
+            DataType::S32 => serial,
+            DataType::S64 => big_serial,
             DataType::F32 => sql::DataType::Float(None),
             DataType::F64 => sql::DataType::Float(None),
             DataType::U8 => sql::DataType::SmallInt,

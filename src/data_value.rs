@@ -149,6 +149,27 @@ impl Into<u64> for DataValue {
     }
 }
 
+impl Into<i64> for DataValue {
+    fn into(self) -> i64 {
+        match self {
+            DataValue::U8(v) => v as i64,
+            DataValue::U16(v) => v as i64,
+            DataValue::U32(v) => v as i64,
+            DataValue::U64(v) => v as i64,
+            DataValue::I8(v) => v as i64,
+            DataValue::I16(v) => v as i64,
+            DataValue::I32(v) => v as i64,
+            DataValue::I64(v) => v,
+            _ => {
+                panic!(
+                    "unsupported conversion: {:?} to u64",
+                    self.get_data_type()
+                )
+            }
+        }
+    }
+}
+
 impl Into<f32> for DataValue {
     fn into(self) -> f32 {
         match self {

@@ -35,7 +35,6 @@ use std::fmt;
 #[derive(Debug, PartialEq, Clone)]
 pub struct ColumnDef {
     pub column: Column,
-    //TODO: convert it to just Vec<ColumnAttribute>
     pub attributes: Option<Vec<ColumnAttribute>>,
     pub data_type_def: DataTypeDef,
     pub foreign: Option<Table>,
@@ -310,6 +309,10 @@ impl ColumnDef {
         } else {
             false
         }
+    }
+
+    pub fn is_autoincrement_and_primary(&self) -> bool {
+        self.is_primary() && self.data_type().is_autogenerate()
     }
 
     pub fn data_type(&self) -> DataType {
