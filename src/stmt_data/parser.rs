@@ -96,6 +96,11 @@ fn put_prefix<'a>() -> Parser<'a, char, Prefix> {
 mod tests {
     use super::*;
 
+    fn parse_statement(stmt: &str) -> Result<Statement, crate::Error> {
+        let input = to_chars(stmt);
+        parse_statement_chars(&input)
+    }
+
     #[test]
     fn test_statement_with_method_prefix() {
         let select = parse_statement("GET /product").expect("must be parsed");

@@ -4,6 +4,7 @@ pub mod ast;
 mod csv_rows;
 mod data_type;
 pub mod data_value;
+pub mod multi_stmt;
 pub mod plain_data;
 pub mod stmt_data;
 //reexport sql-ast
