@@ -276,6 +276,7 @@ impl BulkDelete {
             .expect("must have a table lookup")
             .get_table_def(&self.from.name)
             .expect("must have a table_def");
+        //TODO: create a separate branch for building delete with no Lookup table needed
         let deletes = self.into_deletes(table_def)?;
         Ok(deletes
             .into_iter()

@@ -47,21 +47,15 @@ where
     fn next(&mut self) -> Option<Self::Item> {
         let mut buffer = vec![];
         while let Ok(n) = self.content.read_until(b'\n', &mut buffer) {
-            dbg!(&n);
-            let buffer_len = buffer.len();
-            let last_char = buffer[buffer_len - 1];
-            println!("last char: {}", last_char);
-            println!("char: {:?}", std::char::from_u32(last_char as u32));
-            if (n == 1 && last_char == b'\n') || n == 0 {
-                println!("last read was line");
-                println!("this is a line break");
-                println!(
-                    "buffer content: {:?}",
-                    String::from_utf8(buffer.clone())
-                );
-                let stmt = StmtData::from_reader(Cursor::new(buffer))
-                    .expect("must not error");
-                return Some(stmt);
+            let last_char = buffer.iter().last();
+            if (n == 1 && last_char == Some(&b'\n')) || n == 0 {
+                if !buffer.is_empty() {
+                    let stmt = StmtData::from_reader(Cursor::new(buffer))
+                        .expect("must not error");
+                    return Some(stmt);
+                } else {
+                    return None;
+                }
             }
             if n == 0 {
                 break;

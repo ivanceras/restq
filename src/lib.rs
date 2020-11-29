@@ -37,6 +37,7 @@ pub use chrono;
 pub use csv_rows::CsvRows;
 pub use data_type::DataType;
 pub use data_value::DataValue;
+pub use multi_stmt::MultiStatement;
 pub use plain_data::PlainData;
 pub use pom;
 pub use stmt_data::{
