@@ -210,6 +210,7 @@ pub fn data_type<'a>() -> Parser<'a, char, DataType> {
 /// the corresponding sql type for this data type
 impl Into<sql::DataType> for &DataType {
     fn into(self) -> sql::DataType {
+        //TODO: serial is for postgresql only
         let serial =
             sql::DataType::Custom(sql::ObjectName(vec![sql::Ident::new(
                 "SERIAL",

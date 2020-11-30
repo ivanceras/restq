@@ -118,6 +118,10 @@ impl Into<u32> for DataValue {
             DataValue::I16(v) => v as u32,
             DataValue::I32(v) => v as u32,
             DataValue::I64(v) => v as u32,
+            DataValue::S8(v) => v as u32,
+            DataValue::S16(v) => v as u32,
+            DataValue::S32(v) => v,
+            DataValue::S64(v) => v as u32,
             _ => {
                 panic!(
                     "unsupported conversion: {:?} to u32",
@@ -139,6 +143,10 @@ impl Into<u64> for DataValue {
             DataValue::I16(v) => v as u64,
             DataValue::I32(v) => v as u64,
             DataValue::I64(v) => v as u64,
+            DataValue::S8(v) => v as u64,
+            DataValue::S16(v) => v as u64,
+            DataValue::S32(v) => v as u64,
+            DataValue::S64(v) => v,
             _ => {
                 panic!(
                     "unsupported conversion: {:?} to u64",
@@ -160,6 +168,10 @@ impl Into<i64> for DataValue {
             DataValue::I16(v) => v as i64,
             DataValue::I32(v) => v as i64,
             DataValue::I64(v) => v,
+            DataValue::S8(v) => v as i64,
+            DataValue::S16(v) => v as i64,
+            DataValue::S32(v) => v as i64,
+            DataValue::S64(v) => v as i64,
             _ => {
                 panic!(
                     "unsupported conversion: {:?} to u64",
@@ -183,6 +195,10 @@ impl Into<f32> for DataValue {
             DataValue::I64(v) => v as f32,
             DataValue::F32(v) => v,
             DataValue::F64(v) => v as f32,
+            DataValue::S8(v) => v as f32,
+            DataValue::S16(v) => v as f32,
+            DataValue::S32(v) => v as f32,
+            DataValue::S64(v) => v as f32,
             _ => {
                 panic!(
                     "unsupported conversion: {:?} to f32",
