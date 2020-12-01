@@ -13,11 +13,18 @@ pub enum Value {
     Bool(bool),
 }
 
+/// if string is empty use the default value in the underlying database
 impl Into<sql::Value> for &Value {
     fn into(self) -> sql::Value {
         match self {
             Value::Null => sql::Value::Null,
-            Value::String(v) => sql::Value::SingleQuotedString(v.to_string()),
+            Value::String(v) => {
+                if v.is_empty() {
+                    sql::Value::Default
+                } else {
+                    sql::Value::SingleQuotedString(v.to_string())
+                }
+            }
             Value::Number(v) => sql::Value::Number(format!("{}", v)),
             Value::Bool(v) => sql::Value::Boolean(*v),
         }

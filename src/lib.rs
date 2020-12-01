@@ -40,6 +40,10 @@ pub use data_value::DataValue;
 pub use multi_stmt::MultiStatement;
 pub use plain_data::PlainData;
 pub use pom;
+use serde::{
+    Serialize,
+    Serializer,
+};
 pub use stmt_data::{
     parse_select_chars,
     StmtData,
@@ -61,4 +65,32 @@ pub enum Error {
     MoreThanOneStatement,
     #[error("{0}")]
     IoError(#[from] std::io::Error),
+}
+
+impl Serialize for Error {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        match self {
+            Error::ParseError(e) => {
+                serializer.serialize_newtype_struct("PomError", &e.to_string())
+            }
+            Error::InvalidDataType(e) => {
+                serializer.serialize_newtype_struct("InvalidDataType", e)
+            }
+            Error::TableError(e) => {
+                serializer.serialize_newtype_struct("TableError", e)
+            }
+            Error::GenericError(e) => {
+                serializer.serialize_newtype_struct("GenericError", e)
+            }
+            Error::MoreThanOneStatement => {
+                serializer.serialize_newtype_struct("MoreThanOneStatement", &())
+            }
+            Error::IoError(e) => {
+                serializer.serialize_newtype_struct("IoError", &e.to_string())
+            }
+        }
+    }
 }

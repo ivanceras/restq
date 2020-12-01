@@ -5,6 +5,7 @@ use crate::ast::{
     Expr,
     Operator,
 };
+use serde::Serialize;
 use sql_ast::ast as sql;
 use std::{
     collections::BTreeMap,
@@ -12,7 +13,7 @@ use std::{
 };
 use thiserror::Error;
 
-#[derive(Error, Debug)]
+#[derive(Error, Debug, Serialize)]
 pub enum TableError {
     #[error("Table join is specified, but no table lookup is supplied")]
     NoSuppliedTableLookup,
