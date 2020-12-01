@@ -1,5 +1,24 @@
 # Changelog
 
+# 0.4.0
+- Include the serial type in conversion to primitive types
+- Add support for multi_statement restq
+- modify the serial type to use custom serial type in the generated create sql statement
+- expose parse_header from stmt_data parser
+- Implement all variants of Statement
+- add helper function for column_def determing the generated default property
+- Implement creating a date now() in wasm using js date interface
+- Fix edge case conversion of dates when it is a blank string
+- Modify DataTypeDef default value to accomodate also Function as default is not limited to DataValue, it can also be functions
+- Add Implement Default for Direction
+- parse bulk_update
+- Add into_data_values, casting the simple value into a more specific data_type
+- Remove the column_def in csv_rows, plain_data and stmt_data since casting is not needed
+- Use the simple Value in CsvRows and StmtData, so as not to keep casting the values to and fro in the higher level usage
+- Implement conversion of BulkUpdate
+- Implement bulk update
+- implement conversion of Ilike operator
+
 ## 0.3.3
 - Add helper methods to Select AST
 - Implement fmt::Display for Select AST
