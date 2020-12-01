@@ -180,7 +180,7 @@ mod tests {
                 .into_sql_statement(Some(&table_lookup))
                 .expect("must not fail")
                 .to_string(),
-            "CREATE TABLE IF NOT EXISTS product (product_id int PRIMARY KEY NOT NULL, name text NOT NULL, description text NOT NULL, updated timestamp NOT NULL, created_by int NOT NULL REFERENCES users (user_id), is_active boolean NOT NULL)"
+            "CREATE TABLE IF NOT EXISTS product (product_id SERIAL PRIMARY KEY NOT NULL, name text NOT NULL, description text NOT NULL, updated timestamp NOT NULL, created_by int NOT NULL REFERENCES users (user_id), is_active boolean NOT NULL)"
         );
     }
 
