@@ -74,22 +74,52 @@ impl Serialize for Error {
     {
         match self {
             Error::ParseError(e) => {
-                serializer.serialize_newtype_struct("PomError", &e.to_string())
+                serializer.serialize_newtype_variant(
+                    "Error",
+                    0,
+                    "PomError",
+                    &e.to_string(),
+                )
             }
             Error::InvalidDataType(e) => {
-                serializer.serialize_newtype_struct("InvalidDataType", e)
+                serializer.serialize_newtype_variant(
+                    "Error",
+                    1,
+                    "InvalidDataType",
+                    e,
+                )
             }
             Error::TableError(e) => {
-                serializer.serialize_newtype_struct("TableError", e)
+                serializer.serialize_newtype_variant(
+                    "Error",
+                    2,
+                    "TableError",
+                    e,
+                )
             }
             Error::GenericError(e) => {
-                serializer.serialize_newtype_struct("GenericError", e)
+                serializer.serialize_newtype_variant(
+                    "Error",
+                    3,
+                    "GenericError",
+                    e,
+                )
             }
             Error::MoreThanOneStatement => {
-                serializer.serialize_newtype_struct("MoreThanOneStatement", &())
+                serializer.serialize_newtype_variant(
+                    "Error",
+                    4,
+                    "MoreThanOneStatement",
+                    &(),
+                )
             }
             Error::IoError(e) => {
-                serializer.serialize_newtype_struct("IoError", &e.to_string())
+                serializer.serialize_newtype_variant(
+                    "Error",
+                    5,
+                    "IoError",
+                    &e.to_string(),
+                )
             }
         }
     }
