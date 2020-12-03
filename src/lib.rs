@@ -40,10 +40,6 @@ pub use data_value::DataValue;
 pub use multi_stmt::MultiStatement;
 pub use plain_data::PlainData;
 pub use pom;
-use serde::{
-    Serialize,
-    Serializer,
-};
 pub use stmt_data::{
     parse_select_chars,
     StmtData,
@@ -65,62 +61,4 @@ pub enum Error {
     MoreThanOneStatement,
     #[error("{0}")]
     IoError(#[from] std::io::Error),
-}
-
-impl Serialize for Error {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        match self {
-            Error::ParseError(e) => {
-                serializer.serialize_newtype_variant(
-                    "Error",
-                    0,
-                    "PomError",
-                    &e.to_string(),
-                )
-            }
-            Error::InvalidDataType(e) => {
-                serializer.serialize_newtype_variant(
-                    "Error",
-                    1,
-                    "InvalidDataType",
-                    e,
-                )
-            }
-            Error::TableError(e) => {
-                serializer.serialize_newtype_variant(
-                    "Error",
-                    2,
-                    "TableError",
-                    e,
-                )
-            }
-            Error::GenericError(e) => {
-                serializer.serialize_newtype_variant(
-                    "Error",
-                    3,
-                    "GenericError",
-                    e,
-                )
-            }
-            Error::MoreThanOneStatement => {
-                serializer.serialize_newtype_variant(
-                    "Error",
-                    4,
-                    "MoreThanOneStatement",
-                    &(),
-                )
-            }
-            Error::IoError(e) => {
-                serializer.serialize_newtype_variant(
-                    "Error",
-                    5,
-                    "IoError",
-                    &e.to_string(),
-                )
-            }
-        }
-    }
 }
