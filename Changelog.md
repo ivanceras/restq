@@ -1,5 +1,9 @@
 # Changelog
 
+# 0.5.0
+ - Rename `Table` to `TableName` and `Column` to `ColumnName` to signify that it only contains the name and not their definition
+ - Improve multi-statement to ignore multiple whitespace and empty new lines
+
 # 0.4.0
 - Include the serial type in conversion to primitive types
 - Add support for multi_statement restq
