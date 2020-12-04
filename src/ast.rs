@@ -186,7 +186,7 @@ impl Select {
         search_key: &str,
     ) {
         let simple_filter = Expr::BinaryOperation(Box::new(BinaryOperation {
-            left: Expr::ColumnName(column),
+            left: Expr::Column(column),
             operator,
             right: Expr::Value(Value::String(search_key.to_string())),
         }));

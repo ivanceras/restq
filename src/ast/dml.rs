@@ -171,14 +171,14 @@ fn build_filter_from_columns(
 
     if let Some((column0, value0)) = pk_column_values.first() {
         let mut filter0 = Expr::BinaryOperation(Box::new(BinaryOperation {
-            left: Expr::ColumnName(column0.column.clone()),
+            left: Expr::Column(column0.column.clone()),
             operator: Operator::Eq,
             right: Expr::Value((*value0).clone()),
         }));
         for (column, value) in pk_column_values.iter().skip(1) {
             let next_filter =
                 Expr::BinaryOperation(Box::new(BinaryOperation {
-                    left: Expr::ColumnName(column.column.clone()),
+                    left: Expr::Column(column.column.clone()),
                     operator: Operator::Eq,
                     right: Expr::Value((*value).clone()),
                 }));
@@ -424,7 +424,7 @@ mod tests {
                 ],
                 condition: Some(Expr::BinaryOperation(Box::new(
                     BinaryOperation {
-                        left: Expr::ColumnName(ColumnName {
+                        left: Expr::Column(ColumnName {
                             name: "product_id".into()
                         },),
                         operator: Operator::Eq,
@@ -452,7 +452,7 @@ mod tests {
                 },
                 condition: Some(Expr::BinaryOperation(Box::new(
                     BinaryOperation {
-                        left: Expr::ColumnName(ColumnName {
+                        left: Expr::Column(ColumnName {
                             name: "product_id".into()
                         },),
                         operator: Operator::Eq,

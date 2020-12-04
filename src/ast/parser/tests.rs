@@ -121,7 +121,7 @@ fn test_expr_rename() {
     assert_eq!(
         ret,
         ExprRename {
-            expr: Expr::ColumnName(ColumnName {
+            expr: Expr::Column(ColumnName {
                 name: "column1".into()
             }),
             rename: Some("new_column".to_string())
@@ -137,19 +137,19 @@ fn test_expr_with_renames() {
         ret,
         vec![
             ExprRename {
-                expr: Expr::ColumnName(ColumnName {
+                expr: Expr::Column(ColumnName {
                     name: "column1".into()
                 }),
                 rename: Some("new_column".to_string())
             },
             ExprRename {
-                expr: Expr::ColumnName(ColumnName {
+                expr: Expr::Column(ColumnName {
                     name: "column2".into()
                 }),
                 rename: None,
             },
             ExprRename {
-                expr: Expr::ColumnName(ColumnName {
+                expr: Expr::Column(ColumnName {
                     name: "column3".into()
                 }),
                 rename: None,
@@ -166,19 +166,19 @@ fn test_expr_with_renames2() {
         ret,
         vec![
             ExprRename {
-                expr: Expr::ColumnName(ColumnName {
+                expr: Expr::Column(ColumnName {
                     name: "column1".into()
                 }),
                 rename: None,
             },
             ExprRename {
-                expr: Expr::ColumnName(ColumnName {
+                expr: Expr::Column(ColumnName {
                     name: "column2".into()
                 }),
                 rename: None,
             },
             ExprRename {
-                expr: Expr::ColumnName(ColumnName {
+                expr: Expr::Column(ColumnName {
                     name: "column3".into()
                 }),
                 rename: None,
@@ -196,19 +196,19 @@ fn test_expr_list() {
         ret,
         vec![
             ExprRename {
-                expr: Expr::ColumnName(ColumnName {
+                expr: Expr::Column(ColumnName {
                     name: "column1".into()
                 }),
                 rename: None,
             },
             ExprRename {
-                expr: Expr::ColumnName(ColumnName {
+                expr: Expr::Column(ColumnName {
                     name: "column2".into()
                 }),
                 rename: None,
             },
             ExprRename {
-                expr: Expr::ColumnName(ColumnName {
+                expr: Expr::Column(ColumnName {
                     name: "column3".into()
                 }),
                 rename: None,
@@ -224,7 +224,7 @@ fn test_expr_no_rename() {
     assert_eq!(
         ret,
         ExprRename {
-            expr: Expr::ColumnName(ColumnName {
+            expr: Expr::Column(ColumnName {
                 name: "column1".into()
             }),
             rename: None,
@@ -585,7 +585,7 @@ fn test_simple_select() {
                     BinaryOperation {
                         left: Expr::BinaryOperation(Box::new(
                             BinaryOperation {
-                                left: Expr::ColumnName(ColumnName {
+                                left: Expr::Column(ColumnName {
                                     name: "age".into()
                                 },),
                                 operator: Operator::Gt,
@@ -595,7 +595,7 @@ fn test_simple_select() {
                         operator: Operator::And,
                         right: Expr::BinaryOperation(Box::new(
                             BinaryOperation {
-                                left: Expr::ColumnName(ColumnName {
+                                left: Expr::Column(ColumnName {
                                     name: "student".into()
                                 },),
                                 operator: Operator::Eq,
@@ -609,11 +609,11 @@ fn test_simple_select() {
                     BinaryOperation {
                         left: Expr::BinaryOperation(Box::new(
                             BinaryOperation {
-                                left: Expr::ColumnName(ColumnName {
+                                left: Expr::Column(ColumnName {
                                     name: "gender".into()
                                 },),
                                 operator: Operator::Eq,
-                                right: Expr::ColumnName(ColumnName {
+                                right: Expr::Column(ColumnName {
                                     name: "M".into()
                                 },),
                             }
@@ -621,7 +621,7 @@ fn test_simple_select() {
                         operator: Operator::And,
                         right: Expr::BinaryOperation(Box::new(
                             BinaryOperation {
-                                left: Expr::ColumnName(ColumnName {
+                                left: Expr::Column(ColumnName {
                                     name: "is_active".into()
                                 },),
                                 operator: Operator::Eq,
@@ -634,21 +634,21 @@ fn test_simple_select() {
             group_by: Some(vec![
                 Expr::Function(Function {
                     name: "sum".into(),
-                    params: vec![Expr::ColumnName(ColumnName {
+                    params: vec![Expr::Column(ColumnName {
                         name: "age".into()
                     },),],
                 },),
-                Expr::ColumnName(ColumnName {
+                Expr::Column(ColumnName {
                     name: "grade".into()
                 },),
-                Expr::ColumnName(ColumnName {
+                Expr::Column(ColumnName {
                     name: "gender".into()
                 },),
             ],),
             having: Some(Expr::BinaryOperation(Box::new(BinaryOperation {
                 left: Expr::Function(Function {
                     name: "min".into(),
-                    params: vec![Expr::ColumnName(ColumnName {
+                    params: vec![Expr::Column(ColumnName {
                         name: "age".into()
                     },),],
                 },),
@@ -657,17 +657,17 @@ fn test_simple_select() {
             }),),),
             projection: Some(vec![
                 ExprRename {
-                    expr: Expr::ColumnName(ColumnName {
+                    expr: Expr::Column(ColumnName {
                         name: "name".into()
                     },),
                     rename: None,
                 },
                 ExprRename {
-                    expr: Expr::ColumnName(ColumnName { name: "age".into() },),
+                    expr: Expr::Column(ColumnName { name: "age".into() },),
                     rename: None,
                 },
                 ExprRename {
-                    expr: Expr::ColumnName(ColumnName {
+                    expr: Expr::Column(ColumnName {
                         name: "class".into()
                     },),
                     rename: None,
@@ -675,11 +675,11 @@ fn test_simple_select() {
             ],),
             order_by: Some(vec![
                 Order {
-                    expr: Expr::ColumnName(ColumnName { name: "age".into() },),
+                    expr: Expr::Column(ColumnName { name: "age".into() },),
                     direction: Some(Direction::Desc,),
                 },
                 Order {
-                    expr: Expr::ColumnName(ColumnName {
+                    expr: Expr::Column(ColumnName {
                         name: "height".into()
                     },),
                     direction: Some(Direction::Asc,),
@@ -703,32 +703,32 @@ fn test_expr_selection() {
         ret,
         vec![
             ExprRename {
-                expr: Expr::ColumnName(ColumnName {
+                expr: Expr::Column(ColumnName {
                     name: "name".into()
                 }),
                 rename: None,
             },
             ExprRename {
-                expr: Expr::ColumnName(ColumnName {
+                expr: Expr::Column(ColumnName {
                     name: "description".into()
                 }),
                 rename: None,
             },
             ExprRename {
-                expr: Expr::ColumnName(ColumnName { name: "age".into() }),
+                expr: Expr::Column(ColumnName { name: "age".into() }),
                 rename: None
             },
             ExprRename {
                 expr: Expr::Function(Function {
                     name: "max".into(),
-                    params: vec![Expr::ColumnName(ColumnName {
+                    params: vec![Expr::Column(ColumnName {
                         name: "height".into()
                     })]
                 }),
                 rename: Some("new_height".to_string()),
             },
             ExprRename {
-                expr: Expr::ColumnName(ColumnName {
+                expr: Expr::Column(ColumnName {
                     name: "class".into()
                 }),
                 rename: None,
@@ -745,7 +745,7 @@ fn test_order() {
     assert_eq!(
         ret,
         Order {
-            expr: Expr::ColumnName(ColumnName {
+            expr: Expr::Column(ColumnName {
                 name: "score".to_string()
             }),
             direction: Some(Direction::Desc)
@@ -1016,15 +1016,13 @@ fn test_more_complex_filter2() {
             left: Expr::Nested(Box::new(Expr::BinaryOperation(Box::new(
                 BinaryOperation {
                     left: Expr::BinaryOperation(Box::new(BinaryOperation {
-                        left: Expr::ColumnName(ColumnName {
-                            name: "age".into()
-                        }),
+                        left: Expr::Column(ColumnName { name: "age".into() }),
                         operator: Operator::Gt,
                         right: Expr::Value(Value::Number(42.0))
                     })),
                     operator: Operator::And,
                     right: Expr::BinaryOperation(Box::new(BinaryOperation {
-                        left: Expr::ColumnName(ColumnName {
+                        left: Expr::Column(ColumnName {
                             name: "is_active".into()
                         }),
                         operator: Operator::Eq,
@@ -1036,7 +1034,7 @@ fn test_more_complex_filter2() {
             right: Expr::Nested(Box::new(Expr::BinaryOperation(Box::new(
                 BinaryOperation {
                     left: Expr::BinaryOperation(Box::new(BinaryOperation {
-                        left: Expr::ColumnName(ColumnName {
+                        left: Expr::Column(ColumnName {
                             name: "gender".into()
                         }),
                         operator: Operator::Eq,
@@ -1044,7 +1042,7 @@ fn test_more_complex_filter2() {
                     },)),
                     operator: Operator::And,
                     right: Expr::BinaryOperation(Box::new(BinaryOperation {
-                        left: Expr::ColumnName(ColumnName {
+                        left: Expr::Column(ColumnName {
                             name: "class".into()
                         }),
                         operator: Operator::Eq,
@@ -1067,15 +1065,13 @@ fn test_complex_filter_with_many_parens() {
             left: Expr::Nested(Box::new(Expr::Nested(Box::new(Expr::Nested(
                 Box::new(Expr::BinaryOperation(Box::new(BinaryOperation {
                     left: Expr::BinaryOperation(Box::new(BinaryOperation {
-                        left: Expr::ColumnName(ColumnName {
-                            name: "age".into()
-                        }),
+                        left: Expr::Column(ColumnName { name: "age".into() }),
                         operator: Operator::Gt,
                         right: Expr::Value(Value::Number(42.0))
                     })),
                     operator: Operator::And,
                     right: Expr::BinaryOperation(Box::new(BinaryOperation {
-                        left: Expr::ColumnName(ColumnName {
+                        left: Expr::Column(ColumnName {
                             name: "is_active".into()
                         }),
                         operator: Operator::Eq,
@@ -1086,7 +1082,7 @@ fn test_complex_filter_with_many_parens() {
             operator: Operator::Or,
             right: Expr::Nested(Box::new(Expr::Nested(Box::new(
                 Expr::BinaryOperation(Box::new(BinaryOperation {
-                    left: Expr::ColumnName(ColumnName {
+                    left: Expr::Column(ColumnName {
                         name: "gender".into()
                     }),
                     operator: Operator::Eq,
@@ -1108,15 +1104,13 @@ fn test_complex_filter1() {
             left: Expr::Nested(Box::new(Expr::BinaryOperation(Box::new(
                 BinaryOperation {
                     left: Expr::BinaryOperation(Box::new(BinaryOperation {
-                        left: Expr::ColumnName(ColumnName {
-                            name: "age".into()
-                        }),
+                        left: Expr::Column(ColumnName { name: "age".into() }),
                         operator: Operator::Gt,
                         right: Expr::Value(Value::Number(42.0))
                     })),
                     operator: Operator::And,
                     right: Expr::BinaryOperation(Box::new(BinaryOperation {
-                        left: Expr::ColumnName(ColumnName {
+                        left: Expr::Column(ColumnName {
                             name: "is_active".into()
                         }),
                         operator: Operator::Eq,
@@ -1126,7 +1120,7 @@ fn test_complex_filter1() {
             )))),
             operator: Operator::Or,
             right: Expr::BinaryOperation(Box::new(BinaryOperation {
-                left: Expr::ColumnName(ColumnName {
+                left: Expr::Column(ColumnName {
                     name: "gender".into()
                 }),
                 operator: Operator::Eq,
@@ -1146,7 +1140,7 @@ fn test_grouped_filter() {
         Expr::Nested(Box::new(Expr::BinaryOperation(Box::new(
             BinaryOperation {
                 left: Expr::BinaryOperation(Box::new(BinaryOperation {
-                    left: Expr::ColumnName(ColumnName {
+                    left: Expr::Column(ColumnName {
                         name: "gender".into()
                     }),
                     operator: Operator::Eq,
@@ -1154,7 +1148,7 @@ fn test_grouped_filter() {
                 })),
                 operator: Operator::And,
                 right: Expr::BinaryOperation(Box::new(BinaryOperation {
-                    left: Expr::ColumnName(ColumnName {
+                    left: Expr::Column(ColumnName {
                         name: "class".into()
                     }),
                     operator: Operator::Eq,
@@ -1175,13 +1169,13 @@ fn test_filter_simple_filter_with_group_by() {
         Expr::Nested(Box::new(Expr::BinaryOperation(Box::new(
             BinaryOperation {
                 left: Expr::BinaryOperation(Box::new(BinaryOperation {
-                    left: Expr::ColumnName(ColumnName { name: "age".into() }),
+                    left: Expr::Column(ColumnName { name: "age".into() }),
                     operator: Operator::Gt,
                     right: Expr::Value(Value::Number(42.0))
                 })),
                 operator: Operator::And,
                 right: Expr::BinaryOperation(Box::new(BinaryOperation {
-                    left: Expr::ColumnName(ColumnName {
+                    left: Expr::Column(ColumnName {
                         name: "is_active".into()
                     }),
                     operator: Operator::Eq,
@@ -1200,13 +1194,13 @@ fn test_filter_simple_filter_and() {
         ret,
         Expr::BinaryOperation(Box::new(BinaryOperation {
             left: Expr::BinaryOperation(Box::new(BinaryOperation {
-                left: Expr::ColumnName(ColumnName { name: "age".into() }),
+                left: Expr::Column(ColumnName { name: "age".into() }),
                 operator: Operator::Gt,
                 right: Expr::Value(Value::Number(42.0))
             })),
             operator: Operator::And,
             right: Expr::BinaryOperation(Box::new(BinaryOperation {
-                left: Expr::ColumnName(ColumnName {
+                left: Expr::Column(ColumnName {
                     name: "is_active".into()
                 }),
                 operator: Operator::Eq,
@@ -1223,7 +1217,7 @@ fn test_filter_simple_filter_one() {
     assert_eq!(
         ret,
         Expr::BinaryOperation(Box::new(BinaryOperation {
-            left: Expr::ColumnName(ColumnName { name: "age".into() }),
+            left: Expr::Column(ColumnName { name: "age".into() }),
             operator: Operator::Gt,
             right: Expr::Value(Value::Number(42.0))
         })),
@@ -1237,7 +1231,7 @@ fn test_filter_simple_filter_one_grouped() {
         ret,
         Expr::Nested(Box::new(Expr::BinaryOperation(Box::new(
             BinaryOperation {
-                left: Expr::ColumnName(ColumnName { name: "age".into() }),
+                left: Expr::Column(ColumnName { name: "age".into() }),
                 operator: Operator::Gt,
                 right: Expr::Value(Value::Number(42.0))
             }
@@ -1254,7 +1248,7 @@ fn test_filter_simple_filter_2_grouped() {
         Expr::BinaryOperation(Box::new(BinaryOperation {
             left: Expr::Nested(Box::new(Expr::BinaryOperation(Box::new(
                 BinaryOperation {
-                    left: Expr::ColumnName(ColumnName { name: "age".into() }),
+                    left: Expr::Column(ColumnName { name: "age".into() }),
                     operator: Operator::Gt,
                     right: Expr::Value(Value::Number(42.0))
                 }
@@ -1262,7 +1256,7 @@ fn test_filter_simple_filter_2_grouped() {
             operator: Operator::Or,
             right: Expr::Nested(Box::new(Expr::BinaryOperation(Box::new(
                 BinaryOperation {
-                    left: Expr::ColumnName(ColumnName {
+                    left: Expr::Column(ColumnName {
                         name: "is_active".into()
                     }),
                     operator: Operator::Eq,
@@ -1281,13 +1275,13 @@ fn test_filter_simple_filter_or() {
         ret,
         Expr::BinaryOperation(Box::new(BinaryOperation {
             left: Expr::BinaryOperation(Box::new(BinaryOperation {
-                left: Expr::ColumnName(ColumnName { name: "age".into() }),
+                left: Expr::Column(ColumnName { name: "age".into() }),
                 operator: Operator::Gt,
                 right: Expr::Value(Value::Number(42.0))
             })),
             operator: Operator::Or,
             right: Expr::BinaryOperation(Box::new(BinaryOperation {
-                left: Expr::ColumnName(ColumnName {
+                left: Expr::Column(ColumnName {
                     name: "is_active".into()
                 }),
                 operator: Operator::Eq,
@@ -1306,7 +1300,7 @@ fn test_condition_gt() {
     assert_eq!(
         ret,
         Expr::BinaryOperation(Box::new(BinaryOperation {
-            left: Expr::ColumnName(ColumnName { name: "age".into() }),
+            left: Expr::Column(ColumnName { name: "age".into() }),
             operator: Operator::Gt,
             right: Expr::Value(Value::Number(42.0))
         }))
@@ -1321,7 +1315,7 @@ fn test_condition_lte() {
     assert_eq!(
         ret,
         Expr::BinaryOperation(Box::new(BinaryOperation {
-            left: Expr::ColumnName(ColumnName { name: "age".into() }),
+            left: Expr::Column(ColumnName { name: "age".into() }),
             operator: Operator::Lte,
             right: Expr::Value(Value::Number(42.0))
         }))
@@ -1337,7 +1331,7 @@ fn test_condition_default_eq() {
     assert_eq!(
         ret,
         Expr::BinaryOperation(Box::new(BinaryOperation {
-            left: Expr::ColumnName(ColumnName { name: "age".into() }),
+            left: Expr::Column(ColumnName { name: "age".into() }),
             operator: Operator::Eq,
             right: Expr::Value(Value::Number(42.0))
         }))
@@ -1352,7 +1346,7 @@ fn test_function() {
         ret,
         Function {
             name: "max".into(),
-            params: vec![Expr::ColumnName(ColumnName {
+            params: vec![Expr::Column(ColumnName {
                 name: "seq_no".into()
             })]
         }
@@ -1367,7 +1361,7 @@ fn test_function_expr() {
         ret,
         Expr::Function(Function {
             name: "max".into(),
-            params: vec![Expr::ColumnName(ColumnName {
+            params: vec![Expr::Column(ColumnName {
                 name: "seq_no".into()
             })]
         })

@@ -181,7 +181,7 @@ impl FromTable {
 
                         let constraint =
                             Expr::BinaryOperation(Box::new(BinaryOperation {
-                                left: Expr::ColumnName(ColumnName {
+                                left: Expr::Column(ColumnName {
                                     name: format!(
                                         "{}.{}",
                                         joined_table_def.table.name,
@@ -189,7 +189,7 @@ impl FromTable {
                                     ),
                                 }),
                                 operator: Operator::Eq,
-                                right: Expr::ColumnName(ColumnName {
+                                right: Expr::Column(ColumnName {
                                     name: format!(
                                         "{}.{}",
                                         this_table_def.table.name,
