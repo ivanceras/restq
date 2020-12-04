@@ -134,10 +134,10 @@ mod tests {
                 ColumnDef,
                 DataTypeDef,
             },
-            Column,
-            Table,
+            ColumnName,
             TableDef,
             TableLookup,
+            TableName,
         },
         DataType,
     };
@@ -157,11 +157,11 @@ mod tests {
         println!("statement: {:#?}", statement);
 
         let users_table = TableDef {
-            table: Table {
+            table: TableName {
                 name: "users".into(),
             },
             columns: vec![ColumnDef {
-                column: Column {
+                column: ColumnName {
                     name: "user_id".into(),
                 },
                 attributes: Some(vec![ColumnAttribute::Primary]),
@@ -195,11 +195,11 @@ mod tests {
         println!("statement: {:#?}", statement);
 
         let person_table = TableDef {
-            table: Table {
+            table: TableName {
                 name: "person".into(),
             },
             columns: vec![ColumnDef {
-                column: Column { name: "id".into() },
+                column: ColumnName { name: "id".into() },
                 attributes: Some(vec![ColumnAttribute::Primary]),
                 data_type_def: DataTypeDef {
                     data_type: DataType::S64,
@@ -210,11 +210,11 @@ mod tests {
             }],
         };
         let users_table = TableDef {
-            table: Table {
+            table: TableName {
                 name: "users".into(),
             },
             columns: vec![ColumnDef {
-                column: Column {
+                column: ColumnName {
                     name: "person_id".into(),
                 },
                 attributes: None,
@@ -223,7 +223,7 @@ mod tests {
                     is_optional: false,
                     default: None,
                 },
-                foreign: Some(Table {
+                foreign: Some(TableName {
                     name: "person".into(),
                 }),
             }],
