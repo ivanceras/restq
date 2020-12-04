@@ -3,11 +3,11 @@
 //!
 use super::*;
 
-fn returning<'a>() -> Parser<'a, char, Vec<Column>> {
+fn returning<'a>() -> Parser<'a, char, Vec<ColumnName>> {
     tag("returning=") * columns()
 }
 
-fn columns<'a>() -> Parser<'a, char, Vec<Column>> {
+fn columns<'a>() -> Parser<'a, char, Vec<ColumnName>> {
     list_fail(column(), sym(','))
 }
 
@@ -24,11 +24,11 @@ pub fn insert<'a>() -> Parser<'a, char, Insert> {
         })
 }
 
-fn column_value<'a>() -> Parser<'a, char, (Column, Value)> {
+fn column_value<'a>() -> Parser<'a, char, (ColumnName, Value)> {
     column() - sym('=') + value()
 }
 
-fn column_values<'a>() -> Parser<'a, char, Vec<(Column, Value)>> {
+fn column_values<'a>() -> Parser<'a, char, Vec<(ColumnName, Value)>> {
     list_fail(column_value(), sym(','))
 }
 

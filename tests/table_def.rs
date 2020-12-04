@@ -16,12 +16,12 @@ fn complex_table_def() {
     assert_eq!(
         ret,
         TableDef {
-            table: Table {
+            table: TableName {
                 name: "public.film".to_string(),
             },
             columns: vec![
                 ColumnDef {
-                    column: Column {
+                    column: ColumnName {
                         name: "film_id".to_string()
                     },
                     attributes: Some(vec![ColumnAttribute::Primary,],),
@@ -33,7 +33,7 @@ fn complex_table_def() {
                     foreign: None,
                 },
                 ColumnDef {
-                    column: Column {
+                    column: ColumnName {
                         name: "title".to_string()
                     },
                     attributes: None,
@@ -45,7 +45,7 @@ fn complex_table_def() {
                     foreign: None,
                 },
                 ColumnDef {
-                    column: Column {
+                    column: ColumnName {
                         name: "description".to_string(),
                     },
                     attributes: None,
@@ -57,7 +57,7 @@ fn complex_table_def() {
                     foreign: None,
                 },
                 ColumnDef {
-                    column: Column {
+                    column: ColumnName {
                         name: "release_year".to_string(),
                     },
                     attributes: None,
@@ -69,7 +69,7 @@ fn complex_table_def() {
                     foreign: None,
                 },
                 ColumnDef {
-                    column: Column {
+                    column: ColumnName {
                         name: "language_id".to_string(),
                     },
                     attributes: None,
@@ -78,12 +78,12 @@ fn complex_table_def() {
                         is_optional: false,
                         default: None,
                     },
-                    foreign: Some(Table {
+                    foreign: Some(TableName {
                         name: "public.language".to_string(),
                     },),
                 },
                 ColumnDef {
-                    column: Column {
+                    column: ColumnName {
                         name: "original_language_id".to_string(),
                     },
                     attributes: None,
@@ -92,12 +92,12 @@ fn complex_table_def() {
                         is_optional: true,
                         default: None,
                     },
-                    foreign: Some(Table {
+                    foreign: Some(TableName {
                         name: "public.language".to_string(),
                     },),
                 },
                 ColumnDef {
-                    column: Column {
+                    column: ColumnName {
                         name: "rental_duration".to_string(),
                     },
                     attributes: None,
@@ -111,7 +111,7 @@ fn complex_table_def() {
                     foreign: None,
                 },
                 ColumnDef {
-                    column: Column {
+                    column: ColumnName {
                         name: "rental_rate".to_string(),
                     },
                     attributes: None,
@@ -125,7 +125,7 @@ fn complex_table_def() {
                     foreign: None,
                 },
                 ColumnDef {
-                    column: Column {
+                    column: ColumnName {
                         name: "length".to_string()
                     },
                     attributes: None,
@@ -137,7 +137,7 @@ fn complex_table_def() {
                     foreign: None,
                 },
                 ColumnDef {
-                    column: Column {
+                    column: ColumnName {
                         name: "replacement_cost".to_string(),
                     },
                     attributes: None,
@@ -149,7 +149,7 @@ fn complex_table_def() {
                     foreign: None,
                 },
                 ColumnDef {
-                    column: Column {
+                    column: ColumnName {
                         name: "rating".to_string()
                     },
                     attributes: None,
@@ -164,7 +164,7 @@ fn complex_table_def() {
                     foreign: None,
                 },
                 ColumnDef {
-                    column: Column {
+                    column: ColumnName {
                         name: "last_update".to_string(),
                     },
                     attributes: None,
@@ -176,7 +176,7 @@ fn complex_table_def() {
                     foreign: None,
                 },
                 ColumnDef {
-                    column: Column {
+                    column: ColumnName {
                         name: "special_features".to_string(),
                     },
                     attributes: None,
@@ -188,7 +188,7 @@ fn complex_table_def() {
                     foreign: None,
                 },
                 ColumnDef {
-                    column: Column {
+                    column: ColumnName {
                         name: "fulltext".to_string()
                     },
                     attributes: None,
@@ -213,12 +213,12 @@ fn table_def_with_default_function() {
     assert_eq!(
         ret,
         TableDef {
-            table: Table {
+            table: TableName {
                 name: "public.film".to_string(),
             },
             columns: vec![
                 ColumnDef {
-                    column: Column {
+                    column: ColumnName {
                         name: "film_id".to_string()
                     },
                     attributes: Some(vec![ColumnAttribute::Primary,],),
@@ -236,7 +236,7 @@ fn table_def_with_default_function() {
                     foreign: None,
                 },
                 ColumnDef {
-                    column: Column {
+                    column: ColumnName {
                         name: "title".to_string()
                     },
                     attributes: None,
@@ -248,7 +248,7 @@ fn table_def_with_default_function() {
                     foreign: None,
                 },
                 ColumnDef {
-                    column: Column {
+                    column: ColumnName {
                         name: "release_date".to_string(),
                     },
                     attributes: None,

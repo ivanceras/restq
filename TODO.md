@@ -16,3 +16,4 @@
         - [X] pom (expose method field in Parser)
               - [X] -> Solution: release a fork
 - [ ] Implement `fmt::Display` on `Statement` AST such as `Select`
+- [ ] Rename `Table` to `TableName` and `Column` to `ColumnName`

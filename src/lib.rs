@@ -25,13 +25,13 @@ pub use ast::{
             to_chars,
         },
     },
-    Column,
+    ColumnName,
     Expr,
     Operator,
     Select,
-    Table,
     TableDef,
     TableError,
+    TableName,
 };
 pub use chrono;
 pub use csv_rows::CsvRows;

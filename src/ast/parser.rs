@@ -96,12 +96,12 @@ fn column_name<'a>() -> Parser<'a, char, String> {
         | strict_ident()
 }
 
-pub(crate) fn column<'a>() -> Parser<'a, char, Column> {
-    column_name().map(|name| Column { name })
+pub(crate) fn column<'a>() -> Parser<'a, char, ColumnName> {
+    column_name().map(|name| ColumnName { name })
 }
 
-pub(crate) fn table<'a>() -> Parser<'a, char, Table> {
-    table_name().map(|name| Table { name })
+pub(crate) fn table<'a>() -> Parser<'a, char, TableName> {
+    table_name().map(|name| TableName { name })
 }
 
 fn bool<'a>() -> Parser<'a, char, bool> {
@@ -157,7 +157,7 @@ fn expr<'a>() -> Parser<'a, char, Expr> {
         | bool().map(|v| Expr::Value(Value::Bool(v)))
         | number().map(|v| Expr::Value(Value::Number(v)))
         | function().map(Expr::Function)
-        | column().map(Expr::Column)
+        | column().map(Expr::ColumnName)
         | value().map(Expr::Value)
 }
 
@@ -430,9 +430,9 @@ mod test_private {
         assert_eq!(
             ret,
             BinaryOperation {
-                left: Expr::Column(Column { name: "age".into() }),
+                left: Expr::ColumnName(ColumnName { name: "age".into() }),
                 operator: Operator::Plus,
-                right: Expr::Column(Column {
+                right: Expr::ColumnName(ColumnName {
                     name: "year".into()
                 }),
             }
@@ -464,7 +464,7 @@ mod test_private {
         assert_eq!(
             ret,
             Expr::BinaryOperation(Box::new(BinaryOperation {
-                left: Expr::Column(Column { name: "age".into() }),
+                left: Expr::ColumnName(ColumnName { name: "age".into() }),
                 operator: Operator::Gt,
                 right: Expr::Value(Value::Number(42.0))
             }))
@@ -481,7 +481,7 @@ mod test_private {
             ret,
             Expr::Nested(Box::new(Expr::Nested(Box::new(
                 Expr::BinaryOperation(Box::new(BinaryOperation {
-                    left: Expr::Column(Column { name: "age".into() }),
+                    left: Expr::ColumnName(ColumnName { name: "age".into() }),
                     operator: Operator::Gt,
                     right: Expr::Value(Value::Number(42.0))
                 }))
@@ -498,7 +498,7 @@ mod test_private {
             ret,
             Expr::BinaryOperation(Box::new(BinaryOperation {
                 left: Expr::BinaryOperation(Box::new(BinaryOperation {
-                    left: Expr::Column(Column { name: "age".into() }),
+                    left: Expr::ColumnName(ColumnName { name: "age".into() }),
                     operator: Operator::Gt,
                     right: Expr::Value(Value::Number(42.0))
                 })),
@@ -518,7 +518,7 @@ mod test_private {
                 left: Expr::Value(Value::Bool(false)),
                 operator: Operator::Or,
                 right: Expr::BinaryOperation(Box::new(BinaryOperation {
-                    left: Expr::Column(Column { name: "age".into() }),
+                    left: Expr::ColumnName(ColumnName { name: "age".into() }),
                     operator: Operator::Gt,
                     right: Expr::Value(Value::Number(42.0))
                 })),
@@ -537,7 +537,9 @@ mod test_private {
                     left: Expr::Value(Value::Bool(false)),
                     operator: Operator::Or,
                     right: Expr::BinaryOperation(Box::new(BinaryOperation {
-                        left: Expr::Column(Column { name: "age".into() }),
+                        left: Expr::ColumnName(ColumnName {
+                            name: "age".into()
+                        }),
                         operator: Operator::Gt,
                         right: Expr::Value(Value::Number(42.0))
                     })),
@@ -556,7 +558,9 @@ mod test_private {
             Expr::BinaryOperation(Box::new(BinaryOperation {
                 left: Expr::Nested(Box::new(Expr::BinaryOperation(Box::new(
                     BinaryOperation {
-                        left: Expr::Column(Column { name: "age".into() }),
+                        left: Expr::ColumnName(ColumnName {
+                            name: "age".into()
+                        }),
                         operator: Operator::Gt,
                         right: Expr::Value(Value::Number(42.0))
                     }
@@ -564,7 +568,7 @@ mod test_private {
                 operator: Operator::Or,
                 right: Expr::Nested(Box::new(Expr::BinaryOperation(Box::new(
                     BinaryOperation {
-                        left: Expr::Column(Column {
+                        left: Expr::ColumnName(ColumnName {
                             name: "is_active".into()
                         }),
                         operator: Operator::Eq,

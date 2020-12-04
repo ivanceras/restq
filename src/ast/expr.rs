@@ -1,5 +1,5 @@
 use crate::ast::{
-    Column,
+    ColumnName,
     Function,
     Operator,
     Value,
@@ -11,7 +11,7 @@ use std::fmt;
 // such as: *, +, -, /, %
 #[derive(Debug, PartialEq, Clone)]
 pub enum Expr {
-    Column(Column),
+    ColumnName(ColumnName),
     Function(Function),
     Value(Value),
     BinaryOperation(Box<BinaryOperation>),
@@ -36,7 +36,7 @@ pub struct BinaryOperation {
 impl Into<sql::Expr> for &Expr {
     fn into(self) -> sql::Expr {
         match self {
-            Expr::Column(column) => {
+            Expr::ColumnName(column) => {
                 sql::Expr::Identifier(sql::Ident::new(&column.name))
             }
             Expr::Function(function) => {
@@ -60,7 +60,7 @@ impl Into<sql::Expr> for &Expr {
 impl fmt::Display for Expr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Expr::Column(column) => column.fmt(f),
+            Expr::ColumnName(column) => column.fmt(f),
             Expr::Function(function) => function.fmt(f),
             Expr::Value(value) => value.fmt(f),
             Expr::BinaryOperation(bop) => bop.fmt(f),

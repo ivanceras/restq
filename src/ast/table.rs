@@ -1,7 +1,7 @@
 use crate::ast::{
     ddl::TableDef,
     BinaryOperation,
-    Column,
+    ColumnName,
     Expr,
     Operator,
 };
@@ -22,12 +22,12 @@ pub enum TableError {
 
 #[derive(Debug, PartialEq, Default, Clone)]
 pub struct FromTable {
-    pub from: Table,
+    pub from: TableName,
     pub join: Option<(JoinType, Box<FromTable>)>,
 }
 
 #[derive(Debug, PartialEq, Default, Clone, Hash, Eq)]
-pub struct Table {
+pub struct TableName {
     pub name: String,
 }
 
@@ -47,7 +47,7 @@ pub enum JoinType {
     FullJoin,
 }
 
-impl Into<sql::TableFactor> for &Table {
+impl Into<sql::TableFactor> for &TableName {
     fn into(self) -> sql::TableFactor {
         sql::TableFactor::Table {
             name: Into::into(self),
@@ -57,13 +57,13 @@ impl Into<sql::TableFactor> for &Table {
         }
     }
 }
-impl Into<sql::ObjectName> for &Table {
+impl Into<sql::ObjectName> for &TableName {
     fn into(self) -> sql::ObjectName {
         sql::ObjectName(vec![sql::Ident::new(&self.name)])
     }
 }
 
-impl fmt::Display for Table {
+impl fmt::Display for TableName {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.name)
     }
@@ -108,7 +108,7 @@ impl TableLookup {
         self.0.get(name)
     }
 
-    pub fn find_table(&self, table: &Table) -> Option<&TableDef> {
+    pub fn find_table(&self, table: &TableName) -> Option<&TableDef> {
         self.get_table_def(&table.name)
     }
 }
@@ -181,7 +181,7 @@ impl FromTable {
 
                         let constraint =
                             Expr::BinaryOperation(Box::new(BinaryOperation {
-                                left: Expr::Column(Column {
+                                left: Expr::ColumnName(ColumnName {
                                     name: format!(
                                         "{}.{}",
                                         joined_table_def.table.name,
@@ -189,7 +189,7 @@ impl FromTable {
                                     ),
                                 }),
                                 operator: Operator::Eq,
-                                right: Expr::Column(Column {
+                                right: Expr::ColumnName(ColumnName {
                                     name: format!(
                                         "{}.{}",
                                         this_table_def.table.name,

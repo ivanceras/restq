@@ -30,9 +30,9 @@ use std::fmt;
 pub use table::{
     FromTable,
     JoinType,
-    Table,
     TableError,
     TableLookup,
+    TableName,
 };
 pub use value::Value;
 
@@ -61,7 +61,7 @@ pub struct Select {
 }
 
 #[derive(Debug, PartialEq, Default, Clone, PartialOrd, Hash, Eq, Ord)]
-pub struct Column {
+pub struct ColumnName {
     pub name: String,
 }
 
@@ -181,12 +181,12 @@ impl Select {
 
     pub fn add_simple_filter(
         &mut self,
-        column: Column,
+        column: ColumnName,
         operator: Operator,
         search_key: &str,
     ) {
         let simple_filter = Expr::BinaryOperation(Box::new(BinaryOperation {
-            left: Expr::Column(column),
+            left: Expr::ColumnName(column),
             operator,
             right: Expr::Value(Value::String(search_key.to_string())),
         }));
@@ -354,13 +354,13 @@ impl fmt::Display for Function {
     }
 }
 
-impl Into<sql::Ident> for &Column {
+impl Into<sql::Ident> for &ColumnName {
     fn into(self) -> sql::Ident {
         sql::Ident::new(&self.name)
     }
 }
 
-impl fmt::Display for Column {
+impl fmt::Display for ColumnName {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.name)
     }

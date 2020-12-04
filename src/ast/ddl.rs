@@ -9,12 +9,12 @@ use crate::{
             Insert,
             Source,
         },
-        Column,
+        ColumnName,
         Function,
         Statement,
-        Table,
         TableError,
         TableLookup,
+        TableName,
     },
     data_type::DataType,
     data_value::DataValue,
@@ -34,10 +34,10 @@ use std::fmt;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct ColumnDef {
-    pub column: Column,
+    pub column: ColumnName,
     pub attributes: Option<Vec<ColumnAttribute>>,
     pub data_type_def: DataTypeDef,
-    pub foreign: Option<Table>,
+    pub foreign: Option<TableName>,
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -62,19 +62,19 @@ pub enum ColumnAttribute {
 
 #[derive(Debug, PartialEq, Default, Clone)]
 pub struct TableDef {
-    pub table: Table,
+    pub table: TableName,
     pub columns: Vec<ColumnDef>,
 }
 
 #[derive(Debug, PartialEq, Default, Clone)]
 pub struct AlterTable {
-    pub table: Table,
+    pub table: TableName,
     pub alter_operations: Vec<AlterOperation>,
 }
 
 #[derive(Debug, PartialEq, Default, Clone)]
 pub struct DropTable {
-    pub table: Table,
+    pub table: TableName,
 }
 
 // Note: Only one alter operation is allowed
@@ -84,14 +84,14 @@ pub struct DropTable {
 // alter table query that needs to be generated and executed
 #[derive(Debug, PartialEq, Clone)]
 pub enum AlterOperation {
-    DropColumn(Column),
+    DropColumn(ColumnName),
     AddColumn(ColumnDef),
-    AlterColumn(Column, ColumnDef),
+    AlterColumn(ColumnName, ColumnDef),
 }
 
 impl TableDef {
     pub fn derive_insert(&self) -> Insert {
-        let columns: Vec<Column> =
+        let columns: Vec<ColumnName> =
             self.columns.iter().map(|c| c.column.clone()).collect();
         Insert {
             into: self.table.clone(),
@@ -108,7 +108,7 @@ impl TableDef {
     }
 
     /// find the column def for this column name matching their name
-    pub fn find_column(&self, column: &Column) -> Option<&ColumnDef> {
+    pub fn find_column(&self, column: &ColumnName) -> Option<&ColumnDef> {
         self.columns
             .iter()
             .find(|col| col.column.name == column.name)
@@ -507,7 +507,7 @@ mod tests {
         assert_eq!(
             ret,
             DropTable {
-                table: Table {
+                table: TableName {
                     name: "product".into()
                 }
             }
@@ -530,14 +530,14 @@ mod tests {
         assert_eq!(
             ret,
             AlterTable {
-                table: Table {
+                table: TableName {
                     name: "product".into()
                 },
                 alter_operations: vec![
                     AlterOperation::AlterColumn(
-                        Column { name: "id".into() },
+                        ColumnName { name: "id".into() },
                         ColumnDef {
-                            column: Column {
+                            column: ColumnName {
                                 name: "product_id".into()
                             },
                             attributes: Some(vec![
@@ -552,11 +552,11 @@ mod tests {
                             foreign: None,
                         },
                     ),
-                    AlterOperation::DropColumn(Column {
+                    AlterOperation::DropColumn(ColumnName {
                         name: "description".into(),
                     }),
                     AlterOperation::AddColumn(ColumnDef {
-                        column: Column {
+                        column: ColumnName {
                             name: "discount".into()
                         },
                         attributes: None,
@@ -628,7 +628,7 @@ mod tests {
         assert_eq!(
             ret,
             ColumnDef {
-                column: Column {
+                column: ColumnName {
                     name: "product_id".to_string()
                 },
                 attributes: Some(vec![ColumnAttribute::Primary]),
@@ -647,7 +647,7 @@ mod tests {
         assert_eq!(
             "*product_id:u32",
             ColumnDef {
-                column: Column {
+                column: ColumnName {
                     name: "product_id".to_string()
                 },
                 attributes: Some(vec![ColumnAttribute::Primary]),
@@ -667,7 +667,7 @@ mod tests {
         assert_eq!(
             "*&@product_id(product):u32?(qr-123)",
             ColumnDef {
-                column: Column {
+                column: ColumnName {
                     name: "product_id".to_string()
                 },
                 attributes: Some(vec![
@@ -682,7 +682,7 @@ mod tests {
                         "qr-123".to_string()
                     ))),
                 },
-                foreign: Some(Table {
+                foreign: Some(TableName {
                     name: "product".to_string()
                 }),
             }
@@ -699,7 +699,7 @@ mod tests {
             ret,
             vec![
                 ColumnDef {
-                    column: Column {
+                    column: ColumnName {
                         name: "product_id".to_string()
                     },
                     attributes: Some(vec![ColumnAttribute::Primary]),
@@ -711,7 +711,7 @@ mod tests {
                     foreign: None,
                 },
                 ColumnDef {
-                    column: Column {
+                    column: ColumnName {
                         name: "name".to_string()
                     },
                     attributes: None,
@@ -786,7 +786,7 @@ mod tests {
         assert_eq!(
             ret,
             ColumnDef {
-                column: Column {
+                column: ColumnName {
                     name: "product_id".to_string()
                 },
                 attributes: Some(vec![ColumnAttribute::Primary]),
@@ -795,7 +795,7 @@ mod tests {
                     is_optional: false,
                     default: None,
                 },
-                foreign: Some(Table {
+                foreign: Some(TableName {
                     name: "product".to_string()
                 }),
             },
@@ -871,12 +871,12 @@ mod tests {
         assert_eq!(
             ret,
             TableDef {
-                table: Table {
+                table: TableName {
                     name: "actor".into()
                 },
                 columns: vec![
                     ColumnDef {
-                        column: Column {
+                        column: ColumnName {
                             name: "actor_id".to_string()
                         },
                         attributes: Some(vec![ColumnAttribute::Primary]),
@@ -888,7 +888,7 @@ mod tests {
                         foreign: None,
                     },
                     ColumnDef {
-                        column: Column {
+                        column: ColumnName {
                             name: "first_name".into()
                         },
                         attributes: Some(vec![ColumnAttribute::Unique]),
@@ -900,7 +900,7 @@ mod tests {
                         foreign: None,
                     },
                     ColumnDef {
-                        column: Column {
+                        column: ColumnName {
                             name: "last_name".into()
                         },
                         attributes: Some(vec![
@@ -915,7 +915,7 @@ mod tests {
                         foreign: None,
                     },
                     ColumnDef {
-                        column: Column {
+                        column: ColumnName {
                             name: "last_update".into()
                         },
                         attributes: None,
@@ -927,7 +927,7 @@ mod tests {
                         foreign: None,
                     },
                     ColumnDef {
-                        column: Column {
+                        column: ColumnName {
                             name: "created_by".into()
                         },
                         attributes: None,
@@ -936,12 +936,12 @@ mod tests {
                             is_optional: false,
                             default: None,
                         },
-                        foreign: Some(Table {
+                        foreign: Some(TableName {
                             name: "users".into()
                         }),
                     },
                     ColumnDef {
-                        column: Column {
+                        column: ColumnName {
                             name: "is_active".into()
                         },
                         attributes: None,
@@ -962,12 +962,12 @@ mod tests {
         assert_eq!(
             "actor{*actor_id:s32,&first_name:text,&@last_name:text,last_update:utc,created_by(users):u32,is_active:bool}",
             TableDef {
-                table: Table {
+                table: TableName {
                     name: "actor".into()
                 },
                 columns: vec![
                     ColumnDef {
-                        column: Column {
+                        column: ColumnName {
                             name: "actor_id".to_string()
                         },
                         attributes: Some(vec![ColumnAttribute::Primary]),
@@ -979,7 +979,7 @@ mod tests {
                         foreign: None,
                     },
                     ColumnDef {
-                        column: Column {
+                        column: ColumnName {
                             name: "first_name".into()
                         },
                         attributes: Some(vec![ColumnAttribute::Unique]),
@@ -991,7 +991,7 @@ mod tests {
                         foreign: None,
                     },
                     ColumnDef {
-                        column: Column {
+                        column: ColumnName {
                             name: "last_name".into()
                         },
                         attributes: Some(vec![
@@ -1006,7 +1006,7 @@ mod tests {
                         foreign: None,
                     },
                     ColumnDef {
-                        column: Column {
+                        column: ColumnName {
                             name: "last_update".into()
                         },
                         attributes: None,
@@ -1018,7 +1018,7 @@ mod tests {
                         foreign: None,
                     },
                     ColumnDef {
-                        column: Column {
+                        column: ColumnName {
                             name: "created_by".into()
                         },
                         attributes: None,
@@ -1027,12 +1027,12 @@ mod tests {
                             is_optional: false,
                             default: None,
                         },
-                        foreign: Some(Table {
+                        foreign: Some(TableName {
                             name: "users".into()
                         }),
                     },
                     ColumnDef {
-                        column: Column {
+                        column: ColumnName {
                             name: "is_active".into()
                         },
                         attributes: None,

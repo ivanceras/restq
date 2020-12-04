@@ -6,13 +6,13 @@ mod dml_parser;
 use crate::{
     ast::{
         BinaryOperation,
-        Column,
+        ColumnName,
         Expr,
         Operator,
         Select,
-        Table,
         TableDef,
         TableLookup,
+        TableName,
         Value,
     },
     parser::{
@@ -41,10 +41,10 @@ use sql_ast::ast as sql;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Insert {
-    pub into: Table,
-    pub columns: Vec<Column>,
+    pub into: TableName,
+    pub columns: Vec<ColumnName>,
     pub source: Source,
-    pub returning: Option<Vec<Column>>,
+    pub returning: Option<Vec<ColumnName>>,
 }
 
 /// Insert can get data from a set of values
@@ -59,7 +59,7 @@ pub enum Source {
 /// DELETE /product?product_id=1
 #[derive(Debug, PartialEq, Clone)]
 pub struct Delete {
-    pub from: Table,
+    pub from: TableName,
     pub condition: Option<Expr>,
 }
 
@@ -69,16 +69,16 @@ pub struct Delete {
 /// 3
 #[derive(Debug, PartialEq, Clone)]
 pub struct BulkDelete {
-    pub from: Table,
-    pub columns: Vec<Column>,
+    pub from: TableName,
+    pub columns: Vec<ColumnName>,
     pub values: Vec<Vec<Value>>,
 }
 
 /// PATCH /product{description="I'm the new description now"}?product_id=1
 #[derive(Debug, PartialEq, Clone)]
 pub struct Update {
-    pub table: Table,
-    pub columns: Vec<Column>,
+    pub table: TableName,
+    pub columns: Vec<ColumnName>,
     pub values: Vec<Value>, // one value for each column
     pub condition: Option<Expr>,
 }
@@ -88,8 +88,8 @@ pub struct Update {
 /// 2,shovel,2,slightly used shovel
 #[derive(Debug, PartialEq, Clone)]
 pub struct BulkUpdate {
-    pub table: Table,
-    pub columns: Vec<Column>,
+    pub table: TableName,
+    pub columns: Vec<ColumnName>,
     pub values: Vec<Vec<Value>>,
 }
 
@@ -144,7 +144,7 @@ impl Update {
 
 /// a common code for building filter from columns old value and primary columns
 fn build_filter_from_columns(
-    columns: &[Column],
+    columns: &[ColumnName],
     old_values: &[&Value],
     primary_columns: &[&ColumnDef],
 ) -> Option<Expr> {
@@ -171,14 +171,14 @@ fn build_filter_from_columns(
 
     if let Some((column0, value0)) = pk_column_values.first() {
         let mut filter0 = Expr::BinaryOperation(Box::new(BinaryOperation {
-            left: Expr::Column(column0.column.clone()),
+            left: Expr::ColumnName(column0.column.clone()),
             operator: Operator::Eq,
             right: Expr::Value((*value0).clone()),
         }));
         for (column, value) in pk_column_values.iter().skip(1) {
             let next_filter =
                 Expr::BinaryOperation(Box::new(BinaryOperation {
-                    left: Expr::Column(column.column.clone()),
+                    left: Expr::ColumnName(column.column.clone()),
                     operator: Operator::Eq,
                     right: Expr::Value((*value).clone()),
                 }));
@@ -233,7 +233,7 @@ impl BulkUpdate {
                 );
 
                 // column and values that are changed
-                let column_new_values: Vec<(Column, Value)> = self
+                let column_new_values: Vec<(ColumnName, Value)> = self
                     .columns
                     .iter()
                     .zip(old_values.clone().iter().zip(new_values.iter()))
@@ -246,7 +246,7 @@ impl BulkUpdate {
                     })
                     .collect();
 
-                let (columns, new_values): (Vec<Column>, Vec<Value>) =
+                let (columns, new_values): (Vec<ColumnName>, Vec<Value>) =
                     column_new_values.into_iter().unzip();
 
                 Update {
@@ -362,29 +362,29 @@ mod tests {
         assert_eq!(
             ret,
             Insert {
-                into: Table {
+                into: TableName {
                     name: "product".into()
                 },
                 columns: vec![
-                    Column {
+                    ColumnName {
                         name: "product_id".into()
                     },
-                    Column {
+                    ColumnName {
                         name: "created_by".into()
                     },
-                    Column {
+                    ColumnName {
                         name: "created".into()
                     },
-                    Column {
+                    ColumnName {
                         name: "is_active".into()
                     },
                 ],
                 source: Source::Values(vec![]),
                 returning: Some(vec![
-                    Column {
+                    ColumnName {
                         name: "product_id".into()
                     },
-                    Column {
+                    ColumnName {
                         name: "name".into()
                     },
                 ])
@@ -407,14 +407,14 @@ mod tests {
         assert_eq!(
             ret,
             Update {
-                table: Table {
+                table: TableName {
                     name: "product".into()
                 },
                 columns: vec![
-                    Column {
+                    ColumnName {
                         name: "description".into(),
                     },
-                    Column {
+                    ColumnName {
                         name: "is_active".into()
                     },
                 ],
@@ -424,7 +424,7 @@ mod tests {
                 ],
                 condition: Some(Expr::BinaryOperation(Box::new(
                     BinaryOperation {
-                        left: Expr::Column(Column {
+                        left: Expr::ColumnName(ColumnName {
                             name: "product_id".into()
                         },),
                         operator: Operator::Eq,
@@ -447,12 +447,12 @@ mod tests {
         assert_eq!(
             ret,
             Delete {
-                from: Table {
+                from: TableName {
                     name: "product".into()
                 },
                 condition: Some(Expr::BinaryOperation(Box::new(
                     BinaryOperation {
-                        left: Expr::Column(Column {
+                        left: Expr::ColumnName(ColumnName {
                             name: "product_id".into()
                         },),
                         operator: Operator::Eq,
@@ -471,14 +471,14 @@ mod tests {
         assert_eq!(
             ret,
             BulkDelete {
-                from: Table {
+                from: TableName {
                     name: "product".into()
                 },
                 columns: vec![
-                    Column {
+                    ColumnName {
                         name: "name".into()
                     },
-                    Column {
+                    ColumnName {
                         name: "is_active".into()
                     }
                 ],
@@ -495,14 +495,14 @@ mod tests {
         assert_eq!(
             ret,
             BulkUpdate {
-                table: Table {
+                table: TableName {
                     name: "product".into()
                 },
                 columns: vec![
-                    Column {
+                    ColumnName {
                         name: "name".into()
                     },
-                    Column {
+                    ColumnName {
                         name: "is_active".into()
                     }
                 ],

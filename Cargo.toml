@@ -33,5 +33,5 @@ members = [
     "crates/restq-http",
 ]
 
-#[patch.crates-io]
-#sql-ast = { path = "../sql-ast" }
+[patch.crates-io]
+sql-ast = { path = "../sql-ast" }

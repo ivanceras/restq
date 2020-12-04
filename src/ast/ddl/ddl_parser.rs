@@ -7,7 +7,7 @@ use crate::{
             utils::end_or_ln,
             *,
         },
-        Table,
+        TableName,
         Value,
     },
     data_type::data_type,
@@ -31,7 +31,7 @@ pub(crate) fn column_attributes<'a>() -> Parser<'a, char, Vec<ColumnAttribute>>
 }
 
 /// foreign = "(", table, ")"
-pub(crate) fn foreign<'a>() -> Parser<'a, char, Table> {
+pub(crate) fn foreign<'a>() -> Parser<'a, char, TableName> {
     sym('(') * table() - sym(')')
 }
 
