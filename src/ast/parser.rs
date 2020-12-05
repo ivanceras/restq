@@ -122,6 +122,10 @@ pub(crate) fn value<'a>() -> Parser<'a, char, Value> {
         | (!restricted_ident() * string()).map(|s| Value::String(s))
 }
 
+pub(crate) fn multi_values<'a>() -> Parser<'a, char, Vec<Value>> {
+    sym('[') * list_fail(value(), sym(',')) - sym(']')
+}
+
 fn connector<'a>() -> Parser<'a, char, Operator> {
     tag("|").map(|_| Operator::Or) | tag("&").map(|_| Operator::And)
 }
@@ -153,6 +157,7 @@ fn operator<'a>() -> Parser<'a, char, Operator> {
 
 fn expr<'a>() -> Parser<'a, char, Expr> {
     (sym('(') * call(expr) - sym(')')).map(|expr| Expr::Nested(Box::new(expr)))
+        | multi_values().map(Expr::MultiValue)
         | null().map(Expr::Value)
         | bool().map(|v| Expr::Value(Value::Bool(v)))
         | number().map(|v| Expr::Value(Value::Number(v)))

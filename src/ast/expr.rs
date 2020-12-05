@@ -14,6 +14,7 @@ pub enum Expr {
     Column(ColumnName),
     Function(Function),
     Value(Value),
+    MultiValue(Vec<Value>),
     BinaryOperation(Box<BinaryOperation>),
     /// The expressions is explicitly
     /// grouped in a parenthesis
@@ -43,6 +44,14 @@ impl Into<sql::Expr> for &Expr {
                 sql::Expr::Function(Into::into(function))
             }
             Expr::Value(value) => sql::Expr::Value(Into::into(value)),
+            Expr::MultiValue(values) => {
+                sql::Expr::ValueList(
+                    values
+                        .into_iter()
+                        .map(|v| sql::Expr::Value(Into::into(v)))
+                        .collect(),
+                )
+            }
             Expr::BinaryOperation(binop) => {
                 sql::Expr::BinaryOp {
                     left: Box::new(Into::into(&binop.left)),
@@ -63,6 +72,16 @@ impl fmt::Display for Expr {
             Expr::Column(column) => column.fmt(f),
             Expr::Function(function) => function.fmt(f),
             Expr::Value(value) => value.fmt(f),
+            Expr::MultiValue(values) => {
+                write!(f, "[")?;
+                for (i, value) in values.iter().enumerate() {
+                    if i > 0 {
+                        write!(f, ",")?;
+                    }
+                    value.fmt(f)?;
+                }
+                write!(f, "]")
+            }
             Expr::BinaryOperation(bop) => bop.fmt(f),
             Expr::Nested(expr) => write!(f, "({})", expr),
         }

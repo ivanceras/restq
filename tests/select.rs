@@ -24,3 +24,12 @@ fn complex_select_with_projection() {
     println!("ret: {:#?}", ret);
     assert_eq!(input, ret.to_string());
 }
+
+#[test]
+fn complex_select_with_filter_in() {
+    let input = "person(person_id,name,updated)?person_id=in.[100,101,102]";
+    let input_chars = to_chars(input);
+    let ret = select().parse(&input_chars).expect("must be parsed");
+    println!("ret: {:#?}", ret);
+    assert_eq!(input, ret.to_string());
+}

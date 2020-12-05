@@ -72,6 +72,7 @@ impl Into<sql::BinaryOperator> for &Operator {
             Operator::Multiply => sql::BinaryOperator::Multiply,
             Operator::Divide => sql::BinaryOperator::Divide,
             Operator::Modulus => sql::BinaryOperator::Modulus,
+            Operator::In => sql::BinaryOperator::In,
             _ => panic!("unsupported conversion"),
         }
     }

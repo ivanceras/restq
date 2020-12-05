@@ -34,4 +34,5 @@ members = [
 ]
 
 [patch.crates-io]
-sql-ast = { git = "https://github.com/ivanceras/sql-ast.git", branch = "master" }
+#sql-ast = { git = "https://github.com/ivanceras/sql-ast.git", branch = "master" }
+sql-ast = { path = "../sql-ast" }
