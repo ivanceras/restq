@@ -17,7 +17,6 @@ use crate::{
     },
     parser::{
         column,
-        filter_expr,
         list_fail,
         table,
         value,
@@ -32,11 +31,7 @@ pub use dml_parser::{
     insert,
     update,
 };
-use pom::parser::{
-    sym,
-    tag,
-    Parser,
-};
+use pom::parser::tag;
 use sql_ast::ast as sql;
 
 #[derive(Debug, PartialEq, Clone)]

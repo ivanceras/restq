@@ -1,7 +1,29 @@
 //! dml parser contains algorithm for parsing restq DML syntax into
 //! a DML AST.
 //!
-use super::*;
+use super::{
+    column,
+    list_fail,
+    tag,
+};
+use crate::{
+    ast::{
+        dml::{
+            table,
+            value,
+            Source,
+        },
+        BulkDelete,
+        BulkUpdate,
+        Delete,
+        Insert,
+        Update,
+        Value,
+    },
+    filter_expr,
+    pom::parser::*,
+    ColumnName,
+};
 
 fn returning<'a>() -> Parser<'a, char, Vec<ColumnName>> {
     tag("returning=") * columns()
