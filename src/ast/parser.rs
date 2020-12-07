@@ -180,19 +180,8 @@ fn expr_rename<'a>() -> Parser<'a, char, ExprRename> {
         .map(|(expr, rename)| ExprRename { rename, expr })
 }
 
-/// both forms are acceptable
-/// {c1, c2, c3, c4}
-///
-///  or
-///
-/// (c1, c2, c3, c4)
-///
-/// Note: that braces `{}` are invalid when used in the path part, but can be valid when used in
-/// query part.
-/// So it is safe to use the parenthesis `()` when used in actual rest api request.
 fn expr_projection<'a>() -> Parser<'a, char, Vec<ExprRename>> {
-    sym('(') * exprs_with_renames() - sym(')')
-        | sym('{') * exprs_with_renames() - sym('}')
+    sym('{') * exprs_with_renames() - sym('}')
 }
 
 fn exprs<'a>() -> Parser<'a, char, Vec<Expr>> {
@@ -340,15 +329,6 @@ fn join_type<'a>() -> Parser<'a, char, JoinType> {
         | tag("<-->").map(|_| JoinType::FullJoin)
         | tag("<-").map(|_| JoinType::LeftJoin)
         | tag("->").map(|_| JoinType::RightJoin)
-        | join_type_url_friendly()
-}
-
-/// browser friendly character, using the caret `^` character in place of the arrow, where it is not percent encoded in the browser
-fn join_type_url_friendly<'a>() -> Parser<'a, char, JoinType> {
-    tag("-^^-").map(|_| JoinType::InnerJoin)
-        | tag("^--^").map(|_| JoinType::FullJoin)
-        | tag("^-").map(|_| JoinType::LeftJoin)
-        | tag("-^").map(|_| JoinType::RightJoin)
 }
 
 fn page_size<'a>() -> Parser<'a, char, i64> {

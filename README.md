@@ -78,20 +78,19 @@ foreign = table
 insert = table, column_list ,"\n", csv
 
 column_list = "{", { column }, "}"
-        | "(", { column }, ")"
 
 
 join_table = table, join_type, table
 
 join_type = right_join | left_join | inner_join | full_join
 
-right_join = "->" | "-^"
+right_join = "->"
 
-left_join = "<-"  | "^-"
+left_join = "<-"
 
-inner_join = "-><-" | "-^^-"
+inner_join = "-><-"
 
-full_join = "<-->"  | "^--^"
+full_join = "<-->"
 
 condition = expr
 

@@ -16,4 +16,8 @@
         - [X] pom (expose method field in Parser)
               - [X] -> Solution: release a fork
 - [ ] Implement `fmt::Display` on `Statement` AST such as `Select`
-- [ ] Rename `Table` to `TableName` and `Column` to `ColumnName`
+- [X] Rename `Table` to `TableName` and `Column` to `ColumnName`
+- [X] Remove the user-friendly parsing of join such as `^-` and just use the arrows `<-`
+    The strict version works find in the url and just use `percent_decode` to get the original url text
+- [X] Remove the parenthesis grouping of columns and just use braces.
+

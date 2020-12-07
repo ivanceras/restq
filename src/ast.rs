@@ -277,14 +277,14 @@ impl fmt::Display for Select {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.from_table.fmt(f)?;
         if let Some(projection) = &self.projection {
-            write!(f, "(")?;
+            write!(f, "{{")?;
             for (i, exprr) in projection.iter().enumerate() {
                 if i > 0 {
                     write!(f, ",")?;
                 }
                 exprr.fmt(f)?;
             }
-            write!(f, ")")?;
+            write!(f, "}}")?;
         }
 
         if let Some(filter) = &self.filter {
