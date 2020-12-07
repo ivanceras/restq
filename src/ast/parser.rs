@@ -8,58 +8,10 @@ use pom::parser::{
     Parser,
 };
 use std::iter::FromIterator;
+pub use utils::list_fail;
 use utils::*;
 
 pub mod utils;
-
-/// Parses a list with the defined separator, but will fail early when one of the
-/// item can not be parsed
-pub fn list_fail<'a, I, O, U>(
-    parser: Parser<'a, I, O>,
-    separator: Parser<'a, I, U>,
-) -> Parser<'a, I, Vec<O>>
-where
-    O: 'a,
-    U: 'a,
-{
-    Parser::new(move |input: &'a [I], start: usize| {
-        let mut items = vec![];
-        let mut pos = start;
-        match (parser.method)(input, pos) {
-            Ok((first_item, first_pos)) => {
-                items.push(first_item);
-                pos = first_pos;
-                loop {
-                    match (separator.method)(input, pos) {
-                        Ok((_, sep_pos)) => {
-                            match (parser.method)(input, sep_pos) {
-                                Ok((more_item, more_pos)) => {
-                                    items.push(more_item);
-                                    pos = more_pos;
-                                }
-                                Err(e) => {
-                                    // return early when there is an
-                                    // error matching the succeeding
-                                    // items
-                                    return Err(e);
-                                }
-                            }
-                        }
-                        Err(_e) => {
-                            // the separator does not match, just break
-                            break;
-                        }
-                    }
-                }
-            }
-            Err(e) => {
-                // return early when there is an error matching the first item
-                return Err(e);
-            }
-        }
-        Ok((items, pos))
-    })
-}
 
 /// a valid identifier
 pub(crate) fn ident<'a>() -> Parser<'a, char, String> {
