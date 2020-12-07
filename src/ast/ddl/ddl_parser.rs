@@ -59,8 +59,7 @@ pub(crate) fn column_def_list<'a>() -> Parser<'a, char, Vec<ColumnDef>> {
 
 pub(crate) fn enclosed_column_def_list<'a>() -> Parser<'a, char, Vec<ColumnDef>>
 {
-    sym('(') * column_def_list() - sym(')')
-        | sym('{') * column_def_list() - sym('}')
+    sym('{') * column_def_list() - sym('}')
 }
 
 /// example:
@@ -133,8 +132,7 @@ fn alter_operation<'a>() -> Parser<'a, char, AlterOperation> {
 }
 
 fn alter_operations<'a>() -> Parser<'a, char, Vec<AlterOperation>> {
-    sym('(') * list_fail(alter_operation(), sym(',')) - sym(')')
-        | sym('{') * list_fail(alter_operation(), sym(',')) - sym('}')
+    sym('{') * list_fail(alter_operation(), sym(',')) - sym('}')
 }
 
 pub fn alter_table<'a>() -> Parser<'a, char, AlterTable> {

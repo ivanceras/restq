@@ -71,7 +71,7 @@ mod tests {
 
     #[test]
     fn test_csv_data() {
-        let data = "PUT /product(*product_id:s32,@name:text,description:text,updated:utc,created_by(users):u32,@is_active:bool)\n\
+        let data = "PUT /product{*product_id:s32,@name:text,description:text,updated:utc,created_by(users):u32,@is_active:bool}\n\
             1,go pro,a slightly used go pro, 2019-10-31 10:10:10\n\
             2,shovel,a slightly used shovel, 2019-11-11 11:11:11\n\
             ";

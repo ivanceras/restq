@@ -4,6 +4,7 @@ use http::{
     Method,
     Request,
 };
+use percent_encoding::percent_decode_str;
 pub use restq::{
     ast::{
         ddl::{
@@ -49,7 +50,7 @@ pub fn parse_statement(
     let method = request.method();
     let url = extract_path_and_query(request);
     let body = request.body().as_bytes().to_vec();
-    parse_statement_from_parts(method, url, Some(body))
+    parse_statement_from_parts(method, &url, Some(body))
 }
 
 fn parse_statement_from_parts(
@@ -70,12 +71,13 @@ fn parse_statement_from_parts(
     Ok((statement, data_values))
 }
 
-fn extract_path_and_query<T>(request: &Request<T>) -> &str {
-    request
+fn extract_path_and_query<T>(request: &Request<T>) -> String {
+    let pnq = request
         .uri()
         .path_and_query()
         .map(|pnq| pnq.as_str())
-        .unwrap_or("/")
+        .unwrap_or("/");
+    percent_decode_str(pnq).decode_utf8_lossy().to_string()
 }
 
 pub fn extract_restq_from_request<T>(request: &Request<T>) -> String {
@@ -125,8 +127,12 @@ pub fn csv_data_from_parts(
 
 #[cfg(test)]
 mod tests {
-    use super::parse_statement;
+    use super::*;
     use http::Request;
+    use percent_encoding::{
+        utf8_percent_encode,
+        NON_ALPHANUMERIC,
+    };
     use restq::{
         ast::{
             ddl::{
@@ -144,12 +150,19 @@ mod tests {
 
     #[test]
     fn test_parse_create_statement() {
+        let url = "product{*product_id:s32,@name:text,description:text,updated:utc,created_by(users):u32,@is_active:bool}";
+        let url = utf8_percent_encode(url, NON_ALPHANUMERIC).to_string();
+        let url = format!("http://localhost:8000/{}", url);
+        println!("url: {}", url);
         let req = Request::builder()
             .method("PUT")
-            .uri("https://localhost:8000/product(*product_id:s32,@name:text,description:text,updated:utc,created_by(users):u32,@is_active:bool)")
-            .body("1,go pro,a slightly used go pro, 2019-10-31 10:10:10.1\n\
+            .uri(&url)
+            .body(
+                "1,go pro,a slightly used go pro, 2019-10-31 10:10:10.1\n\
                    2,shovel,a slightly used shovel, 2019-11-11 11:11:11.2\n\
-                ".to_string())
+                "
+                .to_string(),
+            )
             .unwrap();
 
         let (statement, _rows) = parse_statement(&req).expect("must not fail");
@@ -186,9 +199,13 @@ mod tests {
 
     #[test]
     fn test_parse_select_statement() {
+        let url = "person-><-users{name,age,class}?(age=gt.42&student=eq.true)|(gender=eq.`M`&is_active=true)&group_by=sum(age),grade,gender&having=min(age)=gte.42&order_by=age.desc,height.asc&page=2&page_size=10";
+        let url = utf8_percent_encode(url, NON_ALPHANUMERIC).to_string();
+        let url = format!("http://localhost:8000/{}", url);
+        println!("url: {}", url);
         let req = Request::builder()
             .method("GET")
-            .uri("https://localhost:8000/person-^^-users(name,age,class)?(age=gt.42&student=eq.true)|(gender=eq.`M`&is_active=true)&group_by=sum(age),grade,gender&having=min(age)=gte.42&order_by=age.desc,height.asc&page=2&page_size=10")
+            .uri(&url)
             .body("".to_string())
             .unwrap();
         let (statement, _rows) = parse_statement(&req).expect("must not fail");

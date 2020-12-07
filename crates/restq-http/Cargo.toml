@@ -15,3 +15,4 @@ keywords = ["http", "request","query", "sql"]
 http = "0.2.0"
 restq = { version = "0.5.0", path = "../../" }
 thiserror = "1.0.9"
+percent-encoding = "2"
