@@ -1,5 +1,11 @@
 # Changelog
 
+#(Unreleased)
+ - move list_fail into utils
+ - **breaking** Remove the alternate syntax for columns projection using parenthesis, instead just use braces
+ - **breaking** Remove the alternate syntax for join type using caret for the arrow
+ - Add multi_values parser for expression
+
 # 0.5.0
  - Rename `Table` to `TableName` and `Column` to `ColumnName` to signify that it only contains the name and not their definition
  - Improve multi-statement to ignore multiple whitespace and empty new lines
