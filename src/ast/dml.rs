@@ -263,7 +263,7 @@ impl BulkUpdate {
 
 impl BulkDelete {
     /// convert bulk delete into sql statements
-    pub fn into_sql_statements(
+    pub fn into_multiple_sql_statements(
         &self,
         table_lookup: Option<&TableLookup>,
     ) -> Result<Vec<sql::Statement>, Error> {
@@ -272,7 +272,7 @@ impl BulkDelete {
             .get_table_def(&self.from.name)
             .expect("must have a table_def");
         //TODO: create a separate branch for building delete with no Lookup table needed
-        let deletes = self.into_deletes(table_def)?;
+        let deletes = self.into_multiple_deletes(table_def)?;
         Ok(deletes
             .into_iter()
             .map(|delete| delete.into_sql_statement().expect("must convert"))
@@ -280,7 +280,10 @@ impl BulkDelete {
     }
 
     /// convert BulkDelete into multiple Delete AST
-    fn into_deletes(&self, table_def: &TableDef) -> Result<Vec<Delete>, Error> {
+    fn into_multiple_deletes(
+        &self,
+        table_def: &TableDef,
+    ) -> Result<Vec<Delete>, Error> {
         let deletes = self
             .values
             .iter()
@@ -298,6 +301,56 @@ impl BulkDelete {
             .collect();
 
         Ok(deletes)
+    }
+
+    /// when there is a primary of this table, use the in filter
+    pub fn into_single_sql_statement(
+        &self,
+        table_lookup: Option<&TableLookup>,
+    ) -> Result<sql::Statement, Error> {
+        let table_def = table_lookup
+            .expect("must have a table lookup")
+            .get_table_def(&self.from.name)
+            .expect("must have a table_def");
+
+        let primary_columns = table_def.get_primary_columns();
+        if primary_columns.len() == 1 {
+            let pk_column = &primary_columns[0];
+            let pk_values: Vec<Value> = self
+                .values
+                .iter()
+                .flat_map(|row| {
+                    self.columns.iter().zip(row.iter()).filter_map(
+                        |(col, value)| {
+                            if pk_column.column.name == col.name {
+                                Some(value.clone())
+                            } else {
+                                None
+                            }
+                        },
+                    )
+                })
+                .collect();
+
+            assert!(!pk_values.is_empty());
+
+            let delete = Delete {
+                from: self.from.clone(),
+                condition: Some(Expr::BinaryOperation(Box::new(
+                    BinaryOperation {
+                        left: Expr::Column(ColumnName {
+                            name: pk_column.column.name.clone(),
+                        }),
+                        operator: Operator::In,
+                        right: Expr::MultiValue(pk_values),
+                    },
+                ))),
+            };
+            delete.into_sql_statement()
+        } else {
+            //TODO: must return an Err where pirmary key is not found on this table
+            panic!("This is only applicable for table with primary column and only 1 primary column");
+        }
     }
 }
 
