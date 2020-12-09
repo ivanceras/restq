@@ -27,6 +27,19 @@ fn test_column_name_with_table_dot() {
 }
 
 #[test]
+fn test_column_name_with_sapce() {
+    let input = to_chars("\"zip code\"");
+    let ret = column().parse(&input).expect("must be parsed");
+    println!("{:#?}", ret);
+    assert_eq!(
+        ret,
+        ColumnName {
+            name: "zip code".to_string()
+        }
+    );
+}
+
+#[test]
 #[should_panic]
 fn test_expect_table() {
     let input = to_chars("123123");
@@ -288,7 +301,7 @@ fn test_table_query_with_range_only() {
     assert_eq!(
         select.to_string(),
         "SELECT * FROM person \
-         LIMIT 20 OFFSET 0 ROWS"
+         LIMIT 20 OFFSET 0"
     );
 }
 
@@ -305,7 +318,7 @@ fn test_complex_query() {
          (age > 42 AND student = true) OR (gender = 'M' AND is_active = true) \
          GROUP BY sum(age), grade, gender \
          HAVING min(age) >= 42 ORDER BY age DESC, height ASC \
-         LIMIT 10 OFFSET 10 ROWS"
+         LIMIT 10 OFFSET 10"
     );
 }
 #[test]
@@ -364,7 +377,7 @@ fn test_complex_query_with_join() {
          (age > 42 AND student = true) OR (gender = 'M' AND is_active = true) \
          GROUP BY sum(age), grade, gender \
          HAVING min(age) >= 42 ORDER BY age DESC, height ASC \
-         LIMIT 10 OFFSET 10 ROWS"
+         LIMIT 10 OFFSET 10"
     );
 }
 
@@ -459,7 +472,7 @@ fn test_complex_query_with_multiple_join() {
          (age > 42 AND student = true) OR (gender = 'M' AND is_active = true) \
          GROUP BY sum(age), grade, gender \
          HAVING min(age) >= 42 ORDER BY age DESC, height ASC \
-         LIMIT 10 OFFSET 10 ROWS"
+         LIMIT 10 OFFSET 10"
     );
 }
 
@@ -554,7 +567,7 @@ fn test_complex_query_with_multiple_join_full_join() {
          (age > 42 AND student = true) OR (gender = 'M' AND is_active = true) \
          GROUP BY sum(age), grade, gender \
          HAVING min(age) >= 42 ORDER BY age DESC, height ASC \
-         LIMIT 10 OFFSET 10 ROWS"
+         LIMIT 10 OFFSET 10"
     );
 }
 

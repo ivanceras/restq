@@ -46,6 +46,7 @@ fn column_name<'a>() -> Parser<'a, char, String> {
     (strict_ident() - sym('.') + strict_ident())
         .map(|(table, column)| format!("{}.{}", table, column))
         | strict_ident()
+        | quoted_string()
 }
 
 pub(crate) fn column<'a>() -> Parser<'a, char, ColumnName> {
