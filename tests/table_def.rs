@@ -9,7 +9,6 @@ use restq::{
 
 #[test]
 fn more_complex_table_def() {
-    //let input = r#"adempiere.ad_element{*ad_element_id:f64,ad_client_id:f64,ad_org_id:f64,isactive:text('Y'::bpchar),created:local,createdby:f64,updated:local(now()),updatedby:f64,columnname:text,entitytype(adempiere.ad_entitytype):text('D'::character varying),name:text,printname:text,description:text?,help:text?,po_name:text?,po_printname:text?,po_description:text?,po_help:text?,ad_reference_id(adempiere.ad_reference):f64?,fieldlength:f64?,ad_reference_value_id(adempiere.ad_reference):f64?,uuid:text?(NULL::character varying)}"#;
     let input = r#"adempiere.ad_element{*ad_element_id:f64,ad_client_id:f64,ad_org_id:f64,isactive:text('Y'),created:local,createdby:f64,updated:local(now()),updatedby:f64,columnname:text,entitytype(adempiere.ad_entitytype):text('D'),name:text,printname:text,description:text?,help:text?,po_name:text?,po_printname:text?,po_description:text?,po_help:text?,ad_reference_id(adempiere.ad_reference):f64?,fieldlength:f64?,ad_reference_value_id(adempiere.ad_reference):f64?,uuid:text?(NULL)}"#;
     let input_chars = to_chars(input);
     let ret = table_def().parse(&input_chars).expect("must be parsed");
