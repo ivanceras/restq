@@ -253,7 +253,7 @@ mod tests {
                 .into_sql_statement(Some(&table_lookup))
                 .unwrap()
                 .to_string(),
-            "SELECT name, age, class FROM person JOIN users ON users.person_id = person.id WHERE (age > 42 AND student = true) OR (gender = 'M' AND is_active = true) GROUP BY sum(age), grade, gender HAVING min(age) >= 42 ORDER BY age DESC, height ASC LIMIT 10 OFFSET 10 ROWS"
+            "SELECT name, age, class FROM person JOIN users ON users.person_id = person.id WHERE (age > 42 AND student = true) OR (gender = 'M' AND is_active = true) GROUP BY sum(age), grade, gender HAVING min(age) >= 42 ORDER BY age DESC, height ASC LIMIT 10 OFFSET 10"
         );
     }
 }
