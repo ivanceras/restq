@@ -25,6 +25,10 @@ pub use expr::{
     ExprRename,
 };
 pub use operator::Operator;
+use serde::{
+    Deserialize,
+    Serialize,
+};
 use sql_ast::ast as sql;
 use std::fmt;
 pub use table::{
@@ -36,7 +40,7 @@ pub use table::{
 };
 pub use value::Value;
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub enum Statement {
     Select(Select),
     Insert(Insert),
@@ -49,7 +53,7 @@ pub enum Statement {
     AlterTable(AlterTable),
 }
 
-#[derive(Debug, PartialEq, Default, Clone)]
+#[derive(Debug, PartialEq, Default, Clone, Serialize, Deserialize)]
 pub struct Select {
     pub from_table: FromTable,
     pub filter: Option<Expr>,
@@ -60,30 +64,41 @@ pub struct Select {
     pub range: Option<Range>,
 }
 
-#[derive(Debug, PartialEq, Default, Clone, PartialOrd, Hash, Eq, Ord)]
+#[derive(
+    Debug,
+    PartialEq,
+    Default,
+    Clone,
+    PartialOrd,
+    Hash,
+    Eq,
+    Ord,
+    Serialize,
+    Deserialize,
+)]
 pub struct ColumnName {
     pub name: String,
 }
 
-#[derive(Debug, PartialEq, Default, Clone)]
+#[derive(Debug, PartialEq, Default, Clone, Serialize, Deserialize)]
 pub struct Function {
     pub name: String,
     pub params: Vec<Expr>,
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct Order {
     pub expr: Expr,
     pub direction: Option<Direction>,
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub enum Direction {
     Asc,
     Desc,
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub enum Range {
     Page(Page),
     Limit(Limit),
@@ -105,13 +120,13 @@ impl Range {
     }
 }
 
-#[derive(Debug, PartialEq, Default, Clone)]
+#[derive(Debug, PartialEq, Default, Clone, Serialize, Deserialize)]
 pub struct Page {
     pub page: i64,
     pub page_size: i64,
 }
 
-#[derive(Debug, PartialEq, Default, Clone)]
+#[derive(Debug, PartialEq, Default, Clone, Serialize, Deserialize)]
 pub struct Limit {
     pub limit: i64,
     pub offset: Option<i64>,

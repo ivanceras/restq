@@ -29,10 +29,14 @@ pub use ddl_parser::{
     drop_table,
     table_def,
 };
+use serde::{
+    Deserialize,
+    Serialize,
+};
 use sql_ast::ast as sql;
 use std::fmt;
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct ColumnDef {
     pub column: ColumnName,
     pub attributes: Option<Vec<ColumnAttribute>>,
@@ -40,39 +44,39 @@ pub struct ColumnDef {
     pub foreign: Option<TableName>,
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct DataTypeDef {
     pub data_type: DataType,
     pub is_optional: bool,
     pub default: Option<DefaultValue>,
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub enum DefaultValue {
     DataValue(DataValue),
     Function(Function),
 }
 
-#[derive(Debug, PartialEq, Clone, Hash, Eq)]
+#[derive(Debug, PartialEq, Clone, Hash, Eq, Serialize, Deserialize)]
 pub enum ColumnAttribute {
     Primary,
     Unique,
     Index,
 }
 
-#[derive(Debug, PartialEq, Default, Clone)]
+#[derive(Debug, PartialEq, Default, Clone, Serialize, Deserialize)]
 pub struct TableDef {
     pub table: TableName,
     pub columns: Vec<ColumnDef>,
 }
 
-#[derive(Debug, PartialEq, Default, Clone)]
+#[derive(Debug, PartialEq, Default, Clone, Serialize, Deserialize)]
 pub struct AlterTable {
     pub table: TableName,
     pub alter_operations: Vec<AlterOperation>,
 }
 
-#[derive(Debug, PartialEq, Default, Clone)]
+#[derive(Debug, PartialEq, Default, Clone, Serialize, Deserialize)]
 pub struct DropTable {
     pub table: TableName,
 }
@@ -82,7 +86,7 @@ pub struct DropTable {
 // So, if there are multiple alter opration
 // that needs to be executed, there will be multiple
 // alter table query that needs to be generated and executed
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub enum AlterOperation {
     DropColumn(ColumnName),
     AddColumn(ColumnDef),

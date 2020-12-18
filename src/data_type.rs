@@ -3,6 +3,10 @@ use crate::{
     Error,
 };
 use pom::parser::*;
+use serde::{
+    Deserialize,
+    Serialize,
+};
 use sql_ast::ast as sql;
 use std::fmt;
 
@@ -19,7 +23,7 @@ use std::fmt;
 ///     u32(10<column<=20) - check the value should be greater than 10 and less than or equal to 20
 ///     u32(<discount) - check value should be lesser than `discount` column
 ///     f32(0.0) - f32 with 0.0 as the default value
-#[derive(PartialEq, Debug, Clone, Hash, Eq)]
+#[derive(PartialEq, Debug, Clone, Hash, Eq, Serialize, Deserialize)]
 pub enum DataType {
     /// bool
     Bool,

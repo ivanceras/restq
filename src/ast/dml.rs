@@ -32,9 +32,13 @@ pub use dml_parser::{
     update,
 };
 use pom::parser::tag;
+use serde::{
+    Deserialize,
+    Serialize,
+};
 use sql_ast::ast as sql;
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct Insert {
     pub into: TableName,
     pub columns: Vec<ColumnName>,
@@ -44,7 +48,7 @@ pub struct Insert {
 
 /// Insert can get data from a set of values
 /// or from a select statement
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub enum Source {
     Select(Select),
     Values(Vec<Vec<Value>>),
@@ -52,7 +56,7 @@ pub enum Source {
 }
 
 /// DELETE /product?product_id=1
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct Delete {
     pub from: TableName,
     pub condition: Option<Expr>,
@@ -62,7 +66,7 @@ pub struct Delete {
 /// 1
 /// 2
 /// 3
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct BulkDelete {
     pub from: TableName,
     pub columns: Vec<ColumnName>,
@@ -70,7 +74,7 @@ pub struct BulkDelete {
 }
 
 /// PATCH /product{description="I'm the new description now"}?product_id=1
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct Update {
     pub table: TableName,
     pub columns: Vec<ColumnName>,
@@ -81,7 +85,7 @@ pub struct Update {
 /// PATCH /product{*product_id,name}
 /// 1,go pro,1,go pro hero4
 /// 2,shovel,2,slightly used shovel
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct BulkUpdate {
     pub table: TableName,
     pub columns: Vec<ColumnName>,

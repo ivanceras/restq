@@ -4,12 +4,16 @@ use crate::ast::{
     Operator,
     Value,
 };
+use serde::{
+    Deserialize,
+    Serialize,
+};
 use sql_ast::ast as sql;
 use std::fmt;
 
 //TODO: Should be able to do math operations
 // such as: *, +, -, /, %
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub enum Expr {
     Column(ColumnName),
     Function(Function),
@@ -21,13 +25,13 @@ pub enum Expr {
     Nested(Box<Expr>),
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct ExprRename {
     pub expr: Expr,
     pub rename: Option<String>,
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct BinaryOperation {
     pub left: Expr,
     pub operator: Operator,

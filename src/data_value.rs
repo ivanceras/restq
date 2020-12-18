@@ -14,14 +14,17 @@ use chrono::{
     NaiveTime,
     Utc,
 };
+use serde::{
+    Deserialize,
+    Serialize,
+};
 use sql_ast::ast as sql;
 use std::fmt;
-use url::Url;
 use uuid::Uuid;
 
 /// strict data value
 /// where each has exact byte definitions, etc.
-#[derive(PartialEq, Debug, Clone)]
+#[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
 pub enum DataValue {
     Nil,
     Bool(bool),
@@ -46,7 +49,6 @@ pub enum DataValue {
     Utc(DateTime<Utc>),
     Text(String),
     Ident(String),
-    Url(Url),
     Bytes(Vec<u8>),
 }
 
@@ -78,7 +80,6 @@ impl DataValue {
             DataValue::Utc(_) => DataType::Utc,
             DataValue::Text(_) => DataType::Text,
             DataValue::Ident(_) => DataType::Ident,
-            DataValue::Url(_) => DataType::Url,
             DataValue::Bytes(_) => DataType::Bytes,
         };
         Some(dt)
@@ -607,7 +608,6 @@ impl fmt::Display for DataValue {
             DataValue::Utc(v) => write!(f, "{}", v.to_rfc3339()),
             DataValue::Text(v) => write!(f, "{}", v),
             DataValue::Ident(v) => write!(f, "{}", v),
-            DataValue::Url(v) => write!(f, "{}", v),
             DataValue::Bytes(v) => {
                 let encoded = base64::encode_config(&v, base64::MIME);
                 write!(f, "{}", encoded)

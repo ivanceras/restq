@@ -5,6 +5,10 @@ use crate::ast::{
     Expr,
     Operator,
 };
+use serde::{
+    Deserialize,
+    Serialize,
+};
 use sql_ast::ast as sql;
 use std::{
     collections::BTreeMap,
@@ -20,13 +24,13 @@ pub enum TableError {
     TableNotFound(String),
 }
 
-#[derive(Debug, PartialEq, Default, Clone)]
+#[derive(Debug, PartialEq, Default, Clone, Serialize, Deserialize)]
 pub struct FromTable {
     pub from: TableName,
     pub join: Option<(JoinType, Box<FromTable>)>,
 }
 
-#[derive(Debug, PartialEq, Default, Clone, Hash, Eq)]
+#[derive(Debug, PartialEq, Default, Clone, Hash, Eq, Serialize, Deserialize)]
 pub struct TableName {
     pub name: String,
 }
@@ -39,7 +43,7 @@ pub struct TableName {
 /// - inner_join
 ///     product-><-users
 ///
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub enum JoinType {
     InnerJoin,
     LeftJoin,
