@@ -14,6 +14,7 @@ pub use ast::{
     ddl::{
         table_def,
         ColumnDef,
+        Foreign,
     },
     parser,
     parser::{

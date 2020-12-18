@@ -5,6 +5,7 @@ use crate::{
             ColumnAttribute,
             ColumnDef,
             DataTypeDef,
+            Foreign,
             TableDef,
         },
         ColumnName,
@@ -354,8 +355,11 @@ fn test_complex_query_with_join() {
                 is_optional: false,
                 default: None,
             },
-            foreign: Some(TableName {
-                name: "person".into(),
+            foreign: Some(Foreign {
+                table: TableName {
+                    name: "person".into(),
+                },
+                column: None,
             }),
         }],
     };
@@ -427,8 +431,11 @@ fn test_complex_query_with_multiple_join() {
                     is_optional: false,
                     default: None,
                 },
-                foreign: Some(TableName {
-                    name: "person".into(),
+                foreign: Some(Foreign {
+                    table: TableName {
+                        name: "person".into(),
+                    },
+                    column: None,
                 }),
             },
         ],
@@ -447,8 +454,11 @@ fn test_complex_query_with_multiple_join() {
                 is_optional: false,
                 default: None,
             },
-            foreign: Some(TableName {
-                name: "users".into(),
+            foreign: Some(Foreign {
+                table: TableName {
+                    name: "users".into(),
+                },
+                column: None,
             }),
         }],
     };
@@ -522,8 +532,11 @@ fn test_complex_query_with_multiple_join_full_join() {
                     is_optional: false,
                     default: None,
                 },
-                foreign: Some(TableName {
-                    name: "person".into(),
+                foreign: Some(Foreign {
+                    table: TableName {
+                        name: "person".into(),
+                    },
+                    column: None,
                 }),
             },
         ],
@@ -542,8 +555,11 @@ fn test_complex_query_with_multiple_join_full_join() {
                 is_optional: false,
                 default: None,
             },
-            foreign: Some(TableName {
-                name: "users".into(),
+            foreign: Some(Foreign {
+                table: TableName {
+                    name: "users".into(),
+                },
+                column: None,
             }),
         }],
     };

@@ -17,7 +17,7 @@ fn more_complex_table_def() {
 
 #[test]
 fn complex_table_def() {
-    let input = r#"public.film{*film_id:s32,title:text,description:text?,release_year:s16?,language_id(public.language):s16,original_language_id(public.language):s16?,rental_duration:s16(3),rental_rate:f64(4.99),length:s16?,replacement_cost:f64(19.99),rating:text?("'G'::mpaa_rating"),last_update:local,special_features:text?,fulltext:text}"#;
+    let input = r#"public.film{*film_id:s32,title:text,description:text?,release_year:s16?,language_id(public.language::language_id):s16,original_language_id(public.language):s16?,rental_duration:s16(3),rental_rate:f64(4.99),length:s16?,replacement_cost:f64(19.99),rating:text?("'G'::mpaa_rating"),last_update:local,special_features:text?,fulltext:text}"#;
     let input_chars = to_chars(input);
     let ret = table_def().parse(&input_chars).expect("must be parsed");
     println!("ret: {:#?}", ret);
@@ -86,8 +86,13 @@ fn complex_table_def() {
                         is_optional: false,
                         default: None,
                     },
-                    foreign: Some(TableName {
-                        name: "public.language".to_string(),
+                    foreign: Some(Foreign {
+                        table: TableName {
+                            name: "public.language".to_string(),
+                        },
+                        column: Some(ColumnName {
+                            name: "language_id".to_string()
+                        })
                     },),
                 },
                 ColumnDef {
@@ -100,8 +105,11 @@ fn complex_table_def() {
                         is_optional: true,
                         default: None,
                     },
-                    foreign: Some(TableName {
-                        name: "public.language".to_string(),
+                    foreign: Some(Foreign {
+                        table: TableName {
+                            name: "public.language".to_string(),
+                        },
+                        column: None
                     },),
                 },
                 ColumnDef {

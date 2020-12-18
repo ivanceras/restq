@@ -41,7 +41,13 @@ pub struct ColumnDef {
     pub column: ColumnName,
     pub attributes: Option<Vec<ColumnAttribute>>,
     pub data_type_def: DataTypeDef,
-    pub foreign: Option<TableName>,
+    pub foreign: Option<Foreign>,
+}
+
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
+pub struct Foreign {
+    pub table: TableName,
+    pub column: Option<ColumnName>,
 }
 
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
@@ -127,7 +133,7 @@ impl TableDef {
             .iter()
             .filter(|column| {
                 match &column.foreign {
-                    Some(foreign) => foreign.name == table_name,
+                    Some(foreign) => foreign.table.name == table_name,
                     None => false,
                 }
             })
@@ -263,12 +269,12 @@ impl ColumnDef {
                 None => return Err(TableError::NoSuppliedTableLookup),
                 Some(table_lookup) => {
                     let foreign_table_def =
-                        table_lookup.get_table_def(&foreign.name);
+                        table_lookup.get_table_def(&foreign.table.name);
 
                     match foreign_table_def {
                         None => {
                             return Err(TableError::TableNotFound(
-                                foreign.name.to_string(),
+                                foreign.table.to_string(),
                             ));
                         }
                         Some(foreign_table_def) => {
@@ -360,6 +366,16 @@ impl fmt::Display for DataTypeDef {
         }
         if let Some(default) = &self.default {
             write!(f, "({})", default)?;
+        }
+        Ok(())
+    }
+}
+
+impl fmt::Display for Foreign {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.table.fmt(f)?;
+        if let Some(column) = &self.column {
+            write!(f, "::{}", column)?;
         }
         Ok(())
     }
@@ -686,8 +702,11 @@ mod tests {
                         "qr-123".to_string()
                     ))),
                 },
-                foreign: Some(TableName {
-                    name: "product".to_string()
+                foreign: Some(Foreign {
+                    table: TableName {
+                        name: "product".to_string()
+                    },
+                    column: None
                 }),
             }
             .to_string(),
@@ -799,8 +818,11 @@ mod tests {
                     is_optional: false,
                     default: None,
                 },
-                foreign: Some(TableName {
-                    name: "product".to_string()
+                foreign: Some(Foreign {
+                    table: TableName {
+                        name: "product".to_string()
+                    },
+                    column: None
                 }),
             },
         );
@@ -940,8 +962,11 @@ mod tests {
                             is_optional: false,
                             default: None,
                         },
-                        foreign: Some(TableName {
-                            name: "users".into()
+                        foreign: Some(Foreign {
+                            table: TableName {
+                                name: "users".into()
+                            },
+                            column: None
                         }),
                     },
                     ColumnDef {
@@ -1031,9 +1056,9 @@ mod tests {
                             is_optional: false,
                             default: None,
                         },
-                        foreign: Some(TableName {
+                        foreign: Some(Foreign{table:TableName {
                             name: "users".into()
-                        }),
+                        },column: None}),
                     },
                     ColumnDef {
                         column: ColumnName {

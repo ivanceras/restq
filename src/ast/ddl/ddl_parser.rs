@@ -3,11 +3,11 @@
 use super::*;
 use crate::{
     ast::{
+        ddl::Foreign,
         parser::{
             utils::end_or_ln,
             *,
         },
-        TableName,
         Value,
     },
     data_type::data_type,
@@ -16,6 +16,7 @@ use crate::{
 use either::Either;
 use pom::parser::{
     sym,
+    tag,
     Parser,
 };
 
@@ -31,8 +32,10 @@ pub(crate) fn column_attributes<'a>() -> Parser<'a, char, Vec<ColumnAttribute>>
 }
 
 /// foreign = "(", table, ")"
-pub(crate) fn foreign<'a>() -> Parser<'a, char, TableName> {
-    sym('(') * table() - sym(')')
+///     = "(", table, ["::", ",", column] )
+pub(crate) fn foreign<'a>() -> Parser<'a, char, Foreign> {
+    (sym('(') * table() + (tag("::") * column()).opt() - sym(')'))
+        .map(|(table, column)| Foreign { table, column })
 }
 
 /// parse column definition with the format

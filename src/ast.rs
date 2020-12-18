@@ -10,6 +10,7 @@ use crate::Error;
 pub use ddl::{
     AlterTable,
     DropTable,
+    Foreign,
     TableDef,
 };
 pub use dml::{

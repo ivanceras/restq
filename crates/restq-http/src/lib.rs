@@ -21,6 +21,7 @@ pub use restq::{
         AlterTable,
         Delete,
         DropTable,
+        Foreign,
         Insert,
         Select,
         Statement,
@@ -240,8 +241,11 @@ mod tests {
                     is_optional: false,
                     default: None,
                 },
-                foreign: Some(TableName {
-                    name: "person".into(),
+                foreign: Some(Foreign {
+                    table: TableName {
+                        name: "person".into(),
+                    },
+                    column: None,
                 }),
             }],
         };
