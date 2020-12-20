@@ -337,8 +337,11 @@ fn test_complex_query() {
 }
 #[test]
 fn test_complex_query_with_join() {
-    let input = to_chars("person->users{name,age,class}?(age=gt.42&student=eq.true)|(gender=eq.'M'&is_active=true)&group_by=sum(age),grade,gender&having=min(age)=gte.42&order_by=age.desc,height.asc&page=2&page_size=10");
+    let input_str = "person->users{name,age,class}?(age=gt.42&student=eq.true)|(gender=eq.'M'&is_active=true)&group_by=sum(age),grade,gender&having=min(age)=gte.42&order_by=age.desc,height.asc&page=2&page_size=10";
+    let input = to_chars(input_str);
+    println!("input: {}", input_str);
     let ret = select().parse(&input).expect("must be parsed");
+    println!("ret: {:#?}", ret);
     let person_table = TableDef {
         table: TableName {
             name: "person".into(),
