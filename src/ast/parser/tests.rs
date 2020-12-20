@@ -28,6 +28,19 @@ fn test_column_name_with_table_dot() {
 }
 
 #[test]
+fn test_schema_table_column_name() {
+    let input = to_chars("public.product.name");
+    let ret = column().parse(&input).expect("must be parsed");
+    println!("{:#?}", ret);
+    assert_eq!(
+        ret,
+        ColumnName {
+            name: "public.product.name".to_string()
+        }
+    );
+}
+
+#[test]
 fn test_column_name_with_sapce() {
     let input = to_chars("\"zip code\"");
     let ret = column().parse(&input).expect("must be parsed");

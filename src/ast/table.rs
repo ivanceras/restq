@@ -144,6 +144,22 @@ impl FromTable {
         }
     }
 
+    fn combine_expressions(
+        binops: Vec<BinaryOperation>,
+        operator: Operator,
+    ) -> Expr {
+        let mut iter = binops.into_iter();
+        let mut first = iter.next().expect("must have a first");
+        for next in iter.next() {
+            first = BinaryOperation {
+                left: Expr::BinaryOperation(Box::new(first)),
+                operator: operator.clone(),
+                right: Expr::BinaryOperation(Box::new(next)),
+            };
+        }
+        Expr::BinaryOperation(Box::new(first))
+    }
+
     /// If there is join definition, but no lookup table is supplied
     /// it will return an error
     fn extract_join(
@@ -170,43 +186,65 @@ impl FromTable {
                         ))
                     }
                     (Some(this_table_def), Some(joined_table_def)) => {
-                        let this_primary_keys =
-                            this_table_def.get_primary_columns();
+                        let column_joins: Vec<BinaryOperation> = this_table_def
+                            .columns
+                            .iter()
+                            .filter_map(|column_def| {
+                                println!(
+                                    "in column_def: {}",
+                                    column_def.column
+                                );
+                                if let Some(foreign) = &column_def.foreign {
+                                    println!(
+                                        "comparing: {} == {}",
+                                        foreign.table, joined_table_def.table
+                                    );
+                                    if foreign.table == joined_table_def.table {
+                                        println!("FOUND...");
+                                        Some(BinaryOperation {
+                                            left: Expr::Column(ColumnName {
+                                                name: format!(
+                                                    "{}.{}",
+                                                    this_table_def.table.name,
+                                                    column_def.column.name
+                                                ),
+                                            }),
+                                            operator: Operator::Eq,
+                                            right: Expr::Column(ColumnName {
+                                                name: format!(
+                                                    "{}.{}",
+                                                    joined_table_def.table.name,
+                                                    foreign
+                                                        .column
+                                                        .as_ref()
+                                                        .expect("foreign")
+                                                        .name
+                                                ),
+                                            }),
+                                        })
+                                    } else {
+                                        None
+                                    }
+                                } else {
+                                    None
+                                }
+                            })
+                            .collect();
 
-                        let joined_local_columns = joined_table_def
-                            .get_local_columns_to_foreign_table(
-                                &this_table_def.table.name,
+                        println!("column_joins: {:#?}", column_joins);
+
+                        let mut ret = vec![];
+                        if !column_joins.is_empty() {
+                            let constraint = Self::combine_expressions(
+                                column_joins,
+                                Operator::And,
                             );
-
-                        // TODO: we only support 1 primary key for the referred table
-                        // TODO: try to support joining all the appropriate column foreign keys
-                        assert_eq!(joined_local_columns.len(), 1);
-                        assert_eq!(this_primary_keys.len(), 1);
-
-                        let constraint =
-                            Expr::BinaryOperation(Box::new(BinaryOperation {
-                                left: Expr::Column(ColumnName {
-                                    name: format!(
-                                        "{}.{}",
-                                        joined_table_def.table.name,
-                                        joined_local_columns[0].column.name
-                                    ),
-                                }),
-                                operator: Operator::Eq,
-                                right: Expr::Column(ColumnName {
-                                    name: format!(
-                                        "{}.{}",
-                                        this_table_def.table.name,
-                                        this_primary_keys[0].column.name
-                                    ),
-                                }),
-                            }));
-
-                        let mut ret = vec![sql::Join {
-                            relation: Into::into(&joined_table.from),
-                            join_operator: join_type
-                                .into_sql_join_operator(constraint),
-                        }];
+                            ret.push(sql::Join {
+                                relation: Into::into(&joined_table.from),
+                                join_operator: join_type
+                                    .into_sql_join_operator(constraint),
+                            })
+                        }
 
                         // if there are some more
                         ret.extend(joined_table.extract_join(table_lookup)?);

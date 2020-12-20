@@ -20,9 +20,15 @@ pub(crate) fn ident<'a>() -> Parser<'a, char, String> {
 }
 
 pub(crate) fn table_name<'a>() -> Parser<'a, char, String> {
-    (strict_ident() - sym('.') + strict_ident())
-        .map(|(table, column)| format!("{}.{}", table, column))
-        | strict_ident()
+    ((strict_ident() - sym('.')).opt() + strict_ident()).map(
+        |(schema, table)| {
+            if let Some(schema) = schema {
+                format!("{}.{}", schema, table)
+            } else {
+                table
+            }
+        },
+    ) | strict_ident()
 }
 
 fn restricted_ident<'a>() -> Parser<'a, char, &'a str> {
@@ -43,8 +49,12 @@ pub(crate) fn strict_ident<'a>() -> Parser<'a, char, String> {
 
 /// column name can not be followed with direction: asc, desc
 fn column_name<'a>() -> Parser<'a, char, String> {
-    (strict_ident() - sym('.') + strict_ident())
-        .map(|(table, column)| format!("{}.{}", table, column))
+    (strict_ident() - sym('.') + strict_ident() - sym('.') + strict_ident())
+        .map(|((schema, table), column)| {
+            format!("{}.{}.{}", schema, table, column)
+        })
+        | (strict_ident() - sym('.') + strict_ident())
+            .map(|(table, column)| format!("{}.{}", table, column))
         | strict_ident()
         | quoted_string()
 }

@@ -125,6 +125,7 @@ impl TableDef {
     }
 
     /// get the local columns that referes to the foreign table
+    #[allow(unused)]
     pub(crate) fn get_local_columns_to_foreign_table(
         &self,
         table_name: &str,

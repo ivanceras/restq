@@ -33,3 +33,12 @@ fn complex_select_with_filter_in() {
     println!("ret: {:#?}", ret);
     assert_eq!(input, ret.to_string());
 }
+
+#[test]
+fn select_with_left_join() {
+    let input = "public.inventory<-public.film{inventory_id,film_id,store_id,last_update}?public.film.film_id=eq.1&page=1&page_size=40";
+    let input_chars = to_chars(input);
+    let ret = select().parse(&input_chars).expect("must be parsed");
+    println!("ret: {:#?}", ret);
+    assert_eq!(input, ret.to_string());
+}
