@@ -196,51 +196,49 @@ impl FromTable {
                                 "joined_column foreign: {:?}",
                                 joined_column.foreign
                             );
-                            if let Some(joined_column_foreign) = &joined_column
-                                .foreign{
-
-                            let referred_column = match &joined_column_foreign
-                                .column
-                            {
-                                Some(column) => {
-                                    println!("joining: {:?}", column);
-                                    column.clone()
-                                }
-                                None => {
-                                    println!("no specified columns.. means the primary key of that table");
-                                    let primary_columns =
-                                        this_table_def.get_primary_columns();
-                                    println!(
-                                        "primary columns: {:#?}",
+                            if let Some(joined_column_foreign) = &joined_column.foreign{
+                                let referred_column = match &joined_column_foreign
+                                    .column
+                                {
+                                    Some(column) => {
+                                        println!("joining: {:?}", column);
+                                        column.clone()
+                                    }
+                                    None => {
+                                        println!("no specified columns.. means the primary key of that table");
+                                        let primary_columns =
+                                            this_table_def.get_primary_columns();
+                                        println!(
+                                            "primary columns: {:#?}",
+                                            primary_columns
+                                        );
+                                        assert_eq!(primary_columns.len(), 1, "Unspecified columns is only applicable for table with 1 primary column");
                                         primary_columns
-                                    );
-                                    assert_eq!(primary_columns.len(), 1, "Unspecified columns is only applicable for table with 1 primary column");
-                                    primary_columns
-                                        .get(0)
-                                        .expect("must have")
-                                        .column
-                                        .clone()
-                                }
-                            };
-                            println!("referred_column: {}", referred_column);
-                            let joined_column_complete_name = format!(
-                                "{}.{}",
-                                joined_table_def.table.name,
-                                joined_column.column.name
-                            );
-                            let referred_column_complete_name = format!(
-                                "{}.{}",
-                                this_table_def.table.name, referred_column.name
-                            );
-                            Some(BinaryOperation {
-                                left: Expr::Column(ColumnName {
-                                    name: joined_column_complete_name,
-                                }),
-                                operator: Operator::Eq,
-                                right: Expr::Column(ColumnName {
-                                    name: referred_column_complete_name,
-                                }),
-                            })
+                                            .get(0)
+                                            .expect("must have")
+                                            .column
+                                            .clone()
+                                    }
+                                };
+                                println!("referred_column: {}", referred_column);
+                                let joined_column_complete_name = format!(
+                                    "{}.{}",
+                                    joined_table_def.table.name,
+                                    joined_column.column.name
+                                );
+                                let referred_column_complete_name = format!(
+                                    "{}.{}",
+                                    this_table_def.table.name, referred_column.name
+                                );
+                                Some(BinaryOperation {
+                                    left: Expr::Column(ColumnName {
+                                        name: joined_column_complete_name,
+                                    }),
+                                    operator: Operator::Eq,
+                                    right: Expr::Column(ColumnName {
+                                        name: referred_column_complete_name,
+                                    }),
+                                })
                             }else{
                                 None
                             }
