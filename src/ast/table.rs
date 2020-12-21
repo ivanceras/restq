@@ -96,6 +96,7 @@ impl fmt::Display for JoinType {
     }
 }
 
+#[derive(Debug)]
 pub struct TableLookup(BTreeMap<String, TableDef>);
 
 impl TableLookup {
@@ -166,6 +167,8 @@ impl FromTable {
         &self,
         table_lookup: &TableLookup,
     ) -> Result<Vec<sql::Join>, TableError> {
+        println!("extracting join from {:?}", self.from);
+        println!("join is {:#?}", self.join);
         match &self.join {
             Some((join_type, joined_table)) => {
                 let joined_table_def =
@@ -186,81 +189,78 @@ impl FromTable {
                         ))
                     }
                     (Some(this_table_def), Some(joined_table_def)) => {
-                        println!("this table_def: {}", this_table_def);
-                        println!("joined table_def: {}", joined_table_def);
-
-                        let column_joins :Vec<BinaryOperation> =
-                       joined_table_def.columns.iter().filter_map(|joined_column|{
-                           println!("joined_column: {:#?}", joined_column);
-                            println!(
-                                "joined_column foreign: {:?}",
-                                joined_column.foreign
+                        let pair1 = this_table_def
+                            .get_local_foreign_columns_pair_to_table(
+                                &joined_table_def.table,
                             );
-                            if let Some(joined_column_foreign) = &joined_column.foreign{
-                                let referred_column = match &joined_column_foreign
-                                    .column
-                                {
-                                    Some(column) => {
-                                        println!("joining: {:?}", column);
-                                        column.clone()
-                                    }
-                                    None => {
-                                        println!("no specified columns.. means the primary key of that table");
-                                        let primary_columns =
-                                            this_table_def.get_primary_columns();
-                                        println!(
-                                            "primary columns: {:#?}",
-                                            primary_columns
-                                        );
-                                        assert_eq!(primary_columns.len(), 1, "Unspecified columns is only applicable for table with 1 primary column");
-                                        primary_columns
-                                            .get(0)
-                                            .expect("must have")
-                                            .column
-                                            .clone()
-                                    }
-                                };
-                                println!("referred_column: {}", referred_column);
-                                let joined_column_complete_name = format!(
-                                    "{}.{}",
-                                    joined_table_def.table.name,
-                                    joined_column.column.name
-                                );
-                                let referred_column_complete_name = format!(
-                                    "{}.{}",
-                                    this_table_def.table.name, referred_column.name
-                                );
-                                Some(BinaryOperation {
-                                    left: Expr::Column(ColumnName {
-                                        name: joined_column_complete_name,
-                                    }),
-                                    operator: Operator::Eq,
-                                    right: Expr::Column(ColumnName {
-                                        name: referred_column_complete_name,
-                                    }),
-                                })
-                            }else{
-                                None
-                            }
-                        }).collect();
+                        println!("pair1: {:#?}", pair1);
+                        let pair2 = joined_table_def
+                            .get_local_foreign_columns_pair_to_table(
+                                &this_table_def.table,
+                            );
+                        println!("pair2: {:#?}", pair2);
 
-                        println!("column_joins: {:#?}", column_joins);
+                        let mut joins = vec![];
+
+                        for (local_col, foreign_col) in pair1 {
+                            let local_complete_name = format!(
+                                "{}.{}",
+                                this_table_def.table.name, local_col.name
+                            );
+                            let referred_complete_name = format!(
+                                "{}.{}",
+                                joined_table_def.table.name, foreign_col.name
+                            );
+                            let binop = BinaryOperation {
+                                left: Expr::Column(ColumnName {
+                                    name: local_complete_name,
+                                }),
+                                operator: Operator::Eq,
+                                right: Expr::Column(ColumnName {
+                                    name: referred_complete_name,
+                                }),
+                            };
+                            joins.push(binop);
+                        }
+
+                        for (local_col, foreign_col) in pair2 {
+                            let local_complete_name = format!(
+                                "{}.{}",
+                                joined_table_def.table.name, local_col.name
+                            );
+                            let referred_complete_name = format!(
+                                "{}.{}",
+                                this_table_def.table.name, foreign_col.name
+                            );
+                            let binop = BinaryOperation {
+                                left: Expr::Column(ColumnName {
+                                    name: local_complete_name,
+                                }),
+                                operator: Operator::Eq,
+                                right: Expr::Column(ColumnName {
+                                    name: referred_complete_name,
+                                }),
+                            };
+                            joins.push(binop);
+                        }
 
                         let mut ret = vec![];
-                        if !column_joins.is_empty() {
-                            let constraint = Self::combine_expressions(
-                                column_joins,
-                                Operator::And,
-                            );
+                        if !joins.is_empty() {
+                            let constraint =
+                                Self::combine_expressions(joins, Operator::And);
                             ret.push(sql::Join {
                                 relation: Into::into(&joined_table.from),
                                 join_operator: join_type
                                     .into_sql_join_operator(constraint),
-                            })
-                        }
+                            });
 
-                        // if there are some more
-                        ret.extend(joined_table.extract_join(table_lookup)?);
+                            dbg!(&ret);
+
+                            let more_joins =
+                                joined_table.extract_join(table_lookup)?;
+                            println!("more joins: {:#?}", more_joins);
+                            ret.extend(more_joins);
+                        }
                         Ok(ret)
                     }
                 }

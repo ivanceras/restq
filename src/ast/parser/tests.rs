@@ -970,6 +970,38 @@ fn test_from_left_join() {
 }
 
 #[test]
+fn test_from_multiple_left_join() {
+    let input = to_chars("product<-product_review<-review");
+    let ret = from_table().parse(&input).expect("must be parsed");
+    println!("{:#?}", ret);
+    assert_eq!(
+        ret,
+        FromTable {
+            from: TableName {
+                name: "product".into()
+            },
+            join: Some((
+                JoinType::LeftJoin,
+                Box::new(FromTable {
+                    from: TableName {
+                        name: "product_review".into()
+                    },
+                    join: Some((
+                        JoinType::LeftJoin,
+                        Box::new(FromTable {
+                            from: TableName {
+                                name: "review".into()
+                            },
+                            join: None
+                        })
+                    )),
+                }),
+            ),),
+        }
+    );
+}
+
+#[test]
 fn test_from_inner_join() {
     let input = to_chars("product-><-users");
     let ret = from_table().parse(&input).expect("must be parsed");

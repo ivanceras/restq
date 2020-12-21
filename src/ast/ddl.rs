@@ -141,6 +141,31 @@ impl TableDef {
             .collect()
     }
 
+    /// return the (local, foreign) pair to this table_name
+    pub(crate) fn get_local_foreign_columns_pair_to_table(
+        &self,
+        table_name: &TableName,
+    ) -> Vec<(&ColumnName, &ColumnName)> {
+        self.columns
+            .iter()
+            .filter_map(|column| {
+                column
+                    .foreign
+                    .as_ref()
+                    .map(|foreign| {
+                        if foreign.table == *table_name {
+                            foreign.column.as_ref().map(|foreign_column| {
+                                (&column.column, foreign_column)
+                            })
+                        } else {
+                            None
+                        }
+                    })
+                    .flatten()
+            })
+            .collect()
+    }
+
     /// get the primary columns of this table
     pub fn get_primary_columns(&self) -> Vec<&ColumnDef> {
         self.columns
