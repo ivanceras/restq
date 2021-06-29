@@ -375,7 +375,7 @@ fn test_complex_query_with_join() {
                 table: TableName {
                     name: "person".into(),
                 },
-                column: None,
+                column: Some(ColumnName { name: "id".into() }),
             }),
         }],
     };
@@ -451,7 +451,7 @@ fn test_complex_query_with_multiple_join() {
                     table: TableName {
                         name: "person".into(),
                     },
-                    column: None,
+                    column: Some(ColumnName { name: "id".into() }),
                 }),
             },
         ],
@@ -474,7 +474,9 @@ fn test_complex_query_with_multiple_join() {
                 table: TableName {
                     name: "users".into(),
                 },
-                column: None,
+                column: Some(ColumnName {
+                    name: "user_id".into(),
+                }),
             }),
         }],
     };
@@ -552,7 +554,7 @@ fn test_complex_query_with_multiple_join_full_join() {
                     table: TableName {
                         name: "person".into(),
                     },
-                    column: None,
+                    column: Some(ColumnName { name: "id".into() }),
                 }),
             },
         ],
@@ -575,7 +577,9 @@ fn test_complex_query_with_multiple_join_full_join() {
                 table: TableName {
                     name: "users".into(),
                 },
-                column: None,
+                column: Some(ColumnName {
+                    name: "user_id".into(),
+                }),
             }),
         }],
     };

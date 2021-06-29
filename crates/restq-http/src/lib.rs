@@ -245,7 +245,7 @@ mod tests {
                     table: TableName {
                         name: "person".into(),
                     },
-                    column: None,
+                    column: Some(ColumnName { name: "id".into() }),
                 }),
             }],
         };

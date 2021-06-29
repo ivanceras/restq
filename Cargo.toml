@@ -13,7 +13,7 @@ keywords = ["url", "param", "parser", "rest", "sql"]
 [dependencies]
 pom = { version = "3.1.0" }
 chrono = { version = "0.4.10", features = ["serde"] }
-uuid = { version = "0.8.1", features = ["serde", "v4"] }
+uuid = { version = "0.8.1", features = ["serde", "v4", "wasm-bindgen"] }
 lazy_static = "1.4.0"
 sql-ast = { version = "0.7.1"}
 thiserror = "1.0.9"
