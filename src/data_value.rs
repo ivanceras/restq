@@ -559,7 +559,7 @@ pub fn cast_data_value(value: &Value, required_type: &DataType) -> DataValue {
                     //TODO: validate identifier
                     DataType::Ident => DataValue::Ident(v.to_string()),
                     DataType::Bytes => {
-                        let bytes = base64::decode_config(&v, base64::MIME)
+                        let bytes = base64::decode_config(&v, base64::URL_SAFE)
                             .expect("must be a valid base64 bytes");
                         DataValue::Bytes(bytes)
                     }
@@ -609,7 +609,7 @@ impl fmt::Display for DataValue {
             DataValue::Text(v) => write!(f, "{}", v),
             DataValue::Ident(v) => write!(f, "{}", v),
             DataValue::Bytes(v) => {
-                let encoded = base64::encode_config(&v, base64::MIME);
+                let encoded = base64::encode_config(&v, base64::URL_SAFE);
                 write!(f, "{}", encoded)
             }
         }

@@ -11,21 +11,21 @@ edition = "2018"
 keywords = ["url", "param", "parser", "rest", "sql"]
 
 [dependencies]
-pom = { version = "3.1.0" }
-chrono = { version = "0.4.10", features = ["serde"] }
-uuid = { version = "0.8.1", features = ["serde", "v4", "wasm-bindgen"] }
-lazy_static = "1.4.0"
-sql-ast = { version = "0.7.1"}
-thiserror = "1.0.9"
-csv = "1.1.1"
-log = "0.4.8"
-base64 = "0.9"
+pom = { version = "3" }
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "0.8", features = ["serde", "v4", "wasm-bindgen"] }
+lazy_static = "1.4"
+sql-ast = { version = "0.7"}
+thiserror = "1"
+csv = "1"
+log = "0.4"
+base64 = "0.13"
 either = "1.6"
 serde = { version = "1", features = ["derive"] }
 
 
-[target.'cfg(target_arch = "wasm32")'.dependencies]
-js-sys = { version = "0.3" } 
+#[target.'cfg(target_arch = "wasm32")'.dependencies]
+#js-sys = { version = "0.3" } 
 
 
 [workspace]
