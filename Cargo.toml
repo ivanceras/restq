@@ -1,6 +1,6 @@
 [package]
 name = "restq"
-version = "0.5.1"
+version = "0.6.0"
 authors = [ "Jovansonlee Cesar<ivanceras@gmail.com>" ]
 license = "MIT"
 description = "Compacting SQL query into a URL suitable for rest api calls"
@@ -24,8 +24,8 @@ either = "1.6"
 serde = { version = "1", features = ["derive"] }
 
 
-#[target.'cfg(target_arch = "wasm32")'.dependencies]
-#js-sys = { version = "0.3" } 
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+js-sys = { version = "0.3" } 
 
 
 [workspace]

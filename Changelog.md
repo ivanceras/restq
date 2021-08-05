@@ -1,6 +1,8 @@
 # Changelog
 
-#(Unreleased)
+# 0.6.0
+ - Upgrade base64 0.8 -> 0.13
+ - **breaking** Now uses base64::URL_SAFE for encoding/decoding bytes value.
  - move list_fail into utils
  - **breaking** Remove the alternate syntax for columns projection using parenthesis, instead just use braces
  - **breaking** Remove the alternate syntax for join type using caret for the arrow
