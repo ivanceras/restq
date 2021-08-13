@@ -12,7 +12,7 @@ keywords = ["url", "param", "parser", "rest", "sql"]
 
 [dependencies]
 pom = { version = "3" }
-chrono = { version = "0.4", features = ["serde"] }
+chrono = { version = "0.4", features = ["serde", "wasmbind"] }
 uuid = { version = "0.8", features = ["serde", "v4", "wasm-bindgen"] }
 lazy_static = "1.4"
 sql-ast = { version = "0.7"}
@@ -23,9 +23,6 @@ base64 = "0.13"
 either = "1.6"
 serde = { version = "1", features = ["derive"] }
 
-
-[target.'cfg(target_arch = "wasm32")'.dependencies]
-js-sys = { version = "0.3" } 
 
 
 [workspace]

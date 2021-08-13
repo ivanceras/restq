@@ -20,10 +20,7 @@ use crate::{
     data_value::DataValue,
     Error,
 };
-use chrono::{
-    DateTime,
-    Utc,
-};
+use chrono::Utc;
 pub use ddl_parser::{
     alter_table,
     drop_table,
@@ -429,8 +426,8 @@ impl ColumnDef {
                     DefaultValue::DataValue(dv) => dv.clone(),
                     DefaultValue::Function(df) => {
                         match &*df.name {
-                            "now" => DataValue::Utc(get_date()),
-                            "today" => DataValue::Utc(get_date()),
+                            "now" => DataValue::Utc(Utc::now()),
+                            "today" => DataValue::Utc(Utc::now()),
                             _ => DataValue::Nil,
                         }
                     }
@@ -438,33 +435,6 @@ impl ColumnDef {
             }
         }
     }
-}
-
-#[cfg(not(target_arch = "wasm32"))]
-fn get_date() -> DateTime<Utc> {
-    Utc::now()
-}
-
-#[cfg(target_arch = "wasm32")]
-fn get_date() -> DateTime<Utc> {
-    use chrono::NaiveDate;
-
-    let date = js_sys::Date::new_0();
-
-    DateTime::<Utc>::from_utc(
-        NaiveDate::from_ymd(
-            date.get_utc_full_year() as i32,
-            date.get_utc_month() as u32,
-            date.get_utc_date() as u32,
-        )
-        .and_hms_milli(
-            date.get_utc_hours() as u32,
-            date.get_utc_minutes() as u32,
-            date.get_utc_seconds() as u32,
-            date.get_utc_milliseconds() as u32,
-        ),
-        Utc,
-    )
 }
 
 impl fmt::Display for ColumnDef {
