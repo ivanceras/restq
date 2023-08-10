@@ -1,8 +1,5 @@
 use crate::sql;
-use serde::{
-    Deserialize,
-    Serialize,
-};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// coarse value from the parsing

@@ -1,46 +1,17 @@
 #![deny(warnings)]
 
-use http::{
-    Method,
-    Request,
-};
+use http::{Method, Request};
 use percent_encoding::percent_decode_str;
 pub use restq::{
     ast::{
-        ddl::{
-            alter_table,
-            drop_table,
-            table_def,
-            ColumnDef,
-        },
-        dml::{
-            delete,
-            insert,
-            update,
-        },
-        AlterTable,
-        Delete,
-        DropTable,
-        Foreign,
-        Insert,
-        Select,
-        Statement,
-        TableDef,
-        Update,
-        Value,
+        ddl::{alter_table, drop_table, table_def, ColumnDef},
+        dml::{delete, insert, update},
+        AlterTable, Delete, DropTable, Foreign, Insert, Select, Statement,
+        TableDef, Update, Value,
     },
     parser::select,
-    pom::parser::{
-        sym,
-        tag,
-        Parser,
-    },
-    space,
-    to_chars,
-    CsvRows,
-    DataValue,
-    Error,
-    StmtData,
+    pom::parser::{sym, tag, Parser},
+    space, to_chars, CsvRows, DataValue, Error, StmtData,
 };
 use std::io::Cursor;
 
@@ -130,21 +101,11 @@ pub fn csv_data_from_parts(
 mod tests {
     use super::*;
     use http::Request;
-    use percent_encoding::{
-        utf8_percent_encode,
-        NON_ALPHANUMERIC,
-    };
+    use percent_encoding::{utf8_percent_encode, NON_ALPHANUMERIC};
     use restq::{
         ast::{
-            ddl::{
-                ColumnAttribute,
-                ColumnDef,
-                DataTypeDef,
-            },
-            ColumnName,
-            TableDef,
-            TableLookup,
-            TableName,
+            ddl::{ColumnAttribute, ColumnDef, DataTypeDef},
+            ColumnName, TableDef, TableLookup, TableName,
         },
         DataType,
     };

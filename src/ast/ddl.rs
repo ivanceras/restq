@@ -5,31 +5,16 @@ mod ddl_parser;
 
 use crate::{
     ast::{
-        dml::{
-            Insert,
-            Source,
-        },
-        ColumnName,
-        Function,
-        Statement,
-        TableError,
-        TableLookup,
-        TableName,
+        dml::{Insert, Source},
+        ColumnName, Function, Statement, TableError, TableLookup, TableName,
     },
     data_type::DataType,
     data_value::DataValue,
     Error,
 };
 use chrono::Utc;
-pub use ddl_parser::{
-    alter_table,
-    drop_table,
-    table_def,
-};
-use serde::{
-    Deserialize,
-    Serialize,
-};
+pub use ddl_parser::{alter_table, drop_table, table_def};
+use serde::{Deserialize, Serialize};
 use sql_ast::ast as sql;
 use std::fmt;
 
@@ -129,11 +114,9 @@ impl TableDef {
     ) -> Vec<&ColumnDef> {
         self.columns
             .iter()
-            .filter(|column| {
-                match &column.foreign {
-                    Some(foreign) => foreign.table.name == table_name,
-                    None => false,
-                }
+            .filter(|column| match &column.foreign {
+                Some(foreign) => foreign.table.name == table_name,
+                None => false,
             })
             .collect()
     }
@@ -167,15 +150,11 @@ impl TableDef {
     pub fn get_primary_columns(&self) -> Vec<&ColumnDef> {
         self.columns
             .iter()
-            .filter(|column| {
-                match &column.attributes {
-                    Some(attributes) => {
-                        attributes
-                            .iter()
-                            .any(|att| *att == ColumnAttribute::Primary)
-                    }
-                    None => false,
-                }
+            .filter(|column| match &column.attributes {
+                Some(attributes) => attributes
+                    .iter()
+                    .any(|att| *att == ColumnAttribute::Primary),
+                None => false,
             })
             .collect()
     }
@@ -276,12 +255,10 @@ impl ColumnDef {
         table_lookup: Option<&TableLookup>,
     ) -> Result<Vec<sql::ColumnOption>, TableError> {
         let mut att_column_options = match &self.attributes {
-            Some(attributes) => {
-                attributes
-                    .iter()
-                    .filter_map(|att| att.into_sql_column_option())
-                    .collect()
-            }
+            Some(attributes) => attributes
+                .iter()
+                .filter_map(|att| att.into_sql_column_option())
+                .collect(),
             None => vec![],
         };
         att_column_options
@@ -421,18 +398,14 @@ impl ColumnDef {
     pub fn default_value(&self) -> DataValue {
         match &self.data_type_def.default {
             None => DataValue::Nil,
-            Some(default) => {
-                match default {
-                    DefaultValue::DataValue(dv) => dv.clone(),
-                    DefaultValue::Function(df) => {
-                        match &*df.name {
-                            "now" => DataValue::Utc(Utc::now()),
-                            "today" => DataValue::Utc(Utc::now()),
-                            _ => DataValue::Nil,
-                        }
-                    }
-                }
-            }
+            Some(default) => match default {
+                DefaultValue::DataValue(dv) => dv.clone(),
+                DefaultValue::Function(df) => match &*df.name {
+                    "now" => DataValue::Utc(Utc::now()),
+                    "today" => DataValue::Utc(Utc::now()),
+                    _ => DataValue::Nil,
+                },
+            },
         }
     }
 }

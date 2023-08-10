@@ -1,18 +1,8 @@
 /// contains Row iterator for the csv data
 use crate::ast::Value;
-use crate::{
-    data_value,
-    ColumnDef,
-    DataValue,
-};
-use csv::{
-    ReaderBuilder,
-    StringRecordsIntoIter,
-};
-use std::io::{
-    BufReader,
-    Read,
-};
+use crate::{data_value, ColumnDef, DataValue};
+use csv::{ReaderBuilder, StringRecordsIntoIter};
+use std::io::{BufReader, Read};
 
 pub struct CsvRows<R>
 where
@@ -67,18 +57,16 @@ where
 
     fn next(&mut self) -> Option<Self::Item> {
         match self.into_iter.next() {
-            Some(row) => {
-                match row {
-                    Ok(row) => {
-                        let data_values: Vec<Value> = row
-                            .iter()
-                            .map(|record| Value::String(record.to_string()))
-                            .collect();
-                        Some(data_values)
-                    }
-                    Err(_e) => None,
+            Some(row) => match row {
+                Ok(row) => {
+                    let data_values: Vec<Value> = row
+                        .iter()
+                        .map(|record| Value::String(record.to_string()))
+                        .collect();
+                    Some(data_values)
                 }
-            }
+                Err(_e) => None,
+            },
             None => None,
         }
     }

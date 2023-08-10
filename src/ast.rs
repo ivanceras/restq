@@ -7,38 +7,14 @@ mod table;
 mod value;
 
 use crate::Error;
-pub use ddl::{
-    AlterTable,
-    DropTable,
-    Foreign,
-    TableDef,
-};
-pub use dml::{
-    BulkDelete,
-    BulkUpdate,
-    Delete,
-    Insert,
-    Update,
-};
-pub use expr::{
-    BinaryOperation,
-    Expr,
-    ExprRename,
-};
+pub use ddl::{AlterTable, DropTable, Foreign, TableDef};
+pub use dml::{BulkDelete, BulkUpdate, Delete, Insert, Update};
+pub use expr::{BinaryOperation, Expr, ExprRename};
 pub use operator::Operator;
-use serde::{
-    Deserialize,
-    Serialize,
-};
+use serde::{Deserialize, Serialize};
 use sql_ast::ast as sql;
 use std::fmt;
-pub use table::{
-    FromTable,
-    JoinType,
-    TableError,
-    TableLookup,
-    TableName,
-};
+pub use table::{FromTable, JoinType, TableError, TableLookup, TableName};
 pub use value::Value;
 
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
@@ -266,11 +242,9 @@ impl Select {
                 sql::Expr::Value(sql::Value::Number(range.limit().to_string()))
             }),
             offset: match &self.range {
-                Some(range) => {
-                    range.offset().map(|offset| {
-                        sql::Expr::Value(sql::Value::Number(offset.to_string()))
-                    })
-                }
+                Some(range) => range.offset().map(|offset| {
+                    sql::Expr::Value(sql::Value::Number(offset.to_string()))
+                }),
                 None => None,
             },
             fetch: None,
@@ -386,11 +360,9 @@ impl Into<sql::OrderByExpr> for &Order {
     fn into(self) -> sql::OrderByExpr {
         sql::OrderByExpr {
             expr: Into::into(&self.expr),
-            asc: self.direction.as_ref().map(|direction| {
-                match direction {
-                    Direction::Asc => true,
-                    Direction::Desc => false,
-                }
+            asc: self.direction.as_ref().map(|direction| match direction {
+                Direction::Asc => true,
+                Direction::Desc => false,
             }),
         }
     }

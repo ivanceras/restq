@@ -1,10 +1,7 @@
 use pom::parser::*;
 use std::{
     iter::FromIterator,
-    str::{
-        self,
-        FromStr,
-    },
+    str::{self, FromStr},
 };
 
 /// Parses a list with the defined separator, but will fail early when one of the

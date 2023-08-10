@@ -1,24 +1,11 @@
 //! dml parser contains algorithm for parsing restq DML syntax into
 //! a DML AST.
 //!
-use super::{
-    column,
-    list_fail,
-    tag,
-};
+use super::{column, list_fail, tag};
 use crate::{
     ast::{
-        dml::{
-            table,
-            value,
-            Source,
-        },
-        BulkDelete,
-        BulkUpdate,
-        Delete,
-        Insert,
-        Update,
-        Value,
+        dml::{table, value, Source},
+        BulkDelete, BulkUpdate, Delete, Insert, Update, Value,
     },
     filter_expr,
     pom::parser::*,
@@ -36,13 +23,11 @@ fn columns<'a>() -> Parser<'a, char, Vec<ColumnName>> {
 /// product{product_id,created_by,created,is_active}?returning=product_id,name
 pub fn insert<'a>() -> Parser<'a, char, Insert> {
     (table() - sym('{') + columns() - sym('}') + (sym('?') * returning()).opt())
-        .map(|((into, columns), returning)| {
-            Insert {
-                into,
-                columns,
-                returning,
-                source: Source::Values(vec![]),
-            }
+        .map(|((into, columns), returning)| Insert {
+            into,
+            columns,
+            returning,
+            source: Source::Values(vec![]),
         })
 }
 

@@ -5,37 +5,15 @@ mod dml_parser;
 
 use crate::{
     ast::{
-        BinaryOperation,
-        ColumnName,
-        Expr,
-        Operator,
-        Select,
-        TableDef,
-        TableLookup,
-        TableName,
-        Value,
+        BinaryOperation, ColumnName, Expr, Operator, Select, TableDef,
+        TableLookup, TableName, Value,
     },
-    parser::{
-        column,
-        list_fail,
-        table,
-        value,
-    },
-    ColumnDef,
-    Error,
+    parser::{column, list_fail, table, value},
+    ColumnDef, Error,
 };
-pub use dml_parser::{
-    bulk_delete,
-    bulk_update,
-    delete,
-    insert,
-    update,
-};
+pub use dml_parser::{bulk_delete, bulk_update, delete, insert, update};
 use pom::parser::tag;
-use serde::{
-    Deserialize,
-    Serialize,
-};
+use serde::{Deserialize, Serialize};
 use sql_ast::ast as sql;
 
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
@@ -129,11 +107,9 @@ impl Update {
                 .columns
                 .iter()
                 .zip(self.values.iter())
-                .map(|(column, value)| {
-                    sql::Assignment {
-                        id: Into::into(column),
-                        value: Into::into(value),
-                    }
+                .map(|(column, value)| sql::Assignment {
+                    id: Into::into(column),
+                    value: Into::into(value),
                 })
                 .collect(),
             selection: self.condition.as_ref().map(|expr| Into::into(expr)),
@@ -364,20 +340,16 @@ impl Source {
         table_lookup: Option<&TableLookup>,
     ) -> Result<sql::SetExpr, Error> {
         let ret = match self {
-            Source::Select(select) => {
-                sql::SetExpr::Select(Box::new(
-                    select.into_sql_select(table_lookup)?,
-                ))
-            }
-            Source::Values(rows) => {
-                sql::SetExpr::Values(sql::Values(
-                    rows.iter()
-                        .map(|record| {
-                            record.iter().map(|v| Into::into(v)).collect()
-                        })
-                        .collect(),
-                ))
-            }
+            Source::Select(select) => sql::SetExpr::Select(Box::new(
+                select.into_sql_select(table_lookup)?,
+            )),
+            Source::Values(rows) => sql::SetExpr::Values(sql::Values(
+                rows.iter()
+                    .map(|record| {
+                        record.iter().map(|v| Into::into(v)).collect()
+                    })
+                    .collect(),
+            )),
             Source::Parameterized(params) => {
                 println!("parameterized params: {:?}", params);
                 sql::SetExpr::ParameterizedValue(params.to_owned())
@@ -391,9 +363,7 @@ impl Source {
 mod tests {
     use super::*;
     use crate::ast::{
-        expr::BinaryOperation,
-        parser::utils::to_chars,
-        Operator,
+        expr::BinaryOperation, parser::utils::to_chars, Operator,
     };
 
     #[test]

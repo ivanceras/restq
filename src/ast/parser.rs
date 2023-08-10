@@ -1,12 +1,5 @@
 use crate::ast::*;
-use pom::parser::{
-    call,
-    is_a,
-    one_of,
-    sym,
-    tag,
-    Parser,
-};
+use pom::parser::{call, is_a, one_of, sym, tag, Parser};
 use std::iter::FromIterator;
 pub use utils::list_fail;
 use utils::*;
@@ -149,11 +142,9 @@ fn exprs<'a>() -> Parser<'a, char, Vec<Expr>> {
 }
 
 pub(crate) fn function<'a>() -> Parser<'a, char, Function> {
-    (strict_ident() - sym('(') - sym(')')).map(|name| {
-        Function {
-            name,
-            params: vec![],
-        }
+    (strict_ident() - sym('(') - sym(')')).map(|name| Function {
+        name,
+        params: vec![],
     }) | (strict_ident() - sym('(') + call(exprs) - sym(')'))
         .map(|(name, params)| Function { name, params })
 }
@@ -267,20 +258,15 @@ pub fn filter_expr<'a>() -> Parser<'a, char, Expr> {
 fn from_table<'a>() -> Parser<'a, char, FromTable> {
     (table().expect("Expecting a valid table name")
         + (join_type() + call(from_table)))
-    .map(|(from, (join_type, from_table))| {
-        FromTable {
-            from,
-            join: Some((join_type, Box::new(from_table))),
-        }
+    .map(|(from, (join_type, from_table))| FromTable {
+        from,
+        join: Some((join_type, Box::new(from_table))),
     }) | (table().expect("Expecting a valid table name")
         + (join_type() + call(from_table)).opt())
-    .map(|(from, join)| {
-        FromTable {
-            from,
-            join: join.map(|(join_type, from_table)| {
-                (join_type, Box::new(from_table))
-            }),
-        }
+    .map(|(from, join)| FromTable {
+        from,
+        join: join
+            .map(|(join_type, from_table)| (join_type, Box::new(from_table))),
     })
 }
 

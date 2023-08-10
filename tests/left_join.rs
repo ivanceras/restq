@@ -1,9 +1,5 @@
 use restq::{
-    ast::{
-        ddl::*,
-        dml::*,
-        *,
-    },
+    ast::{ddl::*, dml::*, *},
     *,
 };
 

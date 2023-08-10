@@ -2,19 +2,12 @@
 //! contains only the table definition and the csv data
 use crate::{
     ast::{
-        ddl::{
-            table_def,
-            TableDef,
-        },
+        ddl::{table_def, TableDef},
         parser::utils::bytes_to_chars,
     },
     CsvRows,
 };
-use std::io::{
-    BufRead,
-    BufReader,
-    Read,
-};
+use std::io::{BufRead, BufReader, Read};
 
 /// contains just the table definition and the csv data
 pub struct PlainData<R>

@@ -1,12 +1,5 @@
 use crate::StmtData;
-use std::io::{
-    BufRead,
-    BufReader,
-    Cursor,
-    Read,
-    Seek,
-    SeekFrom,
-};
+use std::io::{BufRead, BufReader, Cursor, Read, Seek, SeekFrom};
 
 /// A statement iterator, lazily parse statement with data
 pub struct MultiStatement<R> {

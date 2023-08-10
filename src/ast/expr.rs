@@ -1,13 +1,5 @@
-use crate::ast::{
-    ColumnName,
-    Function,
-    Operator,
-    Value,
-};
-use serde::{
-    Deserialize,
-    Serialize,
-};
+use crate::ast::{ColumnName, Function, Operator, Value};
+use serde::{Deserialize, Serialize};
 use sql_ast::ast as sql;
 use std::fmt;
 
@@ -48,21 +40,17 @@ impl Into<sql::Expr> for &Expr {
                 sql::Expr::Function(Into::into(function))
             }
             Expr::Value(value) => sql::Expr::Value(Into::into(value)),
-            Expr::MultiValue(values) => {
-                sql::Expr::ValueList(
-                    values
-                        .into_iter()
-                        .map(|v| sql::Expr::Value(Into::into(v)))
-                        .collect(),
-                )
-            }
-            Expr::BinaryOperation(binop) => {
-                sql::Expr::BinaryOp {
-                    left: Box::new(Into::into(&binop.left)),
-                    op: Into::into(&binop.operator),
-                    right: Box::new(Into::into(&binop.right)),
-                }
-            }
+            Expr::MultiValue(values) => sql::Expr::ValueList(
+                values
+                    .into_iter()
+                    .map(|v| sql::Expr::Value(Into::into(v)))
+                    .collect(),
+            ),
+            Expr::BinaryOperation(binop) => sql::Expr::BinaryOp {
+                left: Box::new(Into::into(&binop.left)),
+                op: Into::into(&binop.operator),
+                right: Box::new(Into::into(&binop.right)),
+            },
             Expr::Nested(expr) => {
                 sql::Expr::Nested(Box::new(Into::into(expr.as_ref())))
             }

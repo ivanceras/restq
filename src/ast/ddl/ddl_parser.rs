@@ -4,21 +4,14 @@ use super::*;
 use crate::{
     ast::{
         ddl::Foreign,
-        parser::{
-            utils::end_or_ln,
-            *,
-        },
+        parser::{utils::end_or_ln, *},
         Value,
     },
     data_type::data_type,
     data_value,
 };
 use either::Either;
-use pom::parser::{
-    sym,
-    tag,
-    Parser,
-};
+use pom::parser::{sym, tag, Parser};
 
 pub(crate) fn column_attribute<'a>() -> Parser<'a, char, ColumnAttribute> {
     sym('*').map(|_| ColumnAttribute::Primary)
@@ -45,13 +38,11 @@ pub(crate) fn foreign<'a>() -> Parser<'a, char, Foreign> {
 pub(crate) fn column_def<'a>() -> Parser<'a, char, ColumnDef> {
     ((column_attributes().opt() + column() + foreign().opt() - sym(':')
         + data_type_def())
-    .map(|(((attributes, column), foreign), data_type)| {
-        ColumnDef {
-            column,
-            attributes,
-            data_type_def: data_type,
-            foreign,
-        }
+    .map(|(((attributes, column), foreign), data_type)| ColumnDef {
+        column,
+        attributes,
+        data_type_def: data_type,
+        foreign,
     }))
     .name("column_def")
 }
@@ -92,15 +83,11 @@ pub fn data_type_def<'a>() -> Parser<'a, char, DataTypeDef> {
         + sym('?').opt()
         + (sym('(') * default_value() - sym(')')).opt())
     .map(|((data_type, optional), default_value)| {
-        let default = default_value.map(|d| {
-            match d {
-                Either::Left(df) => DefaultValue::Function(df),
-                Either::Right(dv) => {
-                    DefaultValue::DataValue(data_value::cast_data_value(
-                        &dv, &data_type,
-                    ))
-                }
-            }
+        let default = default_value.map(|d| match d {
+            Either::Left(df) => DefaultValue::Function(df),
+            Either::Right(dv) => DefaultValue::DataValue(
+                data_value::cast_data_value(&dv, &data_type),
+            ),
         });
 
         DataTypeDef {
@@ -140,11 +127,9 @@ fn alter_operations<'a>() -> Parser<'a, char, Vec<AlterOperation>> {
 
 pub fn alter_table<'a>() -> Parser<'a, char, AlterTable> {
     (table() + alter_operations() - end_or_ln()).map(
-        |(table, alter_operations)| {
-            AlterTable {
-                table,
-                alter_operations,
-            }
+        |(table, alter_operations)| AlterTable {
+            table,
+            alter_operations,
         },
     )
 }
