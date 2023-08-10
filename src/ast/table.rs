@@ -1,19 +1,7 @@
-use crate::ast::{
-    ddl::TableDef,
-    BinaryOperation,
-    ColumnName,
-    Expr,
-    Operator,
-};
-use serde::{
-    Deserialize,
-    Serialize,
-};
+use crate::ast::{ddl::TableDef, BinaryOperation, ColumnName, Expr, Operator};
+use serde::{Deserialize, Serialize};
 use sql_ast::ast as sql;
-use std::{
-    collections::BTreeMap,
-    fmt,
-};
+use std::{collections::BTreeMap, fmt};
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -30,7 +18,9 @@ pub struct FromTable {
     pub join: Option<(JoinType, Box<FromTable>)>,
 }
 
-#[derive(Debug, PartialEq, Default, Clone, Hash, Eq, Serialize, Deserialize)]
+#[derive(
+    Debug, PartialEq, Default, Clone, Hash, Eq, Serialize, Deserialize,
+)]
 pub struct TableName {
     pub name: String,
 }
@@ -136,12 +126,10 @@ impl FromTable {
     ) -> Result<Vec<sql::Join>, TableError> {
         match table_lookup {
             Some(table_lookup) => self.extract_join(table_lookup),
-            None => {
-                match self.join {
-                    Some(_) => Err(TableError::NoSuppliedTableLookup),
-                    None => Ok(vec![]),
-                }
-            }
+            None => match self.join {
+                Some(_) => Err(TableError::NoSuppliedTableLookup),
+                None => Ok(vec![]),
+            },
         }
     }
 
@@ -151,7 +139,7 @@ impl FromTable {
     ) -> Expr {
         let mut iter = binops.into_iter();
         let mut first = iter.next().expect("must have a first");
-        for next in iter.next() {
+        if let Some(next) = iter.next() {
             first = BinaryOperation {
                 left: Expr::BinaryOperation(Box::new(first)),
                 operator: operator.clone(),
@@ -178,16 +166,12 @@ impl FromTable {
                     table_lookup.get_table_def(&self.from.name);
 
                 match (this_table_def, joined_table_def) {
-                    (None, _) => {
-                        Err(TableError::TableNotFound(
-                            self.from.name.to_string(),
-                        ))
-                    }
-                    (_, None) => {
-                        Err(TableError::TableNotFound(
-                            joined_table.from.name.to_string(),
-                        ))
-                    }
+                    (None, _) => Err(TableError::TableNotFound(
+                        self.from.name.to_string(),
+                    )),
+                    (_, None) => Err(TableError::TableNotFound(
+                        joined_table.from.name.to_string(),
+                    )),
                     (Some(this_table_def), Some(joined_table_def)) => {
                         let pair1 = this_table_def
                             .get_local_foreign_columns_pair_to_table(

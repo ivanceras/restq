@@ -1,23 +1,12 @@
 use crate::{
-    ast::{
-        Expr,
-        Value,
-    },
+    ast::{Expr, Value},
     data_type::DataType,
 };
 use chrono::{
-    offset::FixedOffset,
-    DateTime,
-    Local,
-    NaiveDate,
-    NaiveDateTime,
-    NaiveTime,
+    offset::FixedOffset, DateTime, Local, NaiveDate, NaiveDateTime, NaiveTime,
     Utc,
 };
-use serde::{
-    Deserialize,
-    Serialize,
-};
+use serde::{Deserialize, Serialize};
 use sql_ast::ast as sql;
 use std::fmt;
 use uuid::Uuid;
@@ -102,7 +91,10 @@ fn naive_date_parser(v: &str) -> NaiveDateTime {
     {
         ts
     } else if let Ok(nd) = NaiveDate::parse_from_str(&v, "%Y-%m-%d") {
-        NaiveDateTime::new(nd, NaiveTime::from_hms_milli(0, 0, 0, 0))
+        NaiveDateTime::new(
+            nd,
+            NaiveTime::from_hms_milli_opt(0, 0, 0, 0).unwrap(),
+        )
     } else {
         panic!("unable to parse timestamp: {:?}", v);
     }
@@ -299,65 +291,59 @@ pub fn cast_data_value(value: &Value, required_type: &DataType) -> DataValue {
         DataValue::Nil
     } else {
         match *value {
-            Value::Bool(v) => {
-                match *required_type {
-                    DataType::Bool => DataValue::Bool(v),
-                    DataType::U8 => DataValue::U8(if v { 1 } else { 0 }),
-                    DataType::U16 => DataValue::U16(if v { 1 } else { 0 }),
-                    DataType::U32 => DataValue::U32(if v { 1 } else { 0 }),
-                    DataType::U64 => DataValue::U64(if v { 1 } else { 0 }),
-                    DataType::I8 => DataValue::I8(if v { 1 } else { 0 }),
-                    DataType::I16 => DataValue::I16(if v { 1 } else { 0 }),
-                    DataType::I32 => DataValue::I32(if v { 1 } else { 0 }),
-                    DataType::I64 => DataValue::I64(if v { 1 } else { 0 }),
-                    DataType::S8 => DataValue::S8(if v { 1 } else { 0 }),
-                    DataType::S16 => DataValue::S16(if v { 1 } else { 0 }),
-                    DataType::S32 => DataValue::S32(if v { 1 } else { 0 }),
-                    DataType::S64 => DataValue::S64(if v { 1 } else { 0 }),
-                    _ => {
-                        panic!(
-                            "unsupported conversion from {:?} to {:?}",
-                            value, required_type
-                        )
-                    }
+            Value::Bool(v) => match *required_type {
+                DataType::Bool => DataValue::Bool(v),
+                DataType::U8 => DataValue::U8(if v { 1 } else { 0 }),
+                DataType::U16 => DataValue::U16(if v { 1 } else { 0 }),
+                DataType::U32 => DataValue::U32(if v { 1 } else { 0 }),
+                DataType::U64 => DataValue::U64(if v { 1 } else { 0 }),
+                DataType::I8 => DataValue::I8(if v { 1 } else { 0 }),
+                DataType::I16 => DataValue::I16(if v { 1 } else { 0 }),
+                DataType::I32 => DataValue::I32(if v { 1 } else { 0 }),
+                DataType::I64 => DataValue::I64(if v { 1 } else { 0 }),
+                DataType::S8 => DataValue::S8(if v { 1 } else { 0 }),
+                DataType::S16 => DataValue::S16(if v { 1 } else { 0 }),
+                DataType::S32 => DataValue::S32(if v { 1 } else { 0 }),
+                DataType::S64 => DataValue::S64(if v { 1 } else { 0 }),
+                _ => {
+                    panic!(
+                        "unsupported conversion from {:?} to {:?}",
+                        value, required_type
+                    )
                 }
-            }
-            Value::Number(v) => {
-                match *required_type {
-                    DataType::U8 => DataValue::U8(v as u8),
-                    DataType::U16 => DataValue::U16(v as u16),
-                    DataType::U32 => DataValue::U32(v as u32),
-                    DataType::U64 => DataValue::U64(v as u64),
-                    DataType::I8 => DataValue::I8(v as i8),
-                    DataType::I16 => DataValue::I16(v as i16),
-                    DataType::I32 => DataValue::I32(v as i32),
-                    DataType::I64 => DataValue::I64(v as i64),
-                    DataType::F32 => DataValue::F32(v as f32),
-                    DataType::F64 => DataValue::F64(v as f64),
-                    DataType::S8 => DataValue::S8(v as u8),
-                    DataType::S16 => DataValue::S16(v as u16),
-                    DataType::S32 => DataValue::S32(v as u32),
-                    DataType::S64 => DataValue::S64(v as u64),
-                    _ => {
-                        panic!(
-                            "unsupported conversion from {:?} to {:?}",
-                            value, required_type
-                        )
-                    }
+            },
+            Value::Number(v) => match *required_type {
+                DataType::U8 => DataValue::U8(v as u8),
+                DataType::U16 => DataValue::U16(v as u16),
+                DataType::U32 => DataValue::U32(v as u32),
+                DataType::U64 => DataValue::U64(v as u64),
+                DataType::I8 => DataValue::I8(v as i8),
+                DataType::I16 => DataValue::I16(v as i16),
+                DataType::I32 => DataValue::I32(v as i32),
+                DataType::I64 => DataValue::I64(v as i64),
+                DataType::F32 => DataValue::F32(v as f32),
+                DataType::F64 => DataValue::F64(v as f64),
+                DataType::S8 => DataValue::S8(v as u8),
+                DataType::S16 => DataValue::S16(v as u16),
+                DataType::S32 => DataValue::S32(v as u32),
+                DataType::S64 => DataValue::S64(v as u64),
+                _ => {
+                    panic!(
+                        "unsupported conversion from {:?} to {:?}",
+                        value, required_type
+                    )
                 }
-            }
+            },
             Value::String(ref v) => {
                 match *required_type {
                     DataType::Text => DataValue::Text(v.to_string()),
-                    DataType::Bool => {
-                        match v.as_ref() {
-                            "true" => DataValue::Bool(true),
-                            "false" => DataValue::Bool(false),
-                            "1" => DataValue::Bool(true),
-                            "0" => DataValue::Bool(false),
-                            _ => DataValue::Bool(false),
-                        }
-                    }
+                    DataType::Bool => match v.as_ref() {
+                        "true" => DataValue::Bool(true),
+                        "false" => DataValue::Bool(false),
+                        "1" => DataValue::Bool(true),
+                        "0" => DataValue::Bool(false),
+                        _ => DataValue::Bool(false),
+                    },
                     DataType::S8 => {
                         if v.is_empty() {
                             DataValue::Nil
@@ -535,7 +521,7 @@ pub fn cast_data_value(value: &Value, required_type: &DataType) -> DataValue {
                             let ts = naive_date_parser(&v);
                             let local = DateTime::<Local>::from_utc(
                                 ts,
-                                FixedOffset::east(0),
+                                FixedOffset::east_opt(0).unwrap(),
                             );
                             DataValue::Local(local)
                         }
@@ -628,8 +614,8 @@ mod test {
         println!("parsed: {:?}", parsed);
 
         let res = naive_date_parser(date);
-        let naive_date = NaiveDate::from_ymd(2006, 2, 14);
-        let naive_time = NaiveTime::from_hms_milli(0, 0, 0, 0);
+        let naive_date = NaiveDate::from_ymd_opt(2006, 2, 14).unwrap();
+        let naive_time = NaiveTime::from_hms_milli_opt(0, 0, 0, 0).unwrap();
         assert_eq!(res, NaiveDateTime::new(naive_date, naive_time));
     }
 
@@ -638,8 +624,8 @@ mod test {
         let date = "2006-02-15T09:34:33+00:00";
         let res = naive_date_parser(date);
         println!("res: {}", res);
-        let naive_date = NaiveDate::from_ymd(2006, 2, 15);
-        let naive_time = NaiveTime::from_hms_milli(9, 34, 33, 0);
+        let naive_date = NaiveDate::from_ymd_opt(2006, 2, 15).unwrap();
+        let naive_time = NaiveTime::from_hms_milli_opt(9, 34, 33, 0).unwrap();
         assert_eq!(res, NaiveDateTime::new(naive_date, naive_time));
     }
 }
